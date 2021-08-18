@@ -2271,6 +2271,433 @@
       </categories>
   </entry>
   <entry>
+    <title>超级计算机原理与操作(2):MPI分布式内存编程</title>
+    <url>/2021/08/18/%E8%B6%85%E7%BA%A7%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E6%93%8D%E4%BD%9C(2)MPI%E5%88%86%E5%B8%83%E5%BC%8F%E5%86%85%E5%AD%98%E7%BC%96%E7%A8%8B/</url>
+    <content><![CDATA[<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210818155428356.png" alt="image-20210818155428356" style="zoom:50%;" /></p>
+<span id="more"></span>
+<h1 id="MPI分布式内存编程"><a href="#MPI分布式内存编程" class="headerlink" title="MPI分布式内存编程"></a>MPI分布式内存编程</h1><p>Message-Passing Interface </p>
+<p>并不是一种语言，而是函数库</p>
+<h2 id="分布式内存"><a href="#分布式内存" class="headerlink" title="分布式内存"></a>分布式内存</h2><p>   <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210414152345848.png" alt="image-20210414152345848" style="zoom:50%;" /></p>
+<p>核-内存对由网络连接</p>
+<p>与核相关联的内存只能由该核访问</p>
+<p>用消息传递对分布式系统进行编程</p>
+<p>一个进程调用发送函数，另一个进程调用接受函数</p>
+<h2 id="例程"><a href="#例程" class="headerlink" title="例程"></a>例程</h2><p>setting： 核数：4</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> MAX_STRING = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">char</span> greeting[MAX_STRING]; </span><br><span class="line">   <span class="keyword">int</span>  comm_sz;</span><br><span class="line">   <span class="keyword">int</span>  my_rank;</span><br><span class="line"></span><br><span class="line">   MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">   MPI_Comm_size(MPI_COMM_WORLD, &amp;comm_sz);</span><br><span class="line">   MPI_Comm_rank(MPI_COMM_WORLD, &amp;my_rank);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span>(my_rank != <span class="number">0</span>)</span><br><span class="line">   &#123;</span><br><span class="line">        <span class="built_in">sprintf</span>(greeting, <span class="string">&quot;Greetings from process %d of %d!&quot;</span>, my_rank, comm_sz);</span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;send message from rank %d\n &quot;</span>, my_rank); <span class="comment">// 发送顺序是不确定的</span></span><br><span class="line">        MPI_Send(greeting, <span class="built_in">strlen</span>(greeting)+<span class="number">1</span>, MPI_CHAR, <span class="number">0</span>, <span class="number">0</span>, MPI_COMM_WORLD);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">   &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Greetings from process %d of %d!\n&quot;</span>, my_rank, comm_sz); <span class="comment">// 0 号的打印</span></span><br><span class="line">      <span class="comment">// 其余的消息的打印</span></span><br><span class="line">    <span class="comment">// 接受是按顺序---打印顺序是确定的 </span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> q=<span class="number">1</span>; q&lt;comm_sz; q++)</span><br><span class="line">        &#123;</span><br><span class="line">             MPI_Recv(greeting, MAX_STRING, MPI_CHAR, q, <span class="number">0</span>,   MPI_COMM_WORLD, MPI_STATUS_IGNORE);</span><br><span class="line">             <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, greeting);</span><br><span class="line">        &#125;    </span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   MPI_Finalize();</span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight cc"><table><tr><td class="code"><pre><span class="line">======== ERROR ========</span><br><span class="line">======== OUTPUT ========</span><br><span class="line">Greetings from process <span class="number">0</span> of <span class="number">4</span>!</span><br><span class="line">Greetings from process <span class="number">1</span> of <span class="number">4</span>!</span><br><span class="line">send message from rank <span class="number">1</span></span><br><span class="line">send message from rank <span class="number">3</span></span><br><span class="line">Greetings from process <span class="number">2</span> of <span class="number">4</span>!</span><br><span class="line">Greetings from process <span class="number">3</span> of <span class="number">4</span>!</span><br><span class="line">send message from rank <span class="number">2</span></span><br><span class="line">======== REPORT ========</span><br></pre></td></tr></table></figure>
+<p>发送顺序是不确定的</p>
+<p>接受是按顺序—-因为循环了设置了接受来源—-打印顺序是确定的（q）<br> MPI_Recv(greeting, MAX_STRING, MPI_CHAR, <strong>q</strong>, 0,   MPI_COMM_WORLD, MPI_STATUS_IGNORE); </p>
+<p> 但是后面可能已经完成了，要等到前面的发送(阻塞)</p>
+<p>每个进程都发给0号进程，0号进程只是打印</p>
+<p><code>MPI_ANY_SOURCE</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Recv(greeting, MAX_STRING, MPI_CHAR,  MPI_ANY_SOURCE , <span class="number">0</span>,   MPI_COMM_WORLD, MPI_STATUS_IGNORE);</span><br></pre></td></tr></table></figure>
+<p>可以按照接受顺序打印</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210414155058917.png" alt="image-20210414155058917" style="zoom:67%;" /></p>
+<h2 id="变量名"><a href="#变量名" class="headerlink" title="变量名"></a>变量名</h2><p>•Identifiers defined by MPI start with “MPI_”.</p>
+<p>•First letter following underscoreis uppercase.</p>
+<p>​    •For function names and MPI-defined types.</p>
+<p>​    •Helps to avoid confusion.</p>
+<h2 id="MPI-Init-和-MPI-Finalize"><a href="#MPI-Init-和-MPI-Finalize" class="headerlink" title="MPI_Init 和 MPI_Finalize"></a>MPI_Init 和 MPI_Finalize</h2><p>MPI_Init： 告知MPI做所有必要的初始化</p>
+<p> MPI_Finalize： 告知使用完毕，分配的资源可以释放</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213209234.png" alt="image-20210320213209234" style="zoom:67%;" /></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213227904.png" alt="image-20210320213227904" style="zoom: 80%;" /></p>
+<h2 id="Basic-Outline"><a href="#Basic-Outline" class="headerlink" title="Basic Outline"></a>Basic Outline</h2><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213406820.png" alt="image-20210320213406820" style="zoom: 33%;" /></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">  int  comm_sz;</span><br><span class="line">  int  my_rank;</span><br><span class="line">  MPI_Comm comm;</span><br><span class="line">  MPI_Init(NULL, NULL);</span><br><span class="line">  comm = MPI_COMM_WORLD;</span><br><span class="line">  MPI_Comm_size(MPI_COMM_WORLD, &amp;comm_sz);</span><br><span class="line">  MPI_Comm_rank(MPI_COMM_WORLD, &amp;my_rank);</span><br><span class="line">...</span><br><span class="line">  MPI_Finalize();</span><br></pre></td></tr></table></figure>
+<h2 id="Communicator-通信子"><a href="#Communicator-通信子" class="headerlink" title="Communicator 通信子"></a>Communicator 通信子</h2><ul>
+<li>一组可以互相发送消息的进程集合，指定通信范围</li>
+<li>MPI_Init : 用户启动程序时，定义由用户启动的<strong>所有进程组成的通信子</strong><br>MPI_COMM_WORLD</li>
+</ul>
+<p><strong>MPI_Comm_size()</strong></p>
+<p>返回通信子进程数(传指针进去修改)</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213804772.png" alt="image-20210320213804772" style="zoom:67%;" /></p>
+<p><strong>MPI_Comm_rank()</strong></p>
+<p>返回进程号(传指针进去修改)</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213811915.png" alt="image-20210320213811915" style="zoom:67%;" /></p>
+<h3 id="SPMD-（Single-Program-Multiple-Data）"><a href="#SPMD-（Single-Program-Multiple-Data）" class="headerlink" title="SPMD （Single-Program-Multiple-Data）"></a>SPMD （Single-Program-Multiple-Data）</h3><ul>
+<li>一个程序，不同进程不同动作，</li>
+<li>0号做不同的事， receive and print</li>
+<li>If-else 语句实现</li>
+</ul>
+<h2 id="通信Communication"><a href="#通信Communication" class="headerlink" title="通信Communication"></a>通信Communication</h2><h3 id="MPI-Send"><a href="#MPI-Send" class="headerlink" title="MPI_Send"></a>MPI_Send</h3><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210321095623959.png" alt="image-20210321095623959" style="zoom:67%;" /></p>
+<p><strong>消息内容</strong></p>
+<ul>
+<li><p>msg_buf_p（指向包含消息内存块的指针） </p>
+</li>
+<li><p>msg_size ：数据量 </p>
+</li>
+<li><p>msg_type : 因为类型名 int char 不能作为参数传递给函数<br>如果字符串， msg_size = strlen(s) + 1</p>
+</li>
+</ul>
+<p><strong>MPI数据类型</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210321100013704.png" alt="image-20210321100013704" style="zoom:50%;" /></p>
+<p>接收方</p>
+<ul>
+<li><p>dest ： 接受消息进程号</p>
+</li>
+<li><p>tag：非负int，区分看上去完全一样的消息</p>
+<pre><code>     比如，有些接受的数据打印，有的不需要，则用tag来标记
+</code></pre></li>
+<li><p>communicator ：通信子，指定通信范围</p>
+</li>
+</ul>
+<p>不同通信子不能通信</p>
+<h3 id="MPI-Recv"><a href="#MPI-Recv" class="headerlink" title="MPI_Recv"></a>MPI_Recv</h3><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210321100507553.png" alt="image-20210321100507553" style="zoom:67%;" /></p>
+<p>前六个与Send 对应</p>
+<p>source： 匹配进程号，也可以<code>MPI_ANY_SOURCE</code></p>
+<p>按发送的顺序接受（就是不指定source，先到的先发）</p>
+<p>tag 匹配<br>communicator匹配<br>status_p 大部分情况下不调用, 赋予<strong>MPI_STATUS_IGBORE</strong></p>
+<h3 id="Matching"><a href="#Matching" class="headerlink" title="Matching"></a>Matching</h3><p>若q号发给r</p>
+<ul>
+<li>recv_comm = send_comm</li>
+<li>recv_tag = send_tag</li>
+<li>dest = r</li>
+<li>src = q</li>
+</ul>
+<p>recv_type = send_type</p>
+<p>recv_buf_sz &gt;= send_buf_sz</p>
+<h3 id="接受顺序-阻塞"><a href="#接受顺序-阻塞" class="headerlink" title="接受顺序/阻塞"></a>接受顺序/阻塞</h3><p>如果按照进程号接受结果，那么跑的快的必须等待跑的慢的</p>
+<p>Send 与buffersize cutoffs blocking 有关</p>
+<ul>
+<li>Recv总是阻塞，直到接受到</li>
+</ul>
+<p><strong>问题</strong>：悬挂，如果调用MPI_Send()发生了阻塞，没有相匹配的接受，发生进程被悬挂</p>
+<p>MPI_ANY_SOURCE ,可以按接受顺序执行</p>
+<p> MPI_Recv(greeting, MAX_STRING, MPI_CHAR,  <strong>MPI_ANY_SOURCE</strong> , 0,   MPI_COMM_WORLD, MPI_STATUS_IGNORE);</p>
+<p>那么对应的tag也可以是<strong>MPI_ANT_TAG</strong></p>
+<ul>
+<li>发送可以阻塞或者缓冲发送的消息<br>较小的消息会缓冲,较大的消息会选择阻塞模式(就是等待接手之后再发)<br>如果每个进程都发可能会都在等待接收,造成死锁<ul>
+<li>解决①,偶数先发再收,奇数先收再发</li>
+<li>解决②,用SendRecv( ),系统会调度收和发,保证不会死锁</li>
+</ul>
+</li>
+</ul>
+<h3 id="通配符wildcard"><a href="#通配符wildcard" class="headerlink" title="通配符wildcard"></a>通配符wildcard</h3><p>MPI_ANY_SOURCE</p>
+<p>MPI_ANT_TAG</p>
+<p>只有接收者可以使用通配符<br>通信子没有通配符</p>
+<h3 id="status-p-argument"><a href="#status-p-argument" class="headerlink" title="status_p argument"></a>status_p argument</h3><p>其实接受时可以不知道：数据量、source、tag<br>（数据量只要size大就行；source可以是MPI_ANY_SOURCE， tag可以是MPI_ANT_TAG）</p>
+<p>如果想要知道：</p>
+<p>结构体 MPI_Status status </p>
+<p>包含 MPI_SOURCE  MPI_TAG   MPI_ERROR（至少）</p>
+<p>将&amp;status 作为参数给MPI_Recv, 可以检查结构体成员确定source和tag</p>
+<p>确定数据量要用MPI_Get_count 函数</p>
+<h3 id="MPI-Get-count"><a href="#MPI-Get-count" class="headerlink" title="MPI_Get_count"></a>MPI_Get_count</h3><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210519153356322.png" alt="image-20210519153356322"></p>
+<p>count取决于数量类型，确定值需要一次计算</p>
+<h3 id="MPI-Ssend"><a href="#MPI-Ssend" class="headerlink" title="MPI_Ssend()"></a>MPI_Ssend()</h3><p>直到对应的接受开始前，发送端一直阻塞</p>
+<h3 id="MPI-Sendrecv"><a href="#MPI-Sendrecv" class="headerlink" title="MPI_Sendrecv()"></a>MPI_Sendrecv()</h3><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710145939942.png" alt="image-20210710145939942"></p>
+<p>MPI库实现通信调度<br>分别执行一次阻塞式消息发送和一次消息接受<br>(避免死锁)</p>
+<h3 id="MPI-Sendrecv-replace"><a href="#MPI-Sendrecv-replace" class="headerlink" title="MPI_Sendrecv_replace()"></a>MPI_Sendrecv_replace()</h3><p>如果发生和接受使用同一个缓冲区</p>
+<h2 id="实现梯形积分法"><a href="#实现梯形积分法" class="headerlink" title="实现梯形积分法"></a>实现梯形积分法</h2><p>Version1:</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210602152549102.png" alt="image-20210602152549102" style="zoom: 67%;" /><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210602152606599.png" alt="image-20210602152606599" style="zoom: 67%;" /></p>
+<h2 id="输入输出处理"><a href="#输入输出处理" class="headerlink" title="输入输出处理"></a>输入输出处理</h2><h4 id="输出"><a href="#输出" class="headerlink" title="输出:"></a>输出:</h4><p>顺序无法预测</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> my_rank, comm_sz;</span><br><span class="line"></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;comm_sz);</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;my_rank);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Proc %d of %d &gt; Does anyone have a toothpick?\n&quot;</span>, my_rank, comm_sz);</span><br><span class="line"></span><br><span class="line">    MPI_Finalize();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210412165944576.png" alt="image-20210412165944576" style="zoom:50%;" /><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210412165957451.png" alt="image-20210412165957451" style="zoom:50%;" /></p>
+<h4 id="输入"><a href="#输入" class="headerlink" title="输入:"></a>输入:</h4><ul>
+<li>只允许0号进程访问标准输入stdin,发给其他进程</li>
+<li><p>初始化my_rank 和 comm_sz后才能调用</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210321235144926.png" alt="image-20210321235144926" style="zoom:67%;" /></p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210421154731641.png" alt="image-20210421154731641" style="zoom:50%;" /></p>
+</li>
+</ul>
+<p>rank0 读入a、n、p，发送给其他的进程</p>
+<h2 id="集合通信"><a href="#集合通信" class="headerlink" title="集合通信"></a>集合通信</h2><ul>
+<li><p>集合通信: 涉及通信子中所有进程的通信<br>所以进程都有调用集合通信的函数</p>
+</li>
+<li><p>点对点通信: MPI_Send() MPI_Recv()</p>
+</li>
+<li><p>点对点是通过标签和通信子匹配<br>集合通信不使用表标签，只使用通信子和调用顺序匹配</p>
+<h3 id="树形"><a href="#树形" class="headerlink" title="树形"></a>树形</h3><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710163829209.png" alt="image-20210710163829209" style="zoom:50%;" /></p>
+</li>
+</ul>
+<h3 id="MPI-Reduce"><a href="#MPI-Reduce" class="headerlink" title="MPI_Reduce()"></a>MPI_Reduce()</h3><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322000002008.png" alt="image-20210322000002008" style="zoom:67%;" /></p>
+<ul>
+<li><p><strong>MPI_Op</strong> ：运算符</p>
+</li>
+<li><p><strong>count</strong>:　个数</p>
+</li>
+</ul>
+<p>count&gt;1,可以应用到数组上(理解向量操作一组数据)</p>
+<p>N维向量加法</p>
+<p> $sum[i] = \sum_{rank=0}^n loacl _ x[i]$</p>
+<p>每个进程都有数组local_x[N]</p>
+<p>sum[N]是对应下标和</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322000749003.png" alt="image-20210322000749003" style="zoom:80%;" /></p>
+<p>例子：直方图 统计在各个分为内元素的个数，每个进程分别统计，再将结果加起来</p>
+<ul>
+<li>匹配</li>
+</ul>
+<p>点对点是使用标签和通信子来匹配，集合通信不适用标签，只通过通信子和调用顺序来进行匹配</p>
+<ul>
+<li>都给dest_process的output_data</li>
+</ul>
+<ul>
+<li><p>内存位置的名称与调用的匹配无关<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711165136045.png" alt="image-20210711165136045"></p>
+<p>假设dest是0,结果在process 0<br>第一次reduce:<br>结果 1 +２+1 = 4 , b  = 4<br>第二次reduce:<br>结果2+1+2 = 5, d = 5</p>
+</li>
+</ul>
+<h3 id="MPI-Allreduce"><a href="#MPI-Allreduce" class="headerlink" title="MPI_Allreduce()"></a>MPI_Allreduce()</h3><p>通信子所有进程都保存结果（前面reduce只有dest有结果）<br>蝶形通信<br>     <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710164820812.png" alt="image-20210710164820812"></p>
+<p> 没有dest_rocess参数，因为所有进程都得到结果<img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322003031962.png" alt="image-20210322003031962" style="zoom:67%;" /></p>
+<p>input_data_p 输入指针</p>
+<p>count 输入数据个数</p>
+<p>（知道数据类型就可以一个一个发送了，因为数据类型决定占的空间大小）</p>
+<h2 id="广播"><a href="#广播" class="headerlink" title="广播"></a>广播</h2><h3 id="MPI-Bcast"><a href="#MPI-Bcast" class="headerlink" title="MPI_Bcast()"></a>MPI_Bcast()</h3><p>Data belonging to a single process is sent to all of the processesin the communicator<br>一个进程数据发送到通信子中所有进程</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322003155674.png" alt="image-20210322003155674" style="zoom:67%;" /></p>
+<p> （count和数据类型和data_p可以寻址所有要发的数据地址）<br>Bcast取代send和recv</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710120051093.png" alt="image-20210710120051093"></th>
+<th><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710120022981.png" alt="image-20210710120022981"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre><code> &lt;img src=&quot;C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210711165726902.png&quot; alt=&quot;image-20210711165726902&quot; style=&quot;zoom:50%;&quot; /&gt;
+</code></pre><h2 id="数据划分"><a href="#数据划分" class="headerlink" title="数据划分"></a>数据划分</h2><p>块划分</p>
+<p>循环划分</p>
+<p>块-循环划分</p>
+<h3 id="MPI-Scatter"><a href="#MPI-Scatter" class="headerlink" title="MPI_Scatter()"></a>MPI_Scatter()</h3><p>0号进程读入整个向量，只将<strong>分量</strong>发送给需要分量的其他进程</p>
+<p>如果通信子comm有comm_sz个进程，会将send_buf_p引用的数据分成comm_sz份</p>
+<p>依次给0、1、2…进程</p>
+<p>只适用于<strong>块划分法</strong>,并且n可以<strong>整除</strong>comm_sz的情况</p>
+<p>send_count 发送到<strong>每个进程的数据量 = recv_count</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322004004585.png" alt="image-20210322004004585" style="zoom:67%;" /></p>
+<p>   <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210519164849725.png" alt="image-20210519164849725"></p>
+<p>  send_count = recv_count = local_n 每块的数量 = total/comm_size</p>
+<h3 id="MPI-Gather"><a href="#MPI-Gather" class="headerlink" title="MPI_Gather()"></a>MPI_Gather()</h3><p>所有都收集到dest进程上 </p>
+<p>块划分，整除</p>
+<p><strong>revc_count 是总共的count</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322005530400.png" alt="image-20210322005530400" style="zoom:67%;" /></p>
+<p>dest= 0,所有给0号。0号来打印<br>（不是0号也可以，if条件和函数参数修改即可）</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711170516458.png" alt="image-20210711170516458" style="zoom:50%;" /></p>
+<p>上面gather是收集给dest进程</p>
+<h3 id="MPI-Allgather-全局聚集"><a href="#MPI-Allgather-全局聚集" class="headerlink" title="MPI_Allgather()  全局聚集"></a>MPI_Allgather()  全局聚集</h3><p>串联send_buf_p,存储到每个进程的recv_buf_p</p>
+<p>recv_count指<strong>从每个进程接受的数据量</strong></p>
+<p>大部分情况下，recv_count = send_count</p>
+<p>（结果聚集给所有进程）</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322080458951.png" alt="image-20210322080458951"></p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710142335981.png" alt="image-20210710142335981"></p>
+<p>local_y是进程算的本地的一部分<br>结果聚集作为下一次的x向量</p>
+<h2 id="派生数据类型"><a href="#派生数据类型" class="headerlink" title="派生数据类型"></a>派生数据类型</h2><h3 id="MPI-Type-create-struct"><a href="#MPI-Type-create-struct" class="headerlink" title="MPI_Type_create_struct()　"></a>MPI_Type_create_struct()　</h3><p>P(117)</p>
+<p>不同数据基本类型组成派生</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322081418377.png" alt="image-20210322081418377"  /></p>
+<p>count：元素个数</p>
+<p>array_of_blocklengths[]:  每一个元素有多少项</p>
+<p>单独数据项可能是数组/子数组 </p>
+<p>​            如果第一个元素是一个5个元素数组 array_of_blocklengths[0] = 5,</p>
+<p>​            都不是数组  array_of_blocklengths[ ] ={1,1,1,…,1} </p>
+<p>array_of_displacements: 距离起始位置偏移,字节为单位</p>
+<p>$eg:$ </p>
+<p> <code>&#123;(MPI_DOUBLE,0),(MPI_DOUBLE,16),(MPI_INT,24)&#125;</code><br>0 16 24 是偏移</p>
+<p>count = 3<br>array_of_blocklengths[] = {1，1，1}<br>array_of_displacements[] = {0,16,24}<br>array_of_types[]={MPI_DOUBLE,MPI_DOUBLE,MPI_INT}</p>
+<p>$eg:$ 如果一元素是数组<br>比如 int a 和 int b[5] 组合<br>count = 2<br>array_of_blocklengths[] = {1，5}<br>array_of_displacements[] = {0,8}<br>{MPI_INT,  MPI_INT}</p>
+<h3 id="MPI-Get-address"><a href="#MPI-Get-address" class="headerlink" title="MPI_Get_address()"></a>MPI_Get_address()</h3><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322082527901.png" alt="image-20210322082527901"></p>
+<p>MPI_Aint: 整数型， 长度足以表示系统地址</p>
+<p>返回location_p指向内存单元的地址</p>
+<p>用来得到array_of_displacements里的各个值</p>
+<p> 创建</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711184314205.png" alt="image-20210711184314205"></p>
+<p>每个进程都要Bacast得到值</p>
+<h3 id="MPI-Type-commit"><a href="#MPI-Type-commit" class="headerlink" title="MPI_Type_commit()"></a>MPI_Type_commit()</h3><p>使用通信函数中的input_mpi_t之前 要指定<br>允许MPI实现为了在通信函数内使用这一数据类型，优化数据类型的内部表示</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322082959528.png" alt="image-20210322082959528"></p>
+<p>为了使用新的数据类型，每个进程调用Bcast</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322083215361.png" alt="image-20210322083215361"></p>
+<h3 id="MPI-Type-free"><a href="#MPI-Type-free" class="headerlink" title="MPI_Type_free()"></a>MPI_Type_free()</h3><h2 id="奇偶交换排序"><a href="#奇偶交换排序" class="headerlink" title="奇偶交换排序"></a>奇偶交换排序</h2><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711185918862.png" alt="image-20210711185918862"></p>
+<p>偶数轮次:<br>    my_rank是奇数的,partner是rank-1<br>    my_rank是偶数的,partner是rank+1</p>
+<p>奇数轮次:</p>
+<p>my_rank是奇数的,partner是rank+1<br>my_rank是偶数的,partner是rank1-1</p>
+<h2 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h2><h3 id="MPI-Barrier"><a href="#MPI-Barrier" class="headerlink" title="MPI_Barrier()"></a>MPI_Barrier()</h3><p><code>int MPI_Barrier(MPI_Comm comm /* in */)</code></p>
+]]></content>
+      <categories>
+        <category>课程相关</category>
+        <category>超级计算机原理与操作</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>超级计算机原理与操作(3):Pthread</title>
+    <url>/2021/08/18/%E8%B6%85%E7%BA%A7%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E6%93%8D%E4%BD%9C(3)Pthread/</url>
+    <content><![CDATA[<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/119231409_1209515182740503_4011810368744626747_n.jpg" alt="119231409_1209515182740503_4011810368744626747_n" style="zoom:50%;" /></p>
+<span id="more"></span>
+<h1 id="Pthread"><a href="#Pthread" class="headerlink" title="Pthread"></a>Pthread</h1><p>共享内存式编程</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210401003032057.png" alt="image-20210401003032057" style="zoom:67%;" /></p>
+<h2 id="线程对象pthread-t"><a href="#线程对象pthread-t" class="headerlink" title="线程对象pthread_t"></a>线程对象pthread_t</h2><p>​       <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210412174401396.png" alt="image-20210412174401396"></p>
+<ul>
+<li><p>不透明对象（Opaque）</p>
+</li>
+<li><p>线程调度是由操作系统决定的，没有参数指定在哪个核上运行</p>
+</li>
+<li><p>如果线程数大于核数，多个线程可能运行在一个核上</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210329174137775.png" alt="image-20210329174137775" style="zoom:50%;" /></p>
+</li>
+</ul>
+<h2 id="创建-pthread-create"><a href="#创建-pthread-create" class="headerlink" title="创建 pthread_create()"></a>创建 pthread_create()</h2><p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210329172914646.png" alt="image-20210329172914646" style="zoom:50%;" /></p>
+<p>第一个参数 指针，指向pthread_t对象，<strong>注意</strong>是在调用create函数前就创建分配内存空间的</p>
+<p>第二个参数 不用NULL</p>
+<p>第三个参数  表示将要运行的函数void<em> thread_function(void</em> args_p)</p>
+<p>第四个参数 传给函数的参数  显示声明(void *) 实际上可能是int,因为C语言中<code>void</code>可以转换任意指针类型</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210329173533724.png" alt="image-20210329173533724" style="zoom:50%;" /></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210401184215350.png" alt="image-20210401184215350" style="zoom: 67%;" /></p>
+<p>注意：</p>
+<ul>
+<li>指令传thread分配编号只是为了方便</li>
+<li>运行的函数不一定相同<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210412174954264.png" alt="image-20210412174954264" style="zoom:67%;" /></li>
+</ul>
+<h3 id="void-thread-function-void-args-p"><a href="#void-thread-function-void-args-p" class="headerlink" title="void thread_function(void args_p)"></a>void<em> thread_function(void</em> args_p)</h3><p>Void* can be cast to any pointer type in C</p>
+<p>So args_pcan point to <strong>a list</strong> containing one or more values needed by thread_function</p>
+<p>the return value of thread_functioncan <strong>point</strong> to <strong>a list</strong> of one or more values</p>
+<p><strong>常用：  唯一参数int型参数rank，表示线程的编号</strong></p>
+<p>把循环变量thread 转换成void* 类型</p>
+<p>线程函数中 将这个参数转换成long型</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210502160218714.png" alt="image-20210502160218714" style="zoom:33%;" /></p>
+<h2 id="停止线程"><a href="#停止线程" class="headerlink" title="停止线程"></a>停止线程</h2><p>int pthread_join(</p>
+<p>​    pthread_t     thread           /<em>    in </em>/,</p>
+<p>​    void<em>*          ret_val_p        /</em>    out */</p>
+<p>)</p>
+<p>调用函数将等待pthread_t 对象关联的那个线程结束</p>
+<p>第二个参数可以接受pthread_t 对象关联的那个线程产生的返回值</p>
+<h2 id="实现矩阵乘法"><a href="#实现矩阵乘法" class="headerlink" title="实现矩阵乘法"></a>实现矩阵乘法</h2><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210329175008238.png" alt="image-20210329175008238" style="zoom:50%;" /></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210412175539062.png" alt="image-20210412175539062"  /></p>
+<h2 id="临界区Critical-sections"><a href="#临界区Critical-sections" class="headerlink" title="临界区Critical sections"></a>临界区Critical sections</h2><p>先到者会被后来者重写</p>
+<p>多个线程访问共享文件/变量，如果至少一个是更新操作，那么这些访问会导致某种错误</p>
+<h2 id="忙等待Busy-Waiting"><a href="#忙等待Busy-Waiting" class="headerlink" title="忙等待Busy-Waiting"></a>忙等待Busy-Waiting</h2><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210329190653176.png" alt="image-20210329190653176" style="zoom:67%;" /></p>
+<p>​    </p>
+<ul>
+<li><p>一个flag表示允许进入临界区的线程号<br>离开临界区时修改flag，让下一个进入</p>
+</li>
+<li><p>最小化执行临界区的次数</p>
+</li>
+</ul>
+<h2 id="Mutexes互斥量"><a href="#Mutexes互斥量" class="headerlink" title="Mutexes互斥量"></a>Mutexes互斥量</h2><ul>
+<li>一种特殊的变量</li>
+<li>限制每次只有一个线程进入临界区，保证一个线程独享临界区</li>
+</ul>
+<p>数据类型： pthread_mutex_t ， 使用前初始化</p>
+<p><strong>初始化</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322174346771.png" alt="image-20210322174346771" style="zoom:67%;" /><br><code>pthread_mutex_init(&amp;mutex, NULL);</code></p>
+<p><strong>destory</strong></p>
+<p>程序使用完</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322174453429.png" alt="image-20210322174453429" style="zoom:80%;" /></p>
+<p><strong>lock/unlock</strong></p>
+<p> In order to <strong>gain access to a critical section</strong> a thread calls  获得临界区访问权</p>
+<p>会使线程等待，直到临界区中没有其他线程再进入</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322174539791.png" alt="image-20210322174539791"></p>
+<p>When <strong>a thread is finished executing</strong> the code in a critical section, it should call  退出临界区</p>
+<p>通知系统该线程已经完成了对临界区的操作</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322174548028.png" alt="image-20210322174548028"></p>
+<p>调用lock会等待，直到没有其他线程加入临界区。</p>
+<p>第一个调用lock的线程会为临界区“锁门”，其他线程要加入临界区也要先调用lock，都会等待第一个线程离开临界区。</p>
+<p>只有第一个线程unlock，阻塞的才会选一个进入临界区，直到所有的都完成临界区的操作</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210329192808355.png" alt="image-20210329192808355"  /></p>
+<p>先把不会冲突的算了，增加并行代码，尽量减少需要串行的，增加效率</p>
+<p>随机 系统分配顺序</p>
+<h3 id="互斥量保护临界区"><a href="#互斥量保护临界区" class="headerlink" title="互斥量保护临界区"></a>互斥量保护临界区</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pthread_mutex_t mutex; // 全局</span><br><span class="line">void miain(void)</span><br><span class="line">&#123;</span><br><span class="line">	...</span><br><span class="line">	 pthread_mutex_init(&amp;mutex, NULL); // 初始化 一定为0</span><br><span class="line">&#125;</span><br><span class="line">void * thread_function(void * rank)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">	pthread_lock(&amp;mutex)</span><br><span class="line"> 	临界区...</span><br><span class="line">	pthread_unlock(&amp;mutex)</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="理想加速比-线性加速比"><a href="#理想加速比-线性加速比" class="headerlink" title="理想加速比/线性加速比"></a>理想加速比/线性加速比</h3><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322175027935.png" alt="image-20210322175027935"></p>
+<h2 id="生产者-消费者同步和信号量"><a href="#生产者-消费者同步和信号量" class="headerlink" title="生产者-消费者同步和信号量"></a>生产者-消费者同步和信号量</h2><ul>
+<li>互斥量哪个线程进入临界区和顺序是系统随机选取</li>
+</ul>
+<p>​           有些不能交换顺序的会出问题，比如矩阵连乘</p>
+<h3 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h3><p> 一种特殊的unsigned</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324151352159.png" alt="image-20210324151352159" style="zoom:50%;" /></p>
+<p> 如果二元信号做互斥量,初始化1, 开锁状态</p>
+<p>要保护的临界区前调用sem_wait, 如果信号量0,阻塞,不为0,减1进入临界区         </p>
+<p>信号量和互斥量最大区别： 信号量没有个体拥有权，主线程将所有的信号量初始化为0，即加锁，其他线程都能对任何信号量调用sem_post和sem_wait函数</p>
+<p>init: 第一个参数可以是<strong>数组的首地址，初始化多个信号量</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210403163905958.png" alt="image-20210403163905958"></p>
+<p>destroy同理</p>
+<p>sem_wait: 如果0,等待; 如果1,减1进入临界区</p>
+<p>post:+1 ， 使得在sem_wait 阻塞其他线程能够继续运行</p>
+<h4 id="使用信号量保护临界区"><a href="#使用信号量保护临界区" class="headerlink" title="使用信号量保护临界区"></a>使用信号量保护临界区</h4><p>①一个全局变量的信号量sem,  main函数中初始化1，开锁状态</p>
+<p>②因为sem初始化1，第一个到达sem_wait(&amp;sem) 的线程能够进入临界区，并减一，</p>
+<p>加锁，其他的线程都阻塞在 sem_wait(&amp;sem)这里</p>
+<p>③第一个线程完成临界区，调用sem_post(&amp;sem)， sem加一， </p>
+<p>使得在sem_wait 阻塞其他线程能够继续运行</p>
+<p> ④下一个线程进入临界区，减一…..循环处理上述过程</p>
+<h2 id="比较bust-waiting-mutex-semaphore"><a href="#比较bust-waiting-mutex-semaphore" class="headerlink" title="比较bust-waiting / mutex/semaphore"></a>比较bust-waiting / mutex/semaphore</h2><ul>
+<li><p>进入临界区顺序<br>busy-waiting 程序/用户决定（flag初始值如何修改flag）<br>互斥锁由系统决定（谁先抢到锁上锁）</p>
+<p>信号量可以由程序控制也可以交由系统（一个信号量数组，可以选择锁那个线程的信号量/解锁哪个）</p>
+</li>
+<li><p>busy waiting<br>实现简单 用一个flag<br>浪费CPU资源<br>如果打开编译器优化也可能不可靠</p>
+</li>
+<li><p>mutex是binary的，只能0/1</p>
+<p>信号量不一定使binary的,比如有5个线程,使得sem初始化为5,五个线程到了sem_wait()实际上都可以进入的,initialized to any <strong>nonnegative</strong> value</p>
+<p>（初始可访问资源数）</p>
+</li>
+<li></li>
+</ul>
+<p>信号量没有个体拥有权，主线程将所有信号量初始化为0，加锁，其他线程可以对任何信号量调用sem_post sem_wait函数</p>
+<h4 id="example"><a href="#example" class="headerlink" title="example"></a>example</h4><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324161748190.png" alt="image-20210324161748190" style="zoom:67%;" /></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"> <span class="comment">/* File:     </span></span><br><span class="line"><span class="comment"> *     4_8_pth_msg_smp.c</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Purpose:  </span></span><br><span class="line"><span class="comment"> *     Implement producer-consumer send messages. t-2 -&gt; t-1</span></span><br><span class="line"><span class="comment"> *         using semaphores.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Input:</span></span><br><span class="line"><span class="comment"> *     None</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Output:</span></span><br><span class="line"><span class="comment"> *     message</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Compile:  gcc -g -Wall -o 4_8_pth_msg_smp </span></span><br><span class="line"><span class="comment"> *              4_8_pth_msg_smp.c -lpthread</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Notes:  </span></span><br><span class="line"><span class="comment"> *	- rank t-2 send a message to rank t-2</span></span><br><span class="line"><span class="comment"> *	- rank t-2 send a message to rank 0</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> MSG_MAX = <span class="number">99</span>;</span><br><span class="line"><span class="keyword">int</span> thread_count;</span><br><span class="line"><span class="keyword">int</span> msg = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">char</span>** messages;</span><br><span class="line"><span class="keyword">sem_t</span>* semaphores;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Usage</span><span class="params">(<span class="keyword">char</span>* progname)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Thread function */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">Send_msg</span><span class="params">(<span class="keyword">void</span>* rank)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*-----------------------------------------------------------------*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span> </span>&#123;</span><br><span class="line">	<span class="keyword">long</span> thread;</span><br><span class="line">	<span class="keyword">pthread_t</span>* thread_handles;</span><br><span class="line">	messages = <span class="built_in">malloc</span>(MSG_MAX*<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">char</span>));</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span>(argc != <span class="number">1</span>) <span class="built_in">Usage</span>(argv[<span class="number">0</span>]);</span><br><span class="line">	</span><br><span class="line">	thread_count = <span class="number">4</span>;</span><br><span class="line">	semaphores = <span class="built_in">malloc</span>(thread_count*<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">sem_t</span>));</span><br><span class="line">	<span class="built_in">sem_init</span>(semaphores, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* allocate array for threads */</span></span><br><span class="line">	thread_handles = <span class="built_in">malloc</span>(thread_count*<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">pthread_t</span>));</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* start threads */</span></span><br><span class="line">	<span class="keyword">for</span>(thread = <span class="number">0</span>; thread &lt; thread_count; thread++) &#123;</span><br><span class="line">		<span class="built_in">pthread_create</span>(&amp;thread_handles[thread], <span class="literal">NULL</span>, Send_msg, </span><br><span class="line">					   (<span class="keyword">void</span>*) thread);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* wait for threads to complete */</span></span><br><span class="line">	<span class="keyword">for</span>(thread = <span class="number">0</span>; thread &lt; thread_count; thread++) &#123;</span><br><span class="line">		<span class="built_in">pthread_join</span>(thread_handles[thread], <span class="literal">NULL</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sem_destroy</span>(semaphores);</span><br><span class="line">    <span class="built_in">free</span>(semaphores);</span><br><span class="line">    <span class="built_in">free</span>(messages);</span><br><span class="line">    <span class="built_in">free</span>(thread_handles);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*-------------------------------------------------------------------*/</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">Send_msg</span><span class="params">(<span class="keyword">void</span>* rank)</span></span>&#123;</span><br><span class="line">    <span class="keyword">long</span> my_rank = (<span class="keyword">long</span>)rank;</span><br><span class="line">    <span class="keyword">long</span> dest = (my_rank+<span class="number">1</span>) % thread_count;</span><br><span class="line">    <span class="keyword">char</span> *my_msg = <span class="built_in">malloc</span>(MSG_MAX*<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">char</span>));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sprintf</span>(my_msg, <span class="string">&quot;Hello to %ld from %ld&quot;</span>, dest, my_rank);</span><br><span class="line">    messages[dest] = my_msg;</span><br><span class="line">    <span class="built_in">sem_post</span>(&amp;semaphores[dest]); <span class="comment">// 解锁下一个</span></span><br><span class="line">	</span><br><span class="line">    <span class="comment">/* wait for our semaphore to be unlocked */</span></span><br><span class="line">    <span class="built_in">sem_wait</span>(&amp;semaphores[my_rank]);     <span class="comment">//等待当前线程</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Thread %ld &gt; %s\n&quot;</span>, my_rank,messages[my_rank]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;<span class="comment">/*Send_msg*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/*--------------------------------------------------------------------</span></span><br><span class="line"><span class="comment"> * Function:    Usage</span></span><br><span class="line"><span class="comment"> * Purpose:     Print command line for function and terminate</span></span><br><span class="line"><span class="comment"> * In arg:      prog_name</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Usage</span><span class="params">(<span class="keyword">char</span>* progname)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">fprintf</span>(stderr, <span class="string">&quot;Usage: %s \n&quot;</span>, progname);</span><br><span class="line">	<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出不一定严格有序，即线程的执行，虽然是for循环依次，也可能有的快有的慢</p>
+<p>但是消息的发送顺序通过信号量可以保证</p>
+<h2 id="Barriers-ans-Condition-Variables-路障和条件变量"><a href="#Barriers-ans-Condition-Variables-路障和条件变量" class="headerlink" title="Barriers ans Condition Variables 路障和条件变量"></a>Barriers ans Condition Variables 路障和条件变量</h2><ul>
+<li>同步线程，保证所有线程处于同一位置</li>
+<li><p>只有所有线程都到达，线程才能继续运行</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324163143646.png" alt="image-20210324163143646" style="zoom: 50%;" /></p>
+</li>
+</ul>
+<h3 id="Busy-waiting-and-a-Mutex"><a href="#Busy-waiting-and-a-Mutex" class="headerlink" title="Busy-waiting and a Mutex"></a>Busy-waiting and a Mutex</h3><p>互斥量：保护共享计数器</p>
+<p>计数器表明每个线程进入临界区，就可以离开忙等状态</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">pthread_mutex_t</span> bar_mutex; 初始化 <span class="number">1</span> </span><br><span class="line">.......</span><br><span class="line">pthread_mutex_lock(&amp;bar_mutex);</span><br><span class="line">counter++;</span><br><span class="line">pthread_mutex_unlock(&amp;bar_mutex);</span><br><span class="line"><span class="keyword">while</span>(counter &lt; thread_count);</span><br></pre></td></tr></table></figure>
+<p>一点理解：</p>
+<p>改变共享计数量—需要互斥量</p>
+<p>所有都到了barrier才继续—-忙等</p>
+<p>问题：忙等，浪费CPU资源</p>
+<h3 id="信号量-Implementing-a-barrier-with-semaphores"><a href="#信号量-Implementing-a-barrier-with-semaphores" class="headerlink" title="信号量 Implementing a barrier with semaphores"></a>信号量 Implementing a barrier with semaphores</h3><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324145332119.png" alt="image-20210324145332119" style="zoom:67%;" /></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">sem_t</span> count_Sem; 初始化 <span class="number">1</span> </span><br><span class="line">sem_init(&amp;count_Sem, <span class="number">0</span>, <span class="number">1</span>); <span class="comment">// 初始化1 </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">sem_t</span> bar_sem;  初始化 <span class="number">0</span></span><br><span class="line">sem_init(&amp;count_Sem, <span class="number">0</span>, <span class="number">0</span>); <span class="comment">// 初始化1 </span></span><br><span class="line"><span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/*Barrier */</span></span><br><span class="line">sen_wait(&amp;count_sem)</span><br><span class="line"><span class="keyword">if</span> (count == thread_count - <span class="number">1</span>)</span><br><span class="line">&#123;</span><br><span class="line">	count = <span class="number">0</span>;</span><br><span class="line">	sem_post(&amp;count_sem);</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; thread_count - <span class="number">1</span>; i ++)</span><br><span class="line">	sem_post(&amp;bar_sem);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">	counter++;</span><br><span class="line">	sem_post(&amp;count_sem);</span><br><span class="line">	sem_wait(bar_sem);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> count_sem : 保护计数器，计数器共享访问，是临界资源，不能同时访问</p>
+<p> barrier_sem: 阻塞已经进入路障的资源</p>
+<p>比如有n个线程,运行前n-1个的时候,全部else,阻塞在sem_wait()这里</p>
+<p>第n个的时候,if条件为真, 重置counter为0, sem_post执行n-1次,每次都会进入使一个线程解除阻塞…</p>
+<p><strong>roughly</strong>,使得n个线程在这里同步</p>
+<h3 id="条件变量-最好的方法"><a href="#条件变量-最好的方法" class="headerlink" title="条件变量(最好的方法)"></a>条件变量(最好的方法)</h3><p>线程在事件之前处于挂起状态</p>
+<p>事件发生/另一个线程通过信号唤醒 这个线程</p>
+<p>条件变量总是与互斥量关联</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324150231098.png" alt="image-20210324150231098" style="zoom:67%;"></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210403165353123.png" alt="image-20210403165353123" style="zoom:80%;" /></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">int counter = 0;</span><br><span class="line">pthread_mutex_t mutex; 初始化 1</span><br><span class="line">pthread_cond_t cond_var;</span><br><span class="line"></span><br><span class="line">/*Barrier*/</span><br><span class="line">pthread_mutex_lock (&amp;mutex);</span><br><span class="line">counter++;</span><br><span class="line">if(counter==thread_count)</span><br><span class="line">&#123;</span><br><span class="line">	counter = 0;</span><br><span class="line">	pthread_cond_broadcast(&amp;cond_var);</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">	while(     pthread_cond_wait(&amp;cond_var,&amp;mutex)    ! = 0 ) ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">pthread_mutex_unlock (&amp;mutex);</span><br></pre></td></tr></table></figure>
+<p>前n-1个进入使,全部else,等待unlock</p>
+<p>第n个时,if 条件为真,  重置counter, 广播解锁所有阻塞的线程</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210403171057436.png" alt="image-20210403171057436" style="zoom:67%;" /></p>
+<h4 id="条件变量类型"><a href="#条件变量类型" class="headerlink" title="条件变量类型:"></a>条件变量类型:</h4><p> <code>pthread_cond_t</code></p>
+<p><strong>初始化和销毁:</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324165240351.png" alt="image-20210324165240351"></p>
+<p><strong>解锁一个阻塞的线程:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">int pthread_cond_signal(</span><br><span class="line">pthread_cond_t * cond_var_p  /* in/out */ );</span><br></pre></td></tr></table></figure>
+<p><strong>解锁所有阻塞的线程</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">int pthread_cond_broadcast(</span><br><span class="line">pthread_cond_t * cond_var_p  /* in/out */ );</span><br></pre></td></tr></table></figure>
+<p><strong>通过互斥量阻塞线程</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">int pthread_cond_wait(</span><br><span class="line">pthread_cond_t*   cond_var_p  /* in/out*/ </span><br><span class="line"></span><br><span class="line">pthread_mutex_t *  mutex_p       /* in/out  */ </span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>通过mutex_p阻塞线程,直到其他线程调用 上面两个解锁的函数</p>
+<p>解锁后,它重新获得互斥量（）</p>
+<p>实际上,按顺序执行了以下函数</p>
+<p> <strong><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324164434255.png" alt="image-20210324164434255"></strong></p>
+<h3 id="读写锁-Pthreads-Read-Write-Locks"><a href="#读写锁-Pthreads-Read-Write-Locks" class="headerlink" title="读写锁  Pthreads Read-Write Locks"></a>读写锁  Pthreads Read-Write Locks</h3><h4 id="初始化-释放"><a href="#初始化-释放" class="headerlink" title="初始化 释放"></a>初始化 释放</h4><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324165800329.png" alt="image-20210324165800329"></p>
+<p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324165816718.png" alt="image-20210324165816718"></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210324165726595.png" alt="image-20210324165726595"></p>
+<p>多个线程 调用写锁函数 同时获得锁</p>
+<p>只有一个线程通过写锁函数获得锁,</p>
+<p>如果任何函数获得了写锁,</p>
+<p>任何请求写锁的线程都会阻塞在写锁函数的调用上</p>
+<h2 id="缓存一致性"><a href="#缓存一致性" class="headerlink" title="缓存一致性"></a>缓存一致性</h2><p>缓存基本单位是缓存行/缓存块：两个线程可能在访问不同的内存单元，若在同一个缓存行，缓存一致性认为在访问同一个内存单元。这样如果一个更新了值，之后其他的线程读这个块，需要从内存获取</p>
+<p>缓存一致性硬件强迫多个线程看起来好像在共享一个内存单元（伪共享） ， 严重降低共享内存程序的性能</p>
+<h2 id="线程安全性"><a href="#线程安全性" class="headerlink" title="线程安全性"></a>线程安全性</h2><p>代码块能够被多个线程执行而不引起问题—安全的</p>
+<p>某些C语言函数声明static变量在两次调用之间缓存数据。多个线程调用该函数会有错误，以为线程之间共享静态存储，一个线程会覆盖另一个线程的数据</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>main:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"> 准备：     </span><br><span class="line"><span class="keyword">long</span> thread;</span><br><span class="line"><span class="keyword">pthread_t</span> thread_handles;</span><br><span class="line">thread_handles = (<span class="keyword">pthread_t</span>*) <span class="built_in">malloc</span>(thread_count*<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">pthread_t</span>)); </span><br><span class="line"></span><br><span class="line">创建 init 互斥锁/信号量  合适的初值</span><br><span class="line">创建 cond_var</span><br><span class="line"></span><br><span class="line"><span class="comment">// 线程函数</span></span><br><span class="line">  <span class="keyword">for</span> (thread = <span class="number">0</span>; thread &lt; thread_count; thread++)     <span class="comment">// 创建</span></span><br><span class="line">      <span class="built_in">pthread_create</span>(&amp;thread_handles[thread], <span class="literal">NULL</span>,  <span class="built_in">Thread_function</span>(线程函数), (<span class="keyword">void</span>*)<span class="built_in">thread</span>(传递给线程函数的参数));   <span class="comment">// 调用相关的函数</span></span><br><span class="line">         </span><br><span class="line"></span><br><span class="line"><span class="comment">// 结束 join</span></span><br><span class="line">   <span class="keyword">for</span> (thread = <span class="number">0</span>; thread &lt; thread_count; thread++) </span><br><span class="line">      <span class="built_in">pthread_join</span>(thread_handles[thread], <span class="literal">NULL</span>); </span><br><span class="line"><span class="comment">// 收尾</span></span><br><span class="line">	<span class="built_in">free</span>(thread_handles)</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line"><span class="comment">// 线程函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span>*<span class="title">Thread_function</span><span class="params">( <span class="keyword">void</span>* rank)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">long</span> my_rank = <span class="built_in"><span class="keyword">long</span></span>(rank)</span><br><span class="line">	可并行工作部分</span><br><span class="line">        </span><br><span class="line">	互斥</span><br><span class="line">      ①忙等</span><br><span class="line">      <span class="keyword">while</span>();</span><br><span class="line">      ②互斥量</span><br><span class="line">        lock/unlock    </span><br><span class="line">      ③信号量</span><br><span class="line">        wait / post</span><br><span class="line">          </span><br><span class="line">    同步,则条件变量实现路障</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>封装同步</p>
+<figure class="highlight cc"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">int</span> b_thread_count = <span class="number">0</span>;    <span class="comment">/* Number of threads that have entered barrier    */</span></span><br><span class="line"><span class="keyword">pthread_mutex_t</span> b_mutex;   <span class="comment">/* Mutex used by barrier                          */</span></span><br><span class="line"><span class="keyword">pthread_cond_t</span> b_cond_var; <span class="comment">/* Condition variable used by barrier             */</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Barrier_init</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Barrier</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Barrier_destroy</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Barrier_init</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   b_thread_count = <span class="number">0</span>;</span><br><span class="line">   <span class="built_in">pthread_mutex_init</span>(&amp;b_mutex, <span class="literal">NULL</span>);</span><br><span class="line">   <span class="built_in">pthread_cond_init</span>(&amp;b_cond_var, <span class="literal">NULL</span>);</span><br><span class="line">&#125;  <span class="comment">/* Barrier_init */</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Barrier</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;      </span><br><span class="line">    <span class="built_in">pthread_mutex_lock</span>(&amp;b_mutex);</span><br><span class="line">    b_thread_count++;</span><br><span class="line">      <span class="keyword">if</span> (b_thread_count == thread_count) </span><br><span class="line">      &#123;</span><br><span class="line">         b_thread_count = <span class="number">0</span>;</span><br><span class="line">         <span class="built_in">pthread_cond_broadcast</span>(&amp;b_cond_var);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> </span><br><span class="line">      &#123;</span><br><span class="line">         <span class="comment">// Wait unlocks mutex and puts thread to sleep.</span></span><br><span class="line">         <span class="comment">//    Put wait in while loop in case some other</span></span><br><span class="line">         <span class="comment">// event awakens thread.</span></span><br><span class="line">         <span class="keyword">while</span> (<span class="built_in">pthread_cond_wait</span>(&amp;b_cond_var, &amp;b_mutex) != <span class="number">0</span>);</span><br><span class="line">         <span class="comment">// Mutex is relocked at this point.</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">pthread_mutex_unlock</span>(&amp;b_mutex);</span><br><span class="line"></span><br><span class="line">&#125;  <span class="comment">/* Barrier */</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Barrier_destroy</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="built_in">pthread_mutex_destroy</span>(&amp;b_mutex);</span><br><span class="line">   <span class="built_in">pthread_cond_destroy</span>(&amp;b_cond_var);</span><br><span class="line">&#125;  <span class="comment">/* Barrier_destroy */</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>课程相关</category>
+        <category>超级计算机原理与操作</category>
+      </categories>
+  </entry>
+  <entry>
     <title>超级计算机原理与操作(4):OpenMP</title>
     <url>/2021/08/18/%E8%B6%85%E7%BA%A7%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E6%93%8D%E4%BD%9C(4)OpenMP/</url>
     <content><![CDATA[<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/119323388_327972298445843_8292369926247258662_n.jpg" alt="119323388_327972298445843_8292369926247258662_n" style="zoom:50%;" /></p>
