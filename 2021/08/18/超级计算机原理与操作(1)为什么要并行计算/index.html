@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta property="og:type" content="article">
+<meta property="og:title" content="超级计算机原理与操作(1):为什么要并行计算">
+<meta property="og:url" content="http://example.com/2021/08/18/%E8%B6%85%E7%BA%A7%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E6%93%8D%E4%BD%9C(1)%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/index.html">
+<meta property="og:site_name" content="PAPRIKA&#39; Blog">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20210818213022.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710094153191.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210512145711773.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711211210084.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210512153144433.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623150316395.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210512153717617.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623155154645.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711203054976.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711203103089.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623155205312.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709193911933.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709194100192.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709194323727.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709194441134.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710001452726.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709234623823.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709200430535.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709200622592.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711214334017.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711104445373.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210512155306572.png">
+<meta property="article:published_time" content="2021-08-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-18T17:06:01.272Z">
+<meta property="article:author" content="🐏🐚">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20210818213022.png">
+
+<link rel="canonical" href="http://example.com/2021/08/18/%E8%B6%85%E7%BA%A7%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E6%93%8D%E4%BD%9C(1)%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>超级计算机原理与操作(1):为什么要并行计算 | PAPRIKA' Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">PAPRIKA' Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">我一定要尽快调查明白</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">24</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/18/%E8%B6%85%E7%BA%A7%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E6%93%8D%E4%BD%9C(1)%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="🐏🐚">
+      <meta itemprop="description" content="摇摇晃晃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAPRIKA' Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          超级计算机原理与操作(1):为什么要并行计算
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-18 00:00:00" itemprop="dateCreated datePublished" datetime="2021-08-18T00:00:00+08:00">2021-08-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-19 01:06:01" itemprop="dateModified" datetime="2021-08-19T01:06:01+08:00">2021-08-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index"><span itemprop="name">课程相关</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/%E8%B6%85%E7%BA%A7%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E6%93%8D%E4%BD%9C/" itemprop="url" rel="index"><span itemprop="name">超级计算机原理与操作</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20210818213022.png" alt="微信图片_20210818213022" style="zoom:50%;" /></p>
+<span id="more"></span>
+<p>核core：<br>CPU的基本计算单元</p>
+<p>CPU：<br>可能有一个或多个的核（multicore CPU）在给定时间执行任务</p>
+<p>Processor 处理器<br>处理器是一个通用术语，用于描述任何类型的 CPU，与核无关<br>multiprocessor system ：<br>contains more than one CPU 允许他们并行工作</p>
+<hr>
+<p>并发：<br>    微观上不是同时的，宏观上是<br>并发计算：不需要同时，可以在一个核上，时间片交错执行</p>
+<p>并行：<br>    simultaneously<br>并行计算： 执行发生在同一物理时刻；单处理器是不可能的<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710094153191.png" alt="image-20210710094153191"></p>
+<hr>
+<p>超级计算<br>运行速度<br>存储容量<br>占地面积<br>能耗<br>造价</p>
+<hr>
+<h1 id="1-为什么要并行计算"><a href="#1-为什么要并行计算" class="headerlink" title="1.为什么要并行计算"></a>1.为什么要并行计算</h1><h3 id="如何编写"><a href="#如何编写" class="headerlink" title="如何编写"></a>如何编写</h3><ul>
+<li><p>任务并行 <strong>task-parallelism</strong></p>
+<p>分配任务到各个核上</p>
+</li>
+<li><p>数据并行 <strong>data-parallelism</strong><br>数据分配给各个核，执行大致相同操作</p>
+<h3 id="协调的问题"><a href="#协调的问题" class="headerlink" title="协调的问题"></a>协调的问题</h3></li>
+<li><p>通信<strong>communication</strong><br>一个或多个核将自己的部分结果发送给其他核</p>
+</li>
+<li><p>负载均衡 <strong>load balancing</strong><br>工作量差不多</p>
+</li>
+<li><p>同步<strong>synchronization</strong> </p>
+<p>任务有先后次序</p>
+</li>
+<li><p>共享内存系统 Shared_memory</p>
+<p><code>Pthreads</code>和<code>OpenMP</code><br>各个核都能<strong>共享</strong>计算机的<strong>内存</strong>，检测和共享更新内存中的数据来协调各个核。</p>
+</li>
+<li><p>分布式内存系统 Distributed-memory</p>
+<p><code>MPI</code>，提供发送消息的机制<br>各个核都拥有自己的<strong>私有内存</strong>，<br>核之间的<strong>通信是显式</strong>的</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210512145711773.png" alt="image-20210512145711773" style="zoom:50%;" /></p>
+</li>
+</ul>
+<h3 id="并发-并行-分布式"><a href="#并发-并行-分布式" class="headerlink" title="并发 并行 分布式"></a>并发 并行 分布式</h3><p>并发计算： concurrent computing</p>
+<p>分布式计算： distributed computing</p>
+<p>分布式：distributed<br>     一个程序与其他程序紧密协作来解决某个问题(进程协作)<br>    松耦合，多个计算机执行</p>
+<p>并行：parallel<br>    一个程序通过<strong>多个任务紧密协作</strong>来解决某个问题<br>    紧耦合，并行往往同时在多个核执行多个任务</p>
+<p>并发 ：concurrent</p>
+<p>​    一个程序的<strong>多个任务</strong>在<strong>同一时段</strong>同时执行。</p>
+<p>并行程序和分布式程序都是并发的<br>某些操作系统也是并发的,即使只有一个核,多任务能在同一时段里同时执行</p>
+<h1 id="2、并行硬件和并行软件"><a href="#2、并行硬件和并行软件" class="headerlink" title="2、并行硬件和并行软件"></a>2、并行硬件和并行软件</h1><h2 id="2-1冯诺依曼结构"><a href="#2-1冯诺依曼结构" class="headerlink" title="2.1冯诺依曼结构"></a>2.1冯诺依曼结构</h2><p>冯诺依曼瓶颈：</p>
+<p>主存和CPU之间的分离。<br>互联结构限制了指令和数据访问的速率。<br>程序运行所需要的大部分数据和指令被有效地与CPU隔离开。<br>CPU执行指令速度比取指令快很多倍<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711211210084.png" alt="image-20210711211210084" style="zoom:33%;" /></p>
+<h3 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h3><p>An instance of a computer program that is being executed</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210512153144433.png" alt="image-20210512153144433"><br>进程的组成：</p>
+<ul>
+<li>The executable machine language program.（程序段)</li>
+<li>A block of memory（分配内存空间）</li>
+<li>Descriptors of resources the OS has allocated to the process（资源分配清单）</li>
+<li>Security information（安全信息）</li>
+<li>Information about the state of the process（进程描述信息/控制信息）</li>
+</ul>
+<h3 id="多任务-Multitasking"><a href="#多任务-Multitasking" class="headerlink" title="多任务 Multitasking"></a>多任务 Multitasking</h3><p>单处理机，时间片轮转</p>
+<h3 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h3><p>程序划分为多个大致独立的任务，某个任务阻塞的时候执行其他任务。<br>线程切换比进程快。<br>线程阻塞进程并不阻塞</p>
+<p>forking  and joining<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623150316395.png" alt="image-20210623150316395" style="zoom: 50%;" /></p>
+<h2 id="2-2对冯诺依曼模型的改进"><a href="#2-2对冯诺依曼模型的改进" class="headerlink" title="2.2对冯诺依曼模型的改进"></a>2.2对冯诺依曼模型的改进</h2><p>高速缓存Cache<br>虚拟内存<br>低层次并行</p>
+<h3 id="Cahce"><a href="#Cahce" class="headerlink" title="Cahce"></a>Cahce</h3><p><strong>局部性</strong> (locality)：<br>即在访问一个内存位置之后，程序通常会在<strong>不久的将来</strong>（<strong>时间局部性</strong>, temporal locality）访问一个<strong>附近的位置</strong>(<strong>空间局部性</strong>, spatial locality)</p>
+<h3 id="虚拟内存："><a href="#虚拟内存：" class="headerlink" title="虚拟内存："></a><strong>虚拟内存</strong>：</h3><p>主存最为辅存的缓存.内存中只有进程活跃的部分,利用时间局部性和空间局部性</p>
+<p>有些进程可能比内存还要大 — 部分加载 不连续分配 交换空间</p>
+<p>缺点:访问主存时间加倍</p>
+<p><strong>TLB</strong><br>缓存一部分标签页表条目,利用时间局部性和空间局部性,大幅减少访问主存时间</p>
+<h3 id="指令级并行"><a href="#指令级并行" class="headerlink" title="指令级并行"></a>指令级并行</h3><p>指令级并行性(ILP)：<br>多个<strong>处理器组件或功能单元</strong>同时<strong>执行指令</strong>来提高处理器性能</p>
+<p>multiple processor components or functional units simultaneouslyexecuting instructions</p>
+<p>主要方法有：</p>
+<ul>
+<li><p><strong>流水线</strong> (pipelining) ：<br>将功能分为多个单独的硬件或者功能单元，<br>将功能单元<strong>分阶段</strong>安排</p>
+</li>
+<li><p><strong>多发射</strong> (multiple issue) ：<br>可以<strong>同时启动</strong>多个指令<br><strong>复制功能单元</strong>来同时执行程序中的不同指令</p>
+<p><strong>静态多发射：</strong>编译时调度 功能单元<br><strong>动态多发射</strong>：运行时调度 功能单元</p>
+<p><strong>超标量：</strong>superscalar<br>支持<strong>动态多发射</strong>的处理器</p>
+<p><strong>预测：</strong>speculation<br>为了利用多发射，系统必须能够找出能够同时执行的指令。<br>编译器/处理器对一条指令进行<strong>猜测</strong>，然后在猜测的基础上执行代码。</p>
+<p>(如果猜错了,go back)</p>
+</li>
+</ul>
+<h3 id="硬件多线程"><a href="#硬件多线程" class="headerlink" title="硬件多线程"></a>硬件多线程</h3><p><strong>硬件多线程</strong> (Hardware multithreading)<br>当前正在执行的任务处于停滞（stalled）状态时，系统可以继续执行其他有用的任务。<br>系统必须支持线程间的快速切换</p>
+<p>ILP很难使用，尤其是对于存在依赖语句的程序而言，比如通过循环求斐波那契数列。</p>
+<p>此时则可以通过<strong>线程级并行</strong>来提高运行效率。</p>
+<ul>
+<li><p><strong>线程级并行性</strong> (Thread-level parallelism, TLP)<br>通过<strong>同时执行不同的线程</strong>来提供并行性</p>
+<p>提供了比ILP<strong>更粗粒度</strong>的并行性，也就是说，同时执行的程序单元(线程)比细粒度的单元(单个指令)更大或更粗。</p>
+<ul>
+<li><strong>细粒度多线程</strong> (Fine-grained multithreading )<br>处理器在<strong>每条指令</strong>之后在线程之间切换，跳过停止的线程。<br><strong>优点：</strong>避免阻塞而导致机器时间的浪费<br><strong>缺点：</strong> 执行很长一段指令的线程，在执行每条指令的时候都需要等待<ul>
+<li><strong>同步多线程</strong> （Simultaneous multithreading, SMT）<br>是<strong>细粒度</strong>多线程的变体。<br>通过允许<strong>多个线程</strong>同时使用<strong>多个功能单元</strong>来利用超标量处理器的性能。</li>
+</ul>
+</li>
+<li><strong>粗粒度多线程</strong> (Coarse-grained multithreading)<br>只切换需要<strong>等待较长时间才能完成操作</strong>（如从主存中加载）而被阻塞的线程<br><strong>优点：</strong>不需要线程间的立即切换<br><strong>缺点：</strong>处理器还是可能在短阻塞时空闲，线程间的切换也还是会导致延迟。</li>
+</ul>
+</li>
+</ul>
+<h2 id="并行硬件"><a href="#并行硬件" class="headerlink" title="并行硬件"></a>并行硬件</h2><p>Flynn分类法</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210512153717617.png" alt="image-20210512153717617"></p>
+<h3 id="SISD"><a href="#SISD" class="headerlink" title="SISD"></a>SISD</h3><p>典型的冯诺依曼系统</p>
+<p>Single instruction stream Single data stream</p>
+<p>一次执行一条指令 一次存取一个数据项</p>
+<h3 id="SIMD"><a href="#SIMD" class="headerlink" title="SIMD"></a>SIMD</h3><p>Single Instruction Multiple Data<br>并行系统</p>
+<ul>
+<li><p>多个数据执行相同的指令</p>
+<p>通过在处理器之间划分数据来实现并行性</p>
+<p><strong>(数据并行)</strong></p>
+</li>
+<li><p>适合并行化操作大型数据数组的简单循环</p>
+</li>
+<li><p>一个抽象的SIMD系统可以被认为仅有一个控制单元，但有多个ALU。<br></p>
+</li>
+</ul>
+<p><strong>Drawbacks</strong>:<br>一条指令从控制单元广播到ALU，每个ALU要么将指令应用到当前数据项上，要么它是空闲的</p>
+<p>ALU 没有指令存储</p>
+<p>处理大型数据并行问题时非常有效，<br>但是SIMD系统在处理其他类型的并行问题时往往做得不是很好。</p>
+<h4 id="Vector-Processors"><a href="#Vector-Processors" class="headerlink" title="Vector Processors"></a>Vector Processors</h4><p>传统CPU处理单独数据单元/标量<br>向量处理器处理一组向量</p>
+<p><strong>向量寄存器(Vector registers)</strong><br>存储多个操作数组成的向量, 可以同时对其内容操作</p>
+<p><strong>Vectorized and pipelined functional units</strong><br>向量化和流水化功能单元<br>向量中的每个元素需要相同的操作(SIMD)</p>
+<p><strong>向量指令(Vector instructions)</strong><br>操作向量而不是标量<br>只需一次加载 一操作完成对 vector_length的数据块操作</p>
+<p><strong>交叉存储器(Interleaved memory)</strong><br>内存系统分为多个部分,每个bank可以独立访问<br>访问同一个”bank”需要延迟,访问一个接着另一个没有延迟</p>
+<p>将向量的元素分布在多个组中，从而减少或消除加载/存储连续元素的延迟</p>
+<p><strong>步长式存储器访问和硬件散射/聚集</strong><br>Strided memory access and hardware scatter/gather<br>跨步内存访问和硬件分散/收集</p>
+<p><strong>程序访问位于固定间隔的向量元素</strong><br>散射/聚集:对无规律间隔数据读(聚集) 写(散射)<br>向量系统提供特殊的硬件加速</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>pros</th>
+<th>cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fast  / easy to use</td>
+<td>不处理不规则的数据结构以及其他并行架构</td>
+</tr>
+<tr>
+<td>向量化编译器擅长识别要利用的代码</td>
+<td>可扩展性差:处理更大问题的能力非常有限</td>
+</tr>
+<tr>
+<td>高内存带宽</td>
+<td></td>
+</tr>
+<tr>
+<td>编译器还可以提供有关无法矢量化的代码的信息,帮助程序员重新评估代码</td>
+<td></td>
+</tr>
+<tr>
+<td>使用缓存行中的每个项目</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h5 id="GPU"><a href="#GPU" class="headerlink" title="GPU"></a>GPU</h5><p>图形处理单元<br>严重依赖硬件多线程</p>
+<p>GPU 通常可以通过使用 SIMD 并行来优化性能<br>每个GPU处理核引入大量ALU<br>需要处理大量数据的线程维持ALU的忙碌,</p>
+<p>SIMD: Vector processor &amp;&amp; Graphics Processing Units (GPU)</p>
+<h3 id="MIMD"><a href="#MIMD" class="headerlink" title="MIMD"></a>MIMD</h3><p>Multiple Instruction， Multiple Dara</p>
+<ul>
+<li><p>多个指令流在多个数据流上操作</p>
+</li>
+<li><p>MIMD系统通常由<strong>一组完全独立的处理单元或核</strong>组成，每个处理单元或核都有自己的<strong>控制单元</strong>和自己的<strong>ALU</strong></p>
+</li>
+<li><p>与SIMD系统不同，MIMD系统通常是异步的。各个处理器按照自己的节奏运行</p>
+</li>
+<li><p>两种主要类型的MIMD系统：<br><strong>共享内存系统：</strong><br><strong>一组自治的处理器</strong>通过互联网络与内存系统相互<strong>连接</strong>，每个处理器能够访问每个内存区域。<br>处理器通过访问<strong>共享数据结构隐式通信</strong></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623155154645.png" alt="image-20210623155154645" style="zoom:50%;" /></p>
+<p>|      | UMA一致内存访问系统                                          | NUMA非一致内存访问系统                                       |<br>| —— | —————————————————————————————— | —————————————————————————————— |<br>|      | <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711203054976.png" alt="image-20210711203054976"> | <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711203103089.png" alt="image-20210711203103089"> |<br>|      | 所有处理器之间连接到主存                                     | 每个处理器连接一块内存,处理器内置硬件可以访问内存的其他块    |<br>|      | 访问任何区域时间相同                                         | 访问之间相连的区域快很多                                     |</p>
+</li>
+</ul>
+<p>  <strong>分布式内存系统：</strong><br>每个处理器都要自己<strong>私有的内存空间</strong><br>处理器-内存对之间通过<strong>互联网络</strong>互相通信<br>处理器之间通过发送消息或者使用特殊的函数访问其他处理器的内存</p>
+<p>  ​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623155205312.png" alt="image-20210623155205312" style="zoom:50%;" /></p>
+<h5 id="集群-Clusters"><a href="#集群-Clusters" class="headerlink" title="集群:Clusters"></a>集群:Clusters</h5><p>  使用最广泛的分布式内存系统</p>
+<blockquote>
+<p>集群是一组相互独立的、通过高速<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/网络互联/10501073">网络互联</a>的计算机，它们构成了一个组，并以单一系统的模式加以管理。一个客户与集群相互作用时，集群像是一个独立的服务器。</p>
+</blockquote>
+<p>  集群的节点是由通信网络连接的单个计算单元</p>
+<p>  一组商品化系统组成，通过商品化连接</p>
+<h3 id="SPMD"><a href="#SPMD" class="headerlink" title="SPMD"></a>SPMD</h3><p>SPMD 程序由单个可执行文件组成，通过使用条件分支，它可以像多个不同的程序一样运行</p>
+<h3 id="Interconnection-networks"><a href="#Interconnection-networks" class="headerlink" title="Interconnection networks"></a>Interconnection networks</h3><h3 id="共享内存互联网络"><a href="#共享内存互联网络" class="headerlink" title="共享内存互联网络"></a>共享内存互联网络</h3><ul>
+<li><p>bus interconnect<br>并行通信线路与一些硬件构成的集合，控制了对总线（bus）的访问</p>
+<ul>
+<li>优点<br>低成本 灵活; 多个设备可以连接到一个总线，几乎没有额外的成本</li>
+<li>缺点<br>由于通信线是共享的，随着连接到总线的设备数量的增加，对总线的使用发生争用的可能性增加，总线的预期性能下降</li>
+</ul>
+</li>
+<li><p>交换互联</p>
+<p>crossbar 交换开关矩阵<br>使用交换机来控制被连接设备之间的数据路由<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709193911933.png" alt="image-20210709193911933" style="zoom:50%;" /><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709194100192.png" alt="image-20210709194100192" style="zoom:50%;" /><br>这些线路是双向通信链路，正方形一部分代表的是核，一部分代表了存储模块，圆形是交换器</p>
+<ul>
+<li>优点:<br>允许不同设备之间同时通信，因此它们比总线快得多。</li>
+<li>缺点:<br> 交换器和链路的成本相对较高。</li>
+</ul>
+<h3 id="分布式内存互联网络"><a href="#分布式内存互联网络" class="headerlink" title="分布式内存互联网络"></a>分布式内存互联网络</h3><ul>
+<li><p>直接互联<br>每个交换器<strong>直接</strong>连接到<strong>处理器-存储器</strong>对，并且交换器之间彼此连接(“交换器”圆圈,”处理器-存储器对”方块)</p>
+<ul>
+<li><p>圆环(ring)<br>优于简单的总线，允许多个同时通信。<br>交换器支持3个链路</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709194323727.png" alt="image-20210709194323727" style="zoom:50%;" /></p>
+</li>
+<li><p>环面 (toroidal mesh)<br>比环昂贵，因为交换器更加复杂<br>交换器支持5个链路</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709194441134.png" alt="image-20210709194441134"></p>
+<ul>
+<li><p>如果p个处理器<br><strong>环中链路:2p</strong><br>(首先处理器和交换机相连有p个,p个交换机成环,这个圈上有p个,总共2p)</p>
+<p><strong>环面链路: 3p</strong><br>(假设有$p=m<em>n$个处理器，首先p个，然后横向的有$n</em>m$ 纵向也是$m*n$，总共3p)</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>间接互联<br>交换器不一定与处理器直接连接<br>由一些单向连接和一组处理器组成</p>
+<p>每个处理器有输入链路和输出链路<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710001452726.png" alt="image-20210710001452726"></p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="等分宽度-bisection-width"><a href="#等分宽度-bisection-width" class="headerlink" title="等分宽度(bisection width)"></a>等分宽度(bisection width)</h4><p>(两个等分之间最少链路数)</p>
+<p>衡量“同时通信的链路数目”或者“连接性”的一个标准</p>
+<p>方法①</p>
+<p>系统等分两部分，每部分一半结点，同时发送通信，给出一个“最坏情况”的估计</p>
+<p>方法②<br>去除最少链路从而将结点两等分</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709234623823.png" alt="image-20210709234623823"></p>
+<p>正方形二维环面网络$2\sqrt{p} $</p>
+<h4 id="等分带宽-Bisection-bandwidth"><a href="#等分带宽-Bisection-bandwidth" class="headerlink" title="等分带宽 Bisection bandwidth"></a>等分带宽 Bisection bandwidth</h4><p><strong>带宽</strong> : 链路传输数据的速率</p>
+<p><strong>等分带宽</strong> : 网络质量的衡量标准.  两个等分之间的带宽（最坏情况）</p>
+<p>$eg:$ 环每条链路式p，等分是 p+p=2p</p>
+<h5 id="全连接网络"><a href="#全连接网络" class="headerlink" title="全连接网络"></a>全连接网络</h5><p>每个交换机都直接连接到其他每个交换机<br>等分宽度 = $\frac{p^2}{4}$<br>一边一半$\frac{p}{2}$ ,每个都和另一边有变，总共$\frac{p}{2}\times\frac{p}{2}=\frac{p^2}{4}$<br>总的链路: 交换机互联$\frac{p^2}{2}-\frac{p }{2}$每个交换机连接一个处理器-存储器对,+p,总共$\frac{p^2}{2}+\frac{p }{2}$</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709200430535.png" alt="image-20210709200430535" style="zoom:50%;" /></p>
+<h5 id="Hypercube-超立方"><a href="#Hypercube-超立方" class="headerlink" title="Hypercube 超立方"></a>Hypercube 超立方</h5><p>direct interconnect</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210709200622592.png" alt="image-20210709200622592" style="zoom:50%;" /></p>
+<p>递归构造的</p>
+<p>d维：每个交换器与1个处理器和d个交换器相连<br>等分宽度$\frac{p}{2}$<br>每个交换器1+d = 1 + $log_2(p)$ 条连线<br>更昂贵 </p>
+<hr>
+<h3 id="2-3-4cache一致性"><a href="#2-3-4cache一致性" class="headerlink" title="2.3.4cache一致性"></a>2.3.4cache一致性</h3><p>多核系统，各个核cache存储相同变量的副本，当一个处理器共享cache中该变量的副本，其他处理器也应该更新</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711214334017.png" alt="image-20210711214334017" style="zoom:50%;" /><br><strong>方法①： 监听cache一致性</strong><br>更新时广播通知其他核包含x的cache已经更新</p>
+<p>(其实是更新cache行)</p>
+<p><strong>方法②：基于目录的cache一致性协议</strong><br>广播对于大型系统性能下降，不可扩展。<br>通过一个目录的数据结构存储每个缓存行的状态。<br>目录是分布式的,每个核-内存对存储一部分目录<br>当变量需要更新，会查询目录，将包含变量的行高速缓存标记非法<br>优点:当一个Cache变量更新,只需要与存储这个变量的核交涉<br>缺点:需要额外的空间存储</p>
+<h4 id="伪共享"><a href="#伪共享" class="headerlink" title="伪共享"></a>伪共享</h4><p>缓存系统中是以缓存行（cache line）为单位存储的，对缓存行中的单个变量进行修改了，导致整个缓存行数据也就失效了，并且，会导致其他CPU的含有被改动的共享变量的缓存行也失效了，就是所谓的伪共享问题</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711104445373.png" alt="image-20210711104445373" style="zoom:50%;" /></p>
+<p>过多不必要访问主存，降低存储器性能<br>解决：线程/进程临时存储数据，再把临时存储的数据更新到共享存储降低共享带来的影响</p>
+<h2 id="2-4并行软件"><a href="#2-4并行软件" class="headerlink" title="2.4并行软件"></a>2.4并行软件</h2><p>SPMD 单程序 多数据流</p>
+<h3 id="2-4-3共享内存"><a href="#2-4-3共享内存" class="headerlink" title="2.4.3共享内存"></a>2.4.3共享内存</h3><p>启动单个进程和 fork 线程,线程执行任务</p>
+<p><strong>动态线程</strong><br>主线程等待工作请求，fork新线程，当线程完成时，它们终止join到主线程<br>资源的有效利用，但线程的创建和终止是耗时的</p>
+<p><strong>静态线程</strong><br> 派生所有线程，工作结束前不会中止<br>更好的性能，但可能会浪费系统资源</p>
+<p>非确定性： 异步</p>
+<h3 id="2-4-4分布式内存"><a href="#2-4-4分布式内存" class="headerlink" title="2.4.4分布式内存"></a>2.4.4分布式内存</h3><p>启动多个进程,进程执行任务</p>
+<p>核访问私有内存</p>
+<h2 id="2-5Input-and-Output"><a href="#2-5Input-and-Output" class="headerlink" title="2.5Input and Output"></a>2.5Input and Output</h2><p>共享内存 : 只有主线程输入 stdin</p>
+<p>在分布式内存和共享内存程序中，所有进程/线程都可以访问 stdout 和 stderrt</p>
+<p>(但是由于输出到stdout的顺序的不确定性，在大多数情况下，除了调试输出外，所有输出到stdout只会使用一个进程/线程)</p>
+<p>每个进程/线程都可以打开自己的私有文件进行读取或写入，但没有两个进程/线程会打开同一个文件</p>
+<p>竞争条件 race condition：程序的输出进程/线程的相对速度/时序</p>
+<p>临界区：一次只能被一个线程执行的代码</p>
+<p> 共享内存</p>
+<p>启动单个进程和 fork 线程</p>
+<p>分布式内存程序</p>
+<p>启动多个进程,执行任务</p>
+<h2 id="2-6性能"><a href="#2-6性能" class="headerlink" title="2.6性能"></a>2.6性能</h2><h3 id="2-6-1-加速比-效率"><a href="#2-6-1-加速比-效率" class="headerlink" title="2.6.1 加速比/效率"></a>2.6.1 加速比/效率</h3><p>Speedup加速比: $S  = \frac{T_s}{T_p}$</p>
+<p>线性加速比: $S = p  \  \   E = 1 $</p>
+<p>效率: $E = \frac{S}{p}$</p>
+<p>问题规模变大,加速比和效率增加;<br>规模小,加速比和效率降低</p>
+<p>开销的影响<br>$T_p =  \frac{T_s}{p} + T_{overhead}$</p>
+<h3 id="2-6-2阿姆达尔定律"><a href="#2-6-2阿姆达尔定律" class="headerlink" title="2.6.2阿姆达尔定律"></a>2.6.2阿姆达尔定律</h3><p>除非一个串行串行的执行几乎全部都并行化,<br>否则,不管多少核,加速比都会是受限的</p>
+<p>  :smile:<img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210512155306572.png" alt="image-20210512155306572"></p>
+<h3 id="2-6-3可扩展性"><a href="#2-6-3可扩展性" class="headerlink" title="2.6.3可扩展性"></a>2.6.3可扩展性</h3><p>增加进程/线程的个数,以<strong>相应倍率</strong>增加问题的规模才能使<strong>效率</strong>保持不变</p>
+<ul>
+<li><p>强可扩展<br>增加进程/线程的个数,<strong>不增加</strong>问题的规模,可以维持固定的速率</p>
+</li>
+<li><p>弱可扩展</p>
+<p>增加进程/线程的个数,以<strong>相同的倍率增加</strong>问题的规模才能使效率保持不变.</p>
+</li>
+</ul>
+<h2 id="2-7设计"><a href="#2-7设计" class="headerlink" title="2.7设计"></a>2.7设计</h2><p><strong>划分 partitioning</strong><br>识别可以并行执行的任务</p>
+<p><strong>通信 communication</strong><br>定需要在上一步确定的任务之间进行哪些通信</p>
+<p><strong>凝聚或聚合 agglomeration or aggregation</strong><br>将第一步中确定的任务和通信组合成更大的任务</p>
+<p><strong>分配 mapping</strong><br>将上一步中确定的复合任务分配给进程/线程</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(1)%20%E6%A6%82%E8%BF%B0/" rel="prev" title="操作系统原理(1) 概述">
+      <i class="fa fa-chevron-left"></i> 操作系统原理(1) 概述
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/18/%E8%B6%85%E7%BA%A7%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E6%93%8D%E4%BD%9C(2)MPI%E5%88%86%E5%B8%83%E5%BC%8F%E5%86%85%E5%AD%98%E7%BC%96%E7%A8%8B/" rel="next" title="超级计算机原理与操作(2):MPI分布式内存编程">
+      超级计算机原理与操作(2):MPI分布式内存编程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97"><span class="nav-text">1.为什么要并行计算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%BC%96%E5%86%99"><span class="nav-text">如何编写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%B0%83%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">协调的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91-%E5%B9%B6%E8%A1%8C-%E5%88%86%E5%B8%83%E5%BC%8F"><span class="nav-text">并发 并行 分布式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2%E3%80%81%E5%B9%B6%E8%A1%8C%E7%A1%AC%E4%BB%B6%E5%92%8C%E5%B9%B6%E8%A1%8C%E8%BD%AF%E4%BB%B6"><span class="nav-text">2、并行硬件和并行软件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1%E5%86%AF%E8%AF%BA%E4%BE%9D%E6%9B%BC%E7%BB%93%E6%9E%84"><span class="nav-text">2.1冯诺依曼结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B"><span class="nav-text">进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E4%BB%BB%E5%8A%A1-Multitasking"><span class="nav-text">多任务 Multitasking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B"><span class="nav-text">线程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2%E5%AF%B9%E5%86%AF%E8%AF%BA%E4%BE%9D%E6%9B%BC%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%94%B9%E8%BF%9B"><span class="nav-text">2.2对冯诺依曼模型的改进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cahce"><span class="nav-text">Cahce</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%EF%BC%9A"><span class="nav-text">虚拟内存：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E7%BA%A7%E5%B9%B6%E8%A1%8C"><span class="nav-text">指令级并行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="nav-text">硬件多线程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E7%A1%AC%E4%BB%B6"><span class="nav-text">并行硬件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SISD"><span class="nav-text">SISD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SIMD"><span class="nav-text">SIMD</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Vector-Processors"><span class="nav-text">Vector Processors</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#GPU"><span class="nav-text">GPU</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MIMD"><span class="nav-text">MIMD</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4-Clusters"><span class="nav-text">集群:Clusters</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPMD"><span class="nav-text">SPMD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interconnection-networks"><span class="nav-text">Interconnection networks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%E4%BA%92%E8%81%94%E7%BD%91%E7%BB%9C"><span class="nav-text">共享内存互联网络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%86%85%E5%AD%98%E4%BA%92%E8%81%94%E7%BD%91%E7%BB%9C"><span class="nav-text">分布式内存互联网络</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%89%E5%88%86%E5%AE%BD%E5%BA%A6-bisection-width"><span class="nav-text">等分宽度(bisection width)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%89%E5%88%86%E5%B8%A6%E5%AE%BD-Bisection-bandwidth"><span class="nav-text">等分带宽 Bisection bandwidth</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%A8%E8%BF%9E%E6%8E%A5%E7%BD%91%E7%BB%9C"><span class="nav-text">全连接网络</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Hypercube-%E8%B6%85%E7%AB%8B%E6%96%B9"><span class="nav-text">Hypercube 超立方</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-4cache%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-text">2.3.4cache一致性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%AA%E5%85%B1%E4%BA%AB"><span class="nav-text">伪共享</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4%E5%B9%B6%E8%A1%8C%E8%BD%AF%E4%BB%B6"><span class="nav-text">2.4并行软件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-3%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="nav-text">2.4.3共享内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-4%E5%88%86%E5%B8%83%E5%BC%8F%E5%86%85%E5%AD%98"><span class="nav-text">2.4.4分布式内存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5Input-and-Output"><span class="nav-text">2.5Input and Output</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-6%E6%80%A7%E8%83%BD"><span class="nav-text">2.6性能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-1-%E5%8A%A0%E9%80%9F%E6%AF%94-%E6%95%88%E7%8E%87"><span class="nav-text">2.6.1 加速比&#x2F;效率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-2%E9%98%BF%E5%A7%86%E8%BE%BE%E5%B0%94%E5%AE%9A%E5%BE%8B"><span class="nav-text">2.6.2阿姆达尔定律</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-3%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7"><span class="nav-text">2.6.3可扩展性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-7%E8%AE%BE%E8%AE%A1"><span class="nav-text">2.7设计</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="🐏🐚"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">🐏🐚</p>
+  <div class="site-description" itemprop="description">摇摇晃晃</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">🐏🐚</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:32</span>
+</div><a href="https://icp.gov.moe/?keyword=20180708" rel="external nofollow noreferrer" target="_blank" data-pjax-state="" style="
+    border-bottom-width: 0px;
+">萌 ICP 备 20180708 号</a>
+<!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span>
+<span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("12/31/2019 23:54:40");//此处修改你的建站时间，注意格式
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "小站在混沌中存活了 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

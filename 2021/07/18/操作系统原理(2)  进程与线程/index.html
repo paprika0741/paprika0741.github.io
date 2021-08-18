@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta property="og:type" content="article">
+<meta property="og:title" content="操作系统原理(2)进程与线程">
+<meta property="og:url" content="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(2)%20%20%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B/index.html">
+<meta property="og:site_name" content="PAPRIKA&#39; Blog">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/20633326_162061021009782_8543396229051056128_n.jpg">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619145459444.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210620154011428.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210620154042219.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619160524919.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619163635655.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619163801217.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619163938916.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619164737864.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619164844504.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619165047951.png">
+<meta property="article:published_time" content="2021-07-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-18T17:05:22.206Z">
+<meta property="article:author" content="🐏🐚">
+<meta property="article:tag" content="OS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/20633326_162061021009782_8543396229051056128_n.jpg">
+
+<link rel="canonical" href="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(2)%20%20%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>操作系统原理(2)进程与线程 | PAPRIKA' Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">PAPRIKA' Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">我一定要尽快调查明白</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">24</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(2)%20%20%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="🐏🐚">
+      <meta itemprop="description" content="摇摇晃晃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAPRIKA' Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          操作系统原理(2)进程与线程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-18 00:00:00" itemprop="dateCreated datePublished" datetime="2021-07-18T00:00:00+08:00">2021-07-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-19 01:05:22" itemprop="dateModified" datetime="2021-08-19T01:05:22+08:00">2021-08-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index"><span itemprop="name">课程相关</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/OS/" itemprop="url" rel="index"><span itemprop="name">OS</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/20633326_162061021009782_8543396229051056128_n.jpg" alt="20633326_162061021009782_8543396229051056128_n" style="zoom:50%;" /></p>
+<span id="more"></span>
+<h1 id="进程与线程"><a href="#进程与线程" class="headerlink" title="进程与线程"></a>进程与线程</h1><h2 id="进程的概念"><a href="#进程的概念" class="headerlink" title="进程的概念"></a>进程的概念</h2><p><strong>进程映像（进程实体）</strong>：程序段 数据段 PCB 栈 共享地址空间<br>    程序段：程序代码<br>    数据段：程序运行时使用、产生的运算数据 全局变量 局部变量<br>    栈：用于跟踪过程调用和过程间参数传递<br>    共享地址空间（用于进程间通信） </p>
+<p>​    进程控制块：保护操作系统对进程管理所需的各种信息<br>​                         进程存在的唯一标准</p>
+<ul>
+<li>进程描述信息：<br>进程标识符PID：标志各个进程，每个进程都有一个唯一的PID<br>用户标识符UID：进程归属的用户。主要为共享和保护服务</li>
+<li>进程控制和管理信息：<br>进程当前状态 ：进程状态信息，处理机调度的依据<br>进程优先级：处理机抢占的依据</li>
+<li>资源分配清单：程序段指针 数据段指针 键盘 鼠标</li>
+<li>处理机相关信息：各种寄存器的值<br>进程切换时，处理机信息必须保存在相应PCB里</li>
+</ul>
+<p><strong>进程：</strong><br>    独立程序在一个数据集合上运行的过程，系统进行资源分配和调度的一个独立单位<br><strong>区别：</strong><br>    进程实体是静态的，进程是动态的。若未特别说明，不区分</p>
+<p><strong>特征：</strong><br>动态性：具有一定的生命周期。是进程最基本的特征<br>并发性：多个进程实体，同存在与内存中，一段时间内同时运行<br>独立性：进程实体是一个能独立运行的基本单位，系统中独立获得资源和接受调度的基本单位<br>异步性：进程按各自的 不可预知的速度向前推进，进程按异步方式运行<br>结构性：进程实体由程序段、数据段、PCB构成</p>
+<h2 id="进程的状态"><a href="#进程的状态" class="headerlink" title="进程的状态"></a>进程的状态</h2><p>运行状态：占有CPU<br>就绪状态：具备运行条件，但没有空闲CPU。获得了除处理机之外一切资源，获得处理机即可<br>运行状态：<br>阻塞状态：因等待某事件而暂停运行。<br>                  等待某一资源（除CPU）、等待输入\输出<br>创建状态：正在被创建，还没有就绪。<br>                  首先申请一个空的PCB，填写控制和管理信息，系统分配资源，转入就绪态<br>终止状态：进程正在从系统中撤销，操作系统回收进程拥有的资源，撤销PCB</p>
+<h3 id="交换："><a href="#交换：" class="headerlink" title="交换："></a><strong>交换：</strong></h3><p>换入：<strong>进程映像</strong>整体的/部分的从主存转移到辅存中<br>换出：<strong>进程映像</strong>整体的/部分的从辅存转移到主存中<br>原因：<br>解决实存不足的问题<br>如果出现主存中多个进程全部阻塞等待I/O操作，处理机处于空闲状态，浪费处理机资源</p>
+<h3 id="挂起："><a href="#挂起：" class="headerlink" title="挂起："></a>挂起：</h3><p>当主存中不存在就绪态的进程时，把阻塞的进程换出到磁盘中的挂起队列（进程的映像整体从外存移到内存）<br>此时，内存释放的空间可被调入的另一个进程使用</p>
+<h4 id="阻塞-挂起态："><a href="#阻塞-挂起态：" class="headerlink" title="阻塞/挂起态："></a>阻塞/挂起态：</h4><p>进程在外存中，并等待一个事件</p>
+<h4 id="就绪-挂起态："><a href="#就绪-挂起态：" class="headerlink" title="就绪/挂起态："></a>就绪/挂起态：</h4><p>进程在外村中，载入内存就可以执行</p>
+<h2 id="进程状态的转化"><a href="#进程状态的转化" class="headerlink" title="进程状态的转化"></a>进程状态的转化</h2><h3 id="五状态模型："><a href="#五状态模型：" class="headerlink" title="五状态模型："></a><strong>五状态模型：</strong></h3><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619145459444.png" alt="image-20210619145459444" style="zoom:33%;" /></p>
+<p>就绪 -&gt; 运行：    获得处理机资源（获得时间片）<br>运行 -&gt; 就绪</p>
+<ul>
+<li>时间片用完，不得不让出</li>
+<li>可剥夺系统，高优先级的进程抢占</li>
+<li>自愿释放</li>
+</ul>
+<p>运行 -&gt; 阻塞（主动行为）</p>
+<ul>
+<li>请求某一资源分配</li>
+<li>等待某一事件发生，I/O操作的完成，进程通信等待另一个进程输入</li>
+<li>系统调用</li>
+</ul>
+<p>运行-&gt; 退出:已完成/取消 </p>
+<p>阻塞 -&gt;就绪 (被动行为)：  等待的事件发生</p>
+<p> 其他 -&gt; 退出： 某些系统，父进程可在任何时候中止子进程。如果父进程中止，相关子进程都会中止</p>
+<p>注：不存在就绪-&gt;阻塞</p>
+<h3 id="挂起态的模型："><a href="#挂起态的模型：" class="headerlink" title="挂起态的模型："></a>挂起态的模型：</h3><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210620154011428.png" alt="image-20210620154011428" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210620154042219.png" alt="image-20210620154042219" style="zoom:50%;" /></p>
+<h2 id="进程控制"><a href="#进程控制" class="headerlink" title="进程控制"></a>进程控制</h2><p>对系统中进程进行有效的管理，完成进程的创建、撤销、状态转换<br>由原语完成，一个不可分割的基本单位，开始了就必须完成。不可以被中断。<br>采用“关中断指令”和“开中断指令”实现</p>
+<h3 id="进程控制相关原语"><a href="#进程控制相关原语" class="headerlink" title="进程控制相关原语"></a>进程控制相关原语</h3><p>1.更新PCB中的信息<br>    a、所有进程控制原语一定会修改进程状态标志<br>    b、剥夺当前运行进程的CPU使用权，保存运行环境<br>    c、某进程开始前，恢复环境<br>2、PCB插入合适的队列<br>3、分配/回收资源</p>
+<h4 id="创建原语："><a href="#创建原语：" class="headerlink" title="创建原语："></a>创建原语：</h4><p>申请空白PCB，分配一个唯一的pid。如果没有空的PCB，创建失败<br>分配资源，为程序和数据分配内存空间。如果分配资源不足，处于等待状态<br>初始化PCB，进程标志信息，处理机状态信息，处理机控制信息，进程优先级<br>插入就绪队列</p>
+<h5 id="事件："><a href="#事件：" class="headerlink" title="事件："></a>事件：</h5><p>用户登录：分时系统中，用户登录成功，系统会为其建立一个新的进程<br>作业调度：多道批处理系统，新的作业放入内存<br>提供服务：用户向系统提出请求，会新建一个进程处理该请求<br>应用请求：用户向进程主动请求创建一个子进程</p>
+<h4 id="撤销原语："><a href="#撤销原语：" class="headerlink" title="撤销原语："></a>撤销原语：</h4><p>找到终止进程的PCB<br>如果正在运行，剥夺CPU分配给其他进程<br>中止所有子进程，将进程拥有所有资源归还给父进程或操作系统<br>删除PCB</p>
+<h5 id="事件：-1"><a href="#事件：-1" class="headerlink" title="事件："></a>事件：</h5><p>正常结束：进程完成任务，准备退出<br>异常结束：发生某种异常，程序无法正常运行，存储区越界、保护错、非法指令、I/O故障<br>外界干预：操作员/操作系统干预、父进程请求、父进程中止</p>
+<h4 id="阻塞和唤醒原语："><a href="#阻塞和唤醒原语：" class="headerlink" title="阻塞和唤醒原语："></a>阻塞和唤醒原语：</h4><p>阻塞：<br>找到对应PCB，若其为运行状态，保留线程，修改为阻塞态，停止运行<br>插入相应事件的等待队列中<br>唤醒：<br>某事件发生，在该事件等待队列中找到相应进程的PCB<br>从等待队列中移除，修改为就绪态<br>插入就绪队列，等待进程调度</p>
+<h4 id="进程切换原语："><a href="#进程切换原语：" class="headerlink" title="进程切换原语："></a>进程切换原语：</h4><p>保存处理机上下文，<br>更新PCB信息，状态修改为就绪/阻塞<br>进程的PCB移入相应的队列，就绪/某事件阻塞队列<br>选择另一个进程执行，更新其PCB，状态改为运行<br>更新内存管理数据结构<br>恢复所选进程的CPU上下文环境</p>
+<p><strong>时机</strong><br>当OS从正在运行的进程那里获得控制权时，可能进行进程切换</p>
+<ul>
+<li><p>外部中断/硬中断<br>时钟中断：时间片到<br>I/O中断：I/O完成，高优先级进程就绪<br>内存失效：调页时阻塞（所需内存地址不在主存）</p>
+</li>
+<li><p>内部中断/软中断</p>
+<p>陷阱（trap），如系统调用一般是通过[由操作系统规定的]特定中断来实现，如DOS的21h号中断<br>异常（exception）：当前执行的指令出现错误（主要指在处理器和内存内部产生的中断，一般称为内中断）<br>只有通过[软/硬或内/外]中断，操作系统才能获得控制权</p>
+</li>
+</ul>
+<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><p>CPU最小的执行单元，程序流执行的最小单位<br>线程是进程的一个实体<br>引入线程后，进程作为除CPU以外系统资源分配单元，线程作为处理机分配单元同一个进程的线程共享进程所拥有的全部资源</p>
+<p><strong>调度：</strong></p>
+<ul>
+<li>线程是处理器调度和分派的基本单位。</li>
+<li>用一进程内线程切换，不需要切换运行环境，开销小</li>
+<li>不同进程的线程切换，会引起进程切换，开销大</li>
+</ul>
+<p><strong>资源：</strong></p>
+<ul>
+<li>进程是拥有资源的基本单位 ，线程是调度的基本单位</li>
+<li>线程不拥有系统资源（只拥有一点在运行中必不可少的资源），线程可以访问属于进程的所有资源</li>
+<li>进程与其所有线程共享代码和地址空间。但是线程拥有自己的<strong>寄存器上下文和栈空间（用来存储局部变量和调用参数）</strong></li>
+</ul>
+<p><strong>并发性：</strong><br>进程之间可以并发，线程之间可以并发。<br>增加并发性，吞吐量<br><strong>系统开销</strong><br>线程切换开销小<br>创建/中止时间少</p>
+<p><strong>通信</strong><br>同一进程的线程之间可以直接读/写进程数据段(如全局变量)通信</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619160524919.png" alt="image-20210619160524919" style="zoom:50%;" /></p>
+<h3 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h3><h4 id="用户级线程"><a href="#用户级线程" class="headerlink" title="用户级线程"></a>用户级线程</h4><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619163635655.png" alt="image-20210619163635655" style="zoom:25%;" /></p>
+<ul>
+<li>线程管理所有工作都由<strong>应用程序</strong>完成,内核意识不到线程存在</li>
+<li>对用户不透明,对操作系统透明<br><strong>优点:</strong><br>线程切换不需要模式切换(用户态-内核态);<br>调度算法可应用程序专属;<br>不需要内核支持，线程库可在任何OS上运行<br><strong>缺点:</strong><br>一个线程阻塞会导致整个进程阻塞;<br>不能利用多核和多处理器技术</li>
+</ul>
+<h4 id="内核级线程"><a href="#内核级线程" class="headerlink" title="内核级线程"></a>内核级线程</h4><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619163801217.png" alt="image-20210619163801217" style="zoom:33%;" /></p>
+<ul>
+<li><p>线程所有工作都由内核完成</p>
+</li>
+<li><p>应用程序没有进行线程管理的代码,只有一个到内核级线程的编程接口<br><strong>优点</strong>：<br>线程阻塞不会导致进程阻塞<br>可以利用多核和多处理器技术<br>内核例程本身也可以使用多线程</p>
+<p><strong>缺点：</strong><br>线程切换需要模式切换</p>
+</li>
+</ul>
+<h4 id="组合途径"><a href="#组合途径" class="headerlink" title="组合途径"></a>组合途径</h4><p>二者组合的方式：<br>线程<strong>创建</strong>在<strong>用户空间</strong>完成<br>线程<strong>调度</strong>和<strong>同步</strong>在<strong>内核空间</strong>进行</p>
+<p>n个用户级线程映射到m个内核级线程,n&gt;m<br>内核级线程才是处理机分配的单位</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619163938916.png" alt="image-20210619163938916" style="zoom:33%;" /></p>
+<h3 id="多线程模型"><a href="#多线程模型" class="headerlink" title="多线程模型"></a>多线程模型</h3><p>同时支持用户级线程和内核级线程的系统中,几个用户级线程映射到几个内核级线程的问题</p>
+<h4 id="多对一模型"><a href="#多对一模型" class="headerlink" title="多对一模型:"></a>多对一模型:</h4><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619164737864.png" alt="image-20210619164737864" style="zoom:33%;" /></p>
+<p>多个用户级线程映射到一个内核级线程<br>每个用户进程只对应一个内核级线程<br>优点：用户级线程的切换不需要切换到核心态，线程管理系统开销小，效率高<br>缺点：当一个用户级线程阻塞，整个进程被阻塞，并发度不高，多个进程不可在多处理机上并行</p>
+<h4 id="一对一模型"><a href="#一对一模型" class="headerlink" title="一对一模型"></a>一对一模型</h4><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619164844504.png" alt="image-20210619164844504" style="zoom:33%;" /></p>
+<p>优点：一个线程被阻塞，别的线程还可以继续执行，并发能力强<br>缺点：一个用户进程占用多个内核线程，线程切换内核完成，需要切换到和核心态，开销大</p>
+<h4 id="多对多模型："><a href="#多对多模型：" class="headerlink" title="多对多模型："></a>多对多模型：</h4><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210619165047951.png" alt="image-20210619165047951" style="zoom:33%;" /></p>
+<p>n个用户级线程映射到m个内核级线程， $m\leq n$</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/OS/" rel="tag"><i class="fa fa-tag"></i> OS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(9)%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="prev" title="操作系统原理(9) 文件系统">
+      <i class="fa fa-chevron-left"></i> 操作系统原理(9) 文件系统
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(1)%20%E6%A6%82%E8%BF%B0/" rel="next" title="操作系统原理(1) 概述">
+      操作系统原理(1) 概述 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="nav-text">进程与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-text">进程的概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-text">进程的状态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A4%E6%8D%A2%EF%BC%9A"><span class="nav-text">交换：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%82%E8%B5%B7%EF%BC%9A"><span class="nav-text">挂起：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%BB%E5%A1%9E-%E6%8C%82%E8%B5%B7%E6%80%81%EF%BC%9A"><span class="nav-text">阻塞&#x2F;挂起态：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%B1%E7%BB%AA-%E6%8C%82%E8%B5%B7%E6%80%81%EF%BC%9A"><span class="nav-text">就绪&#x2F;挂起态：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81%E7%9A%84%E8%BD%AC%E5%8C%96"><span class="nav-text">进程状态的转化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E7%8A%B6%E6%80%81%E6%A8%A1%E5%9E%8B%EF%BC%9A"><span class="nav-text">五状态模型：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%82%E8%B5%B7%E6%80%81%E7%9A%84%E6%A8%A1%E5%9E%8B%EF%BC%9A"><span class="nav-text">挂起态的模型：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6"><span class="nav-text">进程控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6%E7%9B%B8%E5%85%B3%E5%8E%9F%E8%AF%AD"><span class="nav-text">进程控制相关原语</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%8E%9F%E8%AF%AD%EF%BC%9A"><span class="nav-text">创建原语：</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%EF%BC%9A"><span class="nav-text">事件：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%92%A4%E9%94%80%E5%8E%9F%E8%AF%AD%EF%BC%9A"><span class="nav-text">撤销原语：</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%EF%BC%9A-1"><span class="nav-text">事件：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%BB%E5%A1%9E%E5%92%8C%E5%94%A4%E9%86%92%E5%8E%9F%E8%AF%AD%EF%BC%9A"><span class="nav-text">阻塞和唤醒原语：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E5%88%87%E6%8D%A2%E5%8E%9F%E8%AF%AD%EF%BC%9A"><span class="nav-text">进程切换原语：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B"><span class="nav-text">线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-text">实现方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%BA%A7%E7%BA%BF%E7%A8%8B"><span class="nav-text">用户级线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%BA%A7%E7%BA%BF%E7%A8%8B"><span class="nav-text">内核级线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%84%E5%90%88%E9%80%94%E5%BE%84"><span class="nav-text">组合途径</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="nav-text">多线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E5%AF%B9%E4%B8%80%E6%A8%A1%E5%9E%8B"><span class="nav-text">多对一模型:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E5%AF%B9%E4%B8%80%E6%A8%A1%E5%9E%8B"><span class="nav-text">一对一模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E5%AF%B9%E5%A4%9A%E6%A8%A1%E5%9E%8B%EF%BC%9A"><span class="nav-text">多对多模型：</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="🐏🐚"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">🐏🐚</p>
+  <div class="site-description" itemprop="description">摇摇晃晃</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">🐏🐚</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:32</span>
+</div><a href="https://icp.gov.moe/?keyword=20180708" rel="external nofollow noreferrer" target="_blank" data-pjax-state="" style="
+    border-bottom-width: 0px;
+">萌 ICP 备 20180708 号</a>
+<!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span>
+<span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("12/31/2019 23:54:40");//此处修改你的建站时间，注意格式
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "小站在混沌中存活了 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

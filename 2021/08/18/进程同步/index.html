@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="并发定义：在同一时间段内活动的进程或线程，在此期间，它们可能交替地共享相同的资源 异步性：相对执行速度不可预测 并发性引发的问题全局资源的共享充满危险资源竞争、共享、分配管理困难调试程序设计错误非常困难（不可再现性）  进程的相互作用间接：通过共享的竞争通过共享的合作：    没有意识到其他进程的存在，但知道要维护数据的完    整性。通过共享变量、文件或数据库等。    执行结果可能会受影响，执">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PAPRIKA&#39; Blog">
+<meta property="og:url" content="http://example.com/2021/08/18/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/index.html">
+<meta property="og:site_name" content="PAPRIKA&#39; Blog">
+<meta property="og:description" content="并发定义：在同一时间段内活动的进程或线程，在此期间，它们可能交替地共享相同的资源 异步性：相对执行速度不可预测 并发性引发的问题全局资源的共享充满危险资源竞争、共享、分配管理困难调试程序设计错误非常困难（不可再现性）  进程的相互作用间接：通过共享的竞争通过共享的合作：    没有意识到其他进程的存在，但知道要维护数据的完    整性。通过共享变量、文件或数据库等。    执行结果可能会受影响，执">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210621212000833.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210621212850975.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210621214751578.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210621215304689.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210621220338686.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210621231408756.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210621232427857.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210622003621383.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210622003750908.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210622004343767.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210622010242038.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210622010350482.png">
+<meta property="article:published_time" content="2021-08-18T15:07:04.006Z">
+<meta property="article:modified_time" content="2021-07-06T05:43:55.997Z">
+<meta property="article:author" content="🐏🐚">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210621212000833.png">
+
+<link rel="canonical" href="http://example.com/2021/08/18/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | PAPRIKA' Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">PAPRIKA' Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">我一定要尽快调查明白</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">24</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/18/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="🐏🐚">
+      <meta itemprop="description" content="摇摇晃晃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAPRIKA' Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-18 23:07:04" itemprop="dateCreated datePublished" datetime="2021-08-18T23:07:04+08:00">2021-08-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-07-06 13:43:55" itemprop="dateModified" datetime="2021-07-06T13:43:55+08:00">2021-07-06</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h1><p><strong>定义：</strong>在同一时间段内活动的进程或线程，在此期间，它们可能交替地共享相同的资源</p>
+<p><strong>异步性：</strong>相对执行速度不可预测</p>
+<h3 id="并发性引发的问题"><a href="#并发性引发的问题" class="headerlink" title="并发性引发的问题"></a><strong>并发性引发的问题</strong></h3><p>全局资源的共享充满危险<br>资源竞争、共享、分配管理困难<br>调试程序设计错误非常困难（不可再现性） </p>
+<h3 id="进程的相互作用"><a href="#进程的相互作用" class="headerlink" title="进程的相互作用"></a><strong>进程的相互作用</strong></h3><p>间接：<br>通过共享的竞争<br>通过共享的合作：<br>    没有意识到其他进程的存在，但知道要维护数据的完    整性。通过共享变量、文件或数据库等。<br>    执行结果可能会受影响，执行时间受影响<br>    引发控制问题：互斥 死锁 饥饿 数据一致性</p>
+<p>直接：<br>通过通信的合作<br>    进程直接知道合作伙伴<br>    采用消息传送的方式通信（发送/接收消息）<br>    执行结果可能会受影响，执行时间受影响<br>    引发控制问题：死锁（都等对方发） 饥饿（一直到等待消息）</p>
+<h3 id="进程的互斥机制"><a href="#进程的互斥机制" class="headerlink" title="进程的互斥机制"></a><strong>进程的互斥机制</strong></h3><p>软件方法（Dekker算法、Peterson算法）<br>硬件件方法（关中断、专用指令TestSet/Exchange）</p>
+<h3 id="并发相关术语"><a href="#并发相关术语" class="headerlink" title="并发相关术语"></a>并发相关术语</h3><p><strong>临界资源：</strong>一次只允许一个进程访问的资源<br><strong>临界区：</strong>访问临界资源的代码<br><strong>互斥：</strong>当一个进程在临界区访问共享资源时，不允许其他进程进入访问<br><strong>同步</strong> 系统中一些进程需要相互合作，操作的执行存在某种时序的制约<br><strong>竞态</strong>：多个进程/线程读写共享数据，其结果依赖于它们执行的相对速度/相对时序<br><strong>饥饿</strong>（starvation）由于长期得不到想要的资源，进程无法推进<br><strong>死锁</strong>  一个进程<strong>集合</strong>中的<strong>每个进程</strong>都在等待只能由该<strong>集合中的其他一个进程</strong>才能引发的事件（释放占有资源/进行某项操作）<br><strong>忙等待</strong>   为了等待一事件的发生，重复执行一段循环代码 ，白白消耗CPU时间<br><strong>信号量</strong> 用于进程间传递信号的一个整数值，只有初始化、增、减三种原子操作，可阻塞/解除阻塞进程<br><strong>二元信号量</strong> 取值只为0和1的信号量<br><strong>互斥量</strong> 似二元信号量，但要求为其加锁和解锁的须是同一进程<br><strong>管程 </strong> 一种编程语言结构，封装了代表临界区的若干过程<br><strong>信箱/消息</strong>  进程间交换信息的一种方法，也可用于同步<br><strong>自旋锁</strong>  一种互斥机制，进程在一无条件循环中执行，等待锁变量值变为可用</p>
+<h2 id="互斥"><a href="#互斥" class="headerlink" title="互斥"></a>互斥</h2><p>间接制约关系<br>多个进程需要访问一个共享的资源时，任何时候只能有一个访问这个资源</p>
+<h3 id="实现方法"><a href="#实现方法" class="headerlink" title="实现方法"></a>实现方法</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>软件方法</th>
+<th>Dekker</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>Peterson</td>
+<td></td>
+</tr>
+<tr>
+<td>硬件方法</td>
+<td>TestSet</td>
+<td>关中断</td>
+</tr>
+<tr>
+<td></td>
+<td>Exchange</td>
+<td>判断和修改一气呵成</td>
+</tr>
+<tr>
+<td>OS或程序设计语言的支持</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>信号量</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>管程</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>消息传递</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="互斥要求："><a href="#互斥要求：" class="headerlink" title="互斥要求："></a>互斥要求：</h3><p><strong>强制排它：</strong>在具有相同资源或共享对象的临界区的所有进程中，一次只允许一个进程进入临界区</p>
+<p><strong>空闲让进：</strong>没有进程在临界区中时，任何需要访问临界区的进程必须能够<strong>立即进</strong>入</p>
+<p><strong>有限等待：</strong>决不允许出现一个需要访问临界区的进程被<strong>无限延迟</strong></p>
+<p><strong>让权等待</strong>：当进程不能进入临界区，应该立即释放处理机，<strong>防止进程忙等待</strong></p>
+<p><strong>充分并发：</strong>一个在非临界区停止的进程必须<strong>不干涉其他进程</strong></p>
+<p><strong>满足异步：</strong>相关进程的执行速度和处理机数目没有任何要求或限制</p>
+<h3 id="互斥实现方法"><a href="#互斥实现方法" class="headerlink" title="互斥实现方法"></a>互斥实现方法</h3><h4 id="软件方法"><a href="#软件方法" class="headerlink" title="软件方法"></a>软件方法</h4><h5 id="单标志法"><a href="#单标志法" class="headerlink" title="单标志法"></a>单标志法</h5><p>一个公用整型变量turn，指示当前允许进入临界区的进程编号<br>turn = 0，允许0号进程进入临界区；<br>turn = 1，允许1号进程进入临界区；<br>进程进入临界区的权限只能由另一个进程赋予<br>    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210621212000833.png" alt="image-20210621212000833" style="zoom:50%;" /></p>
+<p><strong>分析：</strong><br>强制排它：满足，一个时刻只有一个进程在临界区<br>空闲让进：不满足，如果turn一开始为0，但是0号进程因为某些原因阻塞，而1号进程就绪，但无法进入临界区，一直卡住<br>让权等待：不满足，等待进入临界区时忙等待，重复执行一段循环代码，白白消耗CPU时间<strong>（while 忙等）</strong><br>有限等待：如果一个进程失败，另一个永远无法进入临界区<br>满足异步：必须轮流进入临界区P0-&gt;P1-&gt;P0… ，不合理，限制推进速度</p>
+<p><strong>结论：</strong>难以满足并发需求</p>
+<h5 id="双标志先检查法"><a href="#双标志先检查法" class="headerlink" title="双标志先检查法"></a>双标志先检查法</h5><p>基本思想：布尔型数组flag，标记进程想进入临界区的意愿<br>flag[0]=true 表示0号进程P0当前想要进入临界区，<br>每个进程进入临界区之前都要检查当前有没有其他进程在临界区（先检查对方标志）<br>如果没有，将flag[i]置为true（设置自己标志）<br>之后再开始访问临界区<br>    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210621212850975.png" alt="image-20210621212850975" style="zoom:50%;" /></p>
+<p><strong>分析：</strong></p>
+<p>强制排它：不满足，如果按照①⑤②⑥执行，同时进入临界区，不满足互斥<strong>（检查和修改操作不能一次执行）</strong><br>有限等待：不满足， 一个进程在临界区内失败，另一进程永远被阻塞<br>让权等待：不满足，等待进入临界区时忙等待，重复执行一段循环代码，白白消耗CPU时间<strong>（while 忙等）</strong></p>
+<p><strong>结论：</strong>错误方案，无法保护临界区，不能保证进程的运行结果与执行速度无关</p>
+<h5 id="双标志后检查法"><a href="#双标志后检查法" class="headerlink" title="双标志后检查法"></a>双标志后检查法</h5><p>​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210621214751578.png" alt="image-20210621214751578" style="zoom: 67%;" /></p>
+<p><strong>分析：</strong> </p>
+<p>强制排它：可以满足<br>有限等待：不满足，若按①⑤②⑥的顺序执行 可能会死锁<br>空闲让进：不满足，忙等</p>
+<h5 id="Peterson’s-Algorithm"><a href="#Peterson’s-Algorithm" class="headerlink" title="Peterson’s Algorithm"></a>Peterson’s Algorithm</h5><p>主动争取，主动谦让，且最后一次不是自己说客气话了</p>
+<p>如果两个进程都想要进入临界区，尝试“谦让”<br>    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210621215304689.png" alt="image-20210621215304689" style="zoom:50%;" /></p>
+<p><strong>分析</strong>：</p>
+<p>①②③⑥⑦⑧的顺序执行，P0先进入临界区</p>
+<p><strong>结论</strong>：<br>强制排它：满足<br>空闲让进：满足<br>有限等待：满足<br>让权等待：不满足，会忙等</p>
+<h4 id="硬件方法"><a href="#硬件方法" class="headerlink" title="硬件方法"></a>硬件方法</h4><h5 id="中断屏蔽"><a href="#中断屏蔽" class="headerlink" title="中断屏蔽"></a>中断屏蔽</h5><p>因为CPU只在发生中断时进程切换，屏蔽中断能保证当前进程将临界区代码执行完</p>
+<p>​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210621220338686.png" alt="image-20210621220338686" style="zoom:67%;" /></p>
+<p>优点：<br>简单 高效 实现简单<br>缺点：<br>不适用于多处理机；<br>限制了处理器交替执行各进程的能力；<br>只适用于内核进程（因为开关中断只能允许在内核态，这组指令用户随意使用很危险）</p>
+<h5 id="TeseSet指令-（TS）"><a href="#TeseSet指令-（TS）" class="headerlink" title="TeseSet指令 （TS）"></a>TeseSet指令 （TS）</h5><p>原子操作，执行过程中不允许被中断</p>
+<p>​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210621231408756.png" alt="image-20210621231408756" style="zoom:50%;" /></p>
+<p>若lock原理为true，则一直while循环，不访问临界区<br>若lock原理为false，则返回false并上锁，访问临界区<br>相比软件方法，<strong>检查和上锁用硬件方式变成了一气呵成</strong>的原子操作<br>优点：<br>实现简单，不像软件操作有逻辑漏洞；<br>适用于多处理机环境<br>缺点：<br>不满足让权等待，忙等待</p>
+<h5 id="Swap指令-Exchange-指令"><a href="#Swap指令-Exchange-指令" class="headerlink" title="Swap指令/Exchange 指令"></a>Swap指令/Exchange 指令</h5><p>交换一个寄存器和内存单元的内容<br>原子操作</p>
+<p>​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210621232427857.png" alt="image-20210621232427857" style="zoom:50%;" /></p>
+<p>和TS逻辑上一样<br>优点：<br>简单且易于证明，不像软件操作有逻辑漏洞；<br>适用于单处理器或共享主存多[核]处理器系统，进程数目任意<br>缺点：<br>不满足让权等待，忙等待<br>可能饥饿/死锁</p>
+<h3 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h3><p>由OS提供的用于进程并发控制的一种特殊数据结构<br>含有一个整数变量和三个<strong>原子操作</strong>：初始化、P操作和V操作，可阻塞/解除阻塞进程</p>
+<h4 id="整型信号量"><a href="#整型信号量" class="headerlink" title="整型信号量"></a>整型信号量</h4><p>只能由两个标准的原语P，V来访问</p>
+<p><strong>含义</strong></p>
+<ul>
+<li>$\geq 0$：可用的资源数/可以执行P(s)而不会阻塞的进程数</li>
+<li>$&lt;0$：|S |为在队列中等待的进程数</li>
+</ul>
+<p>初始化S：非负整数 = 可用资源数</p>
+<p><strong>P操作：</strong></p>
+<ul>
+<li>S-1</li>
+<li>若信号量的值变成负数，则请求执行P操作的进程被阻塞（=让权等待）</li>
+<li>减一之前,无法知道是否阻塞</li>
+</ul>
+<p><strong>V操作：</strong></p>
+<ul>
+<li>S+1</li>
+<li>如果信号量的值不是正数<br>绝对值 = 现被阻塞的进程数[等待队列的长度]</li>
+<li>如果V之前S&lt;=0,会唤醒一个等待进程</li>
+</ul>
+<p><strong>优点</strong><br>简单，而且表达能力强<br>用P、V操作可解决多种类型的同步/互斥问题<br><strong>缺点</strong><br>不够安全，P、V操作使用不当会产生死锁<br>遇到复杂同步互斥问题时实现复杂</p>
+<h4 id="记录型信号量"><a href="#记录型信号量" class="headerlink" title="记录型信号量"></a>记录型信号量</h4><p>value初值$\geq0$,可用资源数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">int</span> value <span class="comment">// 剩余资源数</span></span><br><span class="line">     <span class="class"><span class="keyword">struct</span> <span class="title">process</span> *<span class="title">L</span>;</span> <span class="comment">// 等待队列</span></span><br><span class="line">&#125; semaphore</span><br></pre></td></tr></table></figure>
+<p>减一后$value &lt; 0$ 才入队,阻塞</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">wait</span><span class="params">(semaphore)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S.value--; <span class="comment">// 资源数减一</span></span><br><span class="line">	<span class="keyword">if</span>(S.value &lt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		add <span class="keyword">this</span> process to S.<span class="function">L</span></span><br><span class="line"><span class="function">        <span class="title">block</span><span class="params">(S,L)</span>  <span class="comment">// 让权等待</span></span></span><br><span class="line"><span class="function">	&#125;</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>加一后$value \leq 0$ 才出队(队列不为空),唤醒</p>
+<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">signal</span><span class="params">(semaphore)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	S.value++; <span class="comment">// 资源数减一</span></span><br><span class="line">	<span class="keyword">if</span>(S.value&lt;=<span class="number">0</span>) <span class="comment">// 说明原来S.value&lt;0, 有在等待的进程</span></span><br><span class="line">	&#123;</span><br><span class="line">	   <span class="comment">/*     唤醒等待队列中的一个进程</span></span><br><span class="line"><span class="comment">	     阻塞态转到就绪态  */</span></span><br><span class="line">	     remove  a  process from S.<span class="function">L </span></span><br><span class="line"><span class="function">         <span class="title">wakeup</span><span class="params">(P)</span>  </span></span><br><span class="line"><span class="function">	&#125;</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+<h4 id="二元信号量"><a href="#二元信号量" class="headerlink" title="二元信号量"></a>二元信号量</h4><ul>
+<li>信号量的取值只能是0或1</li>
+<li>因count不能&lt;0，得用另外的方法来判断等待队列是否为空</li>
+</ul>
+<h3 id="信号量实现互斥"><a href="#信号量实现互斥" class="headerlink" title="信号量实现互斥"></a>信号量实现互斥</h3><p>1.分析关键活动,划分临界区<br>2.设置互斥信号量mutex,<strong>初值为1</strong>（必须初始化为1）<br>3.进入临界区之前P(mutex)<br>4.离开临界区之后V(mutex)</p>
+<ul>
+<li><p>对于不同临界资源,要设置不用的互斥信号量</p>
+</li>
+<li><p>P V 必须成对出现</p>
+</li>
+</ul>
+<p> <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210622003621383.png" alt="image-20210622003621383" style="zoom:50%;" /></p>
+<h3 id="信号量实现同步"><a href="#信号量实现同步" class="headerlink" title="信号量实现同步"></a>信号量实现同步</h3><p>同步：系统中一些进程需要相互合作，操作的执行存在某种时序的制约<br>1.分析什么地方需要同步，即必须保证“一前一后”执行的两个操作<br>2.设置同步信号量S，<strong>初始化</strong>0（具体可能不为0，具体分析）<br>3.”<strong>前</strong>操作”之<strong>后</strong>执行<strong>V（S）</strong><br>4.”<strong>后</strong>操作”之<strong>前</strong>执行<strong>P（S)</strong></p>
+<p>​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210622003750908.png" alt="image-20210622003750908" style="zoom: 50%;" /></p>
+<h3 id="信号量实现前驱关系"><a href="#信号量实现前驱关系" class="headerlink" title="信号量实现前驱关系"></a>信号量实现前驱关系</h3><p>（拓扑排序，多个进程之间的同步关系）<br>每一对前驱关系都是一个进程同步问题</p>
+<ul>
+<li><p>每一对同步关系设置一个同步变量</p>
+</li>
+<li><p>“前操作”之后对应的同步变量执行V操作</p>
+</li>
+<li><p>“后操作”之前对应的同步变量执行V操作</p>
+</li>
+</ul>
+<p>  ​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210622004343767.png" alt="image-20210622004343767" style="zoom:50%;" /></p>
+<h4 id="生产资消费者问题"><a href="#生产资消费者问题" class="headerlink" title="生产资消费者问题"></a>生产资消费者问题</h4><p>大小为n的缓冲区。<br>只有缓冲区没满，生产者才能把消息放入缓冲区，否则等待<br>只有缓冲区不空，消费者才能取走消息，否则等待<br><strong>分析关系</strong></p>
+<p>互斥关系：<br>生产者和消费者对缓冲区的访问<br>同步关系：<br>缓冲区不满，生产者才能生产，否则等待消费者取走<br>缓冲区不空，消费者才能取，否则等待生产者生产</p>
+<p>那么需要一个互斥信号量，两个同步信号量</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">semaphore mutex = <span class="number">1</span> ;      <span class="comment">// 实现互斥保护临界区</span></span><br><span class="line">semaphore full = <span class="number">0</span>;           <span class="comment">// 满缓冲区信号量初   , 始化0</span></span><br><span class="line">semaphore empty = n;     <span class="comment">//空缓冲区信号量   ,初始化n</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">producer()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		生产一个产品</span><br><span class="line">		P（empty）  <span class="comment">// 获取空缓冲区，P</span></span><br><span class="line">        P（mutex）  <span class="comment">// 进入临界区之前 P</span></span><br><span class="line">		写入缓冲区</span><br><span class="line">		V（mutex） <span class="comment">// 离开临界区之后V</span></span><br><span class="line">        V（full）     <span class="comment">// 提供满缓冲区 ，V </span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">consumer()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		P（full）       <span class="comment">// 获取满缓冲区, P</span></span><br><span class="line">        P（mutex）  <span class="comment">// 进入临界区之前, P</span></span><br><span class="line">		读缓冲区</span><br><span class="line">		V（mutex）     <span class="comment">// 离开临界区之后, V</span></span><br><span class="line">        V（empty）     <span class="comment">// 提供空缓冲区, V </span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210622010242038.png" alt="image-20210622010242038" style="zoom: 33%;" /></p>
+<p>​        <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210622010350482.png" alt="image-20210622010350482" style="zoom:33%;" /></p>
+<ul>
+<li><strong>实现互斥的P操作，一定要在同步的P之后，V操作不会导致进程阻塞，V操作交换顺序不会出现问题</strong></li>
+<li>非必要的代码<br>生产产品/使用产品不要放在PV临界区，否则临界区代码变多，并发度降低。</li>
+</ul>
+<h4 id="多生产资多消费者问题"><a href="#多生产资多消费者问题" class="headerlink" title="多生产资多消费者问题"></a>多生产资多消费者问题</h4><p>盘中每次只能放一个水果。<br>爸爸向盘子里放苹果，妈妈放橘子。儿子只吃橘子，女儿只吃苹果。只有盘子为空时才能放，盘中有需要的水果，儿子/女儿才能取<br><strong>分析关系</strong></p>
+<p>互斥关系：对盘子的访问<br>同步关系：<br>1.父亲放了苹果女儿才能取<br>2.母亲放了橘子儿子才能取<br>3.盘子为空，父亲/母亲才能放<br>那么需要一个互斥信号量，三个同步信号量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">semaphore mutex = 1 ;      // 实现互斥保护临界区</span><br><span class="line">semaphore empty = 1;       //空盘子，初始化1  </span><br><span class="line">semaphore apple = 0;        //  apple 初始化0</span><br><span class="line">semaphore orange = 0;     //   orange初始化0</span><br></pre></td></tr></table></figure>
+<h4 id="读者写者问题"><a href="#读者写者问题" class="headerlink" title="读者写者问题"></a>读者写者问题</h4><p>读者写者进程并发执行，共享一个文件。运行多个读，只允许一个写。<br>分析关系：读者和写者是互斥的 写着和写者是互斥的 读者和读者不互斥<br>那么读者需要计数量count，count的改变也是互斥的</p>
+<p>信号量：<br>rw: 读写/写写互斥，初始化1<br>mutex：count访问的锁，初始化1</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">void writer()</span><br><span class="line">&#123;</span><br><span class="line">	while(1)</span><br><span class="line">	&#123;</span><br><span class="line">		P(rw)</span><br><span class="line">		wtire...</span><br><span class="line">		V(rw)    </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">void reader()</span><br><span class="line">&#123;</span><br><span class="line">	while(1)</span><br><span class="line">	&#123;</span><br><span class="line">		P(mutex)</span><br><span class="line">		if (count==0)</span><br><span class="line">			P(rw)</span><br><span class="line">		count++;</span><br><span class="line">		V(mutex)</span><br><span class="line">		</span><br><span class="line">		reading....</span><br><span class="line">		</span><br><span class="line">		P(mutex)</span><br><span class="line">		count--;</span><br><span class="line">		if(count==0)</span><br><span class="line">			V(rw)</span><br><span class="line">		V(mutex)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="解题思路："><a href="#解题思路：" class="headerlink" title="解题思路："></a>解题思路：</h4><ul>
+<li>关系分析，互斥关系，同步关系</li>
+<li>信号量，有几个关系就有几个信号量<br>互斥关系，初始化一定为1<br>同步关系，根据初始资源的个数，初始化非负数</li>
+<li>设计进程流程中P、V的顺序<ul>
+<li>互斥关系，临界区之前P，离开Ｖ</li>
+<li>同步关系，使用某个资源前P，提供某个资源后V</li>
+</ul>
+</li>
+<li>实现互斥的P操作，一定要在同步的P之后</li>
+<li>非必要代码不要放在临界区，增加并发度</li>
+</ul>
+<h4 id="读写公平"><a href="#读写公平" class="headerlink" title="读写公平"></a>读写公平</h4><p>上面是读优先，只要一个读进程活跃，随后进来的读进程都能执行，读进程一直推迟 “饥饿”</p>
+<ul>
+<li><p>只有没有读进程时，才允许读</p>
+</li>
+<li><p>增加一个互斥量 实现写优先</p>
+<p>rw: 读写/写写互斥，初始化1<br>mutex：count访问的锁，初始化1<br>w：写优先，初始化1</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">void writer()</span><br><span class="line">&#123;</span><br><span class="line">	while(1)</span><br><span class="line">	&#123;</span><br><span class="line">		P(w)</span><br><span class="line">		P(rw)</span><br><span class="line">		wtire...</span><br><span class="line">		V(rw)</span><br><span class="line">		V(w)    </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">void reader()</span><br><span class="line">&#123;</span><br><span class="line">	while(1)</span><br><span class="line">	&#123;</span><br><span class="line">		P(w);</span><br><span class="line">		P(mutex)</span><br><span class="line">		if (count==0)</span><br><span class="line">			P(rw)</span><br><span class="line">		count++;</span><br><span class="line">		V(mutex)</span><br><span class="line">		V(w)</span><br><span class="line">		</span><br><span class="line">		</span><br><span class="line">		reading....</span><br><span class="line">		</span><br><span class="line">		P(mutex)</span><br><span class="line">		count--;</span><br><span class="line">		if(count==0)</span><br><span class="line">			V(rw)</span><br><span class="line">		V(mutex)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="管程"><a href="#管程" class="headerlink" title="管程"></a>管程</h2><p>一种封装同步机制与同步策略的程序设计语言结构<br>实现互斥与同步<br>任何时候只能有一个进程在管程中执行</p>
+<ul>
+<li>主要特点：<br>本地变量只能由管程过程访问（封装）<br>进程通过调用管程过程进入管程（调用）<br>每次只能一个进程在执行相关管程的过程（互斥）</li>
+<li>主要缺陷<br>可能增加了两次多余的进程切换<br>对进程调度有特殊要求（不允许插队）</li>
+</ul>
+<h2 id="消息传递"><a href="#消息传递" class="headerlink" title="消息传递"></a>消息传递</h2><p>进程通信的一种常用方法<br>适用范围广，可用于多核、SMP和分布式系统<br>由原语对“send（发送）和receive（接收）”提供主要功能：<br>send(目的, 信息)<br>receive(源, 信息)</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/18/%E5%8D%95%E5%A4%84%E7%90%86%E5%99%A8%E8%B0%83%E5%BA%A6/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/18/%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91"><span class="nav-text">并发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E6%80%A7%E5%BC%95%E5%8F%91%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">并发性引发的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%9B%B8%E4%BA%92%E4%BD%9C%E7%94%A8"><span class="nav-text">进程的相互作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BA%92%E6%96%A5%E6%9C%BA%E5%88%B6"><span class="nav-text">进程的互斥机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E7%9B%B8%E5%85%B3%E6%9C%AF%E8%AF%AD"><span class="nav-text">并发相关术语</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%92%E6%96%A5"><span class="nav-text">互斥</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95"><span class="nav-text">实现方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E8%A6%81%E6%B1%82%EF%BC%9A"><span class="nav-text">互斥要求：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95"><span class="nav-text">互斥实现方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E6%96%B9%E6%B3%95"><span class="nav-text">软件方法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8D%95%E6%A0%87%E5%BF%97%E6%B3%95"><span class="nav-text">单标志法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%8C%E6%A0%87%E5%BF%97%E5%85%88%E6%A3%80%E6%9F%A5%E6%B3%95"><span class="nav-text">双标志先检查法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%8C%E6%A0%87%E5%BF%97%E5%90%8E%E6%A3%80%E6%9F%A5%E6%B3%95"><span class="nav-text">双标志后检查法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Peterson%E2%80%99s-Algorithm"><span class="nav-text">Peterson’s Algorithm</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E6%96%B9%E6%B3%95"><span class="nav-text">硬件方法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E5%B1%8F%E8%94%BD"><span class="nav-text">中断屏蔽</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#TeseSet%E6%8C%87%E4%BB%A4-%EF%BC%88TS%EF%BC%89"><span class="nav-text">TeseSet指令 （TS）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Swap%E6%8C%87%E4%BB%A4-Exchange-%E6%8C%87%E4%BB%A4"><span class="nav-text">Swap指令&#x2F;Exchange 指令</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-text">信号量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E5%9E%8B%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-text">整型信号量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E5%9E%8B%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-text">记录型信号量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E5%85%83%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-text">二元信号量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%AE%9E%E7%8E%B0%E4%BA%92%E6%96%A5"><span class="nav-text">信号量实现互斥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%AE%9E%E7%8E%B0%E5%90%8C%E6%AD%A5"><span class="nav-text">信号量实现同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%AE%9E%E7%8E%B0%E5%89%8D%E9%A9%B1%E5%85%B3%E7%B3%BB"><span class="nav-text">信号量实现前驱关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%B5%84%E6%B6%88%E8%B4%B9%E8%80%85%E9%97%AE%E9%A2%98"><span class="nav-text">生产资消费者问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E7%94%9F%E4%BA%A7%E8%B5%84%E5%A4%9A%E6%B6%88%E8%B4%B9%E8%80%85%E9%97%AE%E9%A2%98"><span class="nav-text">多生产资多消费者问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E8%80%85%E5%86%99%E8%80%85%E9%97%AE%E9%A2%98"><span class="nav-text">读者写者问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF%EF%BC%9A"><span class="nav-text">解题思路：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E5%85%AC%E5%B9%B3"><span class="nav-text">读写公平</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E7%A8%8B"><span class="nav-text">管程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%BC%A0%E9%80%92"><span class="nav-text">消息传递</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="🐏🐚"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">🐏🐚</p>
+  <div class="site-description" itemprop="description">摇摇晃晃</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">🐏🐚</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:32</span>
+</div><a href="https://icp.gov.moe/?keyword=20180708" rel="external nofollow noreferrer" target="_blank" data-pjax-state="" style="
+    border-bottom-width: 0px;
+">萌 ICP 备 20180708 号</a>
+<!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span>
+<span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("12/31/2019 23:54:40");//此处修改你的建站时间，注意格式
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "小站在混沌中存活了 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="死锁的概念死锁：一个进程集合中的每个进程都在等待只能由该集合中的其他一个进程才能引发的事件（释放占有资源&#x2F;进行某项操作）饥饿：由于长期得不到想要的资源，进程无法推进死循环：某进程执行过程中一直跳不出某个循环的现象，程序的bug      共同点 区别 原因     死锁 进程无法顺利向前推进 1.一定是循环等待对方手里的资源，至少两个或两个以上的进程同时发生死锁 2.发生死锁进程一定再阻塞态 系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PAPRIKA&#39; Blog">
+<meta property="og:url" content="http://example.com/2021/08/18/%E6%AD%BB%E9%94%81/index.html">
+<meta property="og:site_name" content="PAPRIKA&#39; Blog">
+<meta property="og:description" content="死锁的概念死锁：一个进程集合中的每个进程都在等待只能由该集合中的其他一个进程才能引发的事件（释放占有资源&#x2F;进行某项操作）饥饿：由于长期得不到想要的资源，进程无法推进死循环：某进程执行过程中一直跳不出某个循环的现象，程序的bug      共同点 区别 原因     死锁 进程无法顺利向前推进 1.一定是循环等待对方手里的资源，至少两个或两个以上的进程同时发生死锁 2.发生死锁进程一定再阻塞态 系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210625202415762.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210626153228241.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210625163334688.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210625211015307.png">
+<meta property="article:published_time" content="2021-08-18T15:07:04.010Z">
+<meta property="article:modified_time" content="2021-07-08T11:25:13.707Z">
+<meta property="article:author" content="🐏🐚">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210625202415762.png">
+
+<link rel="canonical" href="http://example.com/2021/08/18/%E6%AD%BB%E9%94%81/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | PAPRIKA' Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">PAPRIKA' Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">我一定要尽快调查明白</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">24</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/18/%E6%AD%BB%E9%94%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="🐏🐚">
+      <meta itemprop="description" content="摇摇晃晃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAPRIKA' Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-18 23:07:04" itemprop="dateCreated datePublished" datetime="2021-08-18T23:07:04+08:00">2021-08-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-07-08 19:25:13" itemprop="dateModified" datetime="2021-07-08T19:25:13+08:00">2021-07-08</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="死锁的概念"><a href="#死锁的概念" class="headerlink" title="死锁的概念"></a>死锁的概念</h1><p>死锁：一个进程集合中的每个进程都在等待只能由该集合中的其他一个进程才能引发的事件（释放占有资源/进行某项操作）<br>饥饿：由于长期得不到想要的资源，进程无法推进<br>死循环：某进程执行过程中一直跳不出某个循环的现象，程序的bug</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th>共同点</th>
+<th>区别</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">死锁</td>
+<td>进程无法顺利向前推进</td>
+<td>1.一定是循环等待对方手里的资源，至少两个或两个以上的进程同时发生死锁 <br />2.发生死锁进程一定再<strong>阻塞态</strong></td>
+<td>系统资源的竞争和进程推进顺序不合理</td>
+</tr>
+<tr>
+<td style="text-align:left">饥饿</td>
+<td></td>
+<td>1.可能只有一个进程饥饿<br />2.发生饥饿进程可是<strong>阻塞态</strong>（如长期得不到需要的I/O设备），也可能是就绪态（长期得不到的<strong>处理机</strong>）</td>
+<td>系统分配资源不合理</td>
+</tr>
+<tr>
+<td style="text-align:left">死循环</td>
+<td></td>
+<td>死循环进程可以是允许态，只不过无法像期待那样顺利推进</td>
+<td>（管理者）程序代码出问题</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="资源分类："><a href="#资源分类：" class="headerlink" title="资源分类："></a>资源分类：</h3><p>可重用资源:</p>
+<ul>
+<li>一次仅供一个进程使用，不因使用而耗尽</li>
+<li>使用后释放 能够被再次使用</li>
+<li>处理器 I/O通道 主存/辅存  </li>
+</ul>
+<p>可消费资源：</p>
+<ul>
+<li>可以创建(生产)并且可以销耗掉的资源</li>
+<li>数目没有限制，当一个进程得到一个可消费资源时，这个资源就不再存在了</li>
+<li>中断、信号、消息、I/O缓冲区中的信息</li>
+</ul>
+<p>永久性资源<br>临时性资源</p>
+<h2 id="死锁产生的原因"><a href="#死锁产生的原因" class="headerlink" title="死锁产生的原因"></a>死锁产生的原因</h2><h3 id="系统资源的竞争："><a href="#系统资源的竞争：" class="headerlink" title="系统资源的竞争："></a>系统资源的竞争：</h3><h3 id="进程推进顺序不合理："><a href="#进程推进顺序不合理：" class="headerlink" title="进程推进顺序不合理："></a>进程推进顺序不合理：</h3><h2 id="死锁产生的条件"><a href="#死锁产生的条件" class="headerlink" title="死锁产生的条件"></a>死锁产生的条件</h2><h3 id="互斥条件："><a href="#互斥条件：" class="headerlink" title="互斥条件："></a>互斥条件：</h3><p>进程对所分配到的资源进行排他性使用<br>即在一段时间内某资源只由一个进程占有。</p>
+<p>此时还有其他进程要求该资源，要求者只能阻塞，直至占有该资源的进程用毕释放。</p>
+<h3 id="占有且等待条件（-请求和保持）："><a href="#占有且等待条件（-请求和保持）：" class="headerlink" title="占有且等待条件（ 请求和保持）："></a>占有且等待条件（ 请求和保持）：</h3><p>进程已经<strong>占有至少一个资源</strong>，可以提出新的资源要求<br>若该资源已被其它进程<strong>占有</strong>，则请求进程阻塞，同时对已经获得的其它资源<strong>保持不放</strong></p>
+<h3 id="不剥夺条件："><a href="#不剥夺条件：" class="headerlink" title="不剥夺条件："></a>不剥夺条件：</h3><p>进程已获得的资源在<strong>未使用完之前不能被剥夺</strong>，只能在使用完时<strong>主动释放</strong></p>
+<p>前三个是必要条件而非充分条件</p>
+<h3 id="循环等待条件："><a href="#循环等待条件：" class="headerlink" title="循环等待条件："></a>循环等待条件：</h3><p>存在一种进程资源的循环等待链，链中每一个进程都有已获得的资源被下一个进程请求</p>
+<p>如果同类资源大于1，即使循环等待，未必发生死锁。若系统中每类资源只有1个，循环等待是死锁的充要条件</p>
+<p>​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210625202415762.png" alt="image-20210625202415762" style="zoom:50%;" /></p>
+<h2 id="死锁的处理策略"><a href="#死锁的处理策略" class="headerlink" title="死锁的处理策略"></a>死锁的处理策略</h2><h3 id="死锁预防-deadlock-prevention"><a href="#死锁预防-deadlock-prevention" class="headerlink" title="死锁预防 (deadlock prevention)"></a>死锁预防 (deadlock prevention)</h3><p>破坏死锁必要条件中的一个或者多个，保证不会发生死锁</p>
+<h4 id="破坏互斥条件"><a href="#破坏互斥条件" class="headerlink" title="破坏互斥条件"></a>破坏互斥条件</h4><p><strong>方法：</strong>不直接操作资源或多个进程同时使用虚拟资源<br><strong>适用：</strong></p>
+<ul>
+<li><p>资源的固有特性允许多个进程同时使用（如文件允许多个进程同时读）</p>
+</li>
+<li><p>借助特殊技术允许多个进程同时使用（如打印机借助Spooling技术）</p>
+</li>
+</ul>
+<p><strong>缺点：</strong>不适用于绝大多数设备</p>
+<h4 id="破坏占有且等待条件"><a href="#破坏占有且等待条件" class="headerlink" title="破坏占有且等待条件"></a>破坏占有且等待条件</h4><p><strong>方法：</strong></p>
+<ul>
+<li>静态方法:<br>进程在开始时一次性地申请在整个运行过程所需的<strong>全部资源并且保持占用</strong>,禁止已拥有资源的进程再申请其他资源</li>
+<li>申请资源时要先<strong>释放其占有资源</strong>后，再<strong>一次性申请</strong>所需全部资源</li>
+</ul>
+<p><strong>优点</strong>：<br>优点:简单、易于实现<br><strong>缺点:</strong></p>
+<ul>
+<li>进程运行期间一直占用,资源利用率低</li>
+<li>申请所有资源才能开始运行,进程延迟运行,还可能导致饥饿</li>
+</ul>
+<h4 id="破坏不剥夺条件"><a href="#破坏不剥夺条件" class="headerlink" title="破坏不剥夺条件"></a>破坏不剥夺条件</h4><p><strong>方法：</strong></p>
+<ul>
+<li>一个已经占有了某些资源的进程，当它再提出新的资源请求而不能立即得到满足时，必须<strong>释放</strong>它已经占有的<strong>所有资源</strong>，待以后<strong>需要时再重新申请</strong><br>(会导致饥饿)</li>
+<li>当请求的资源被其他进程占用,操作系统协助剥夺该资源</li>
+</ul>
+<p><strong>适用</strong>: 资源的状态可以很容易地保存和恢复(如CPU)</p>
+<p><strong>缺点:</strong></p>
+<ul>
+<li>实现复杂、代价大，</li>
+<li>反复申请/释放资源、系统开销大、降低系统吞吐量</li>
+<li>释放已获得资源可能会导致前一阶段工作失效,因此只适用于易于保存和恢复状态的资源,如CPU</li>
+</ul>
+<h4 id="破坏环路等待条件"><a href="#破坏环路等待条件" class="headerlink" title="破坏环路等待条件"></a>破坏环路等待条件</h4><p><strong>方法</strong>:</p>
+<ul>
+<li>要求每个进程任何时刻只能占有一个资源，如果要申请第二个则必须先释放第一个（不现实）</li>
+<li>给资源编号,进程申请资源必须严格按资源序号递增的顺序,同类资源(序号相同的资源)一次性申请完<br>(原因:已经占用小编号进程的才能申请大编号,持有大编号资源的进程不可能申请小编号,就不会循环等待)</li>
+</ul>
+<p><strong>缺点</strong>:</p>
+<ul>
+<li>增加新的设备需要重新编号</li>
+<li>很难找到令每个人都满意的编号次序，类型序号的安排只能考虑一般作业的情况, 限制了用户简单、自主地编程</li>
+<li>编号和实际使用顺序不一样,会不必要地拒绝对资源的访问 ,造成资源的浪费</li>
+<li>可能低效（会使进程的执行速度变慢）</li>
+</ul>
+<h3 id="死锁避免"><a href="#死锁避免" class="headerlink" title="死锁避免"></a>死锁避免</h3><ul>
+<li>允许三个必要条件，通过明智的选择，确保不会到达死锁点</li>
+<li>相比死锁预防，允许更多的并发</li>
+<li>并不能确切预测死锁，仅是预料思索地可能性并确保不会出现这种可能性</li>
+</ul>
+<p><strong>死锁避免的实质</strong>：避免进入不安全状态</p>
+<ul>
+<li>如果<strong>一个新进程的资源请求</strong>会导致不安全状态， 则拒绝启动这个进程(进程启动拒绝)</li>
+<li>如果满足一个进程新提出的<strong>一项资源请求</strong>后，会导致不安全状态，则拒绝分配资源给这个进程（资源分配拒绝）</li>
+</ul>
+<h4 id="进程启动拒绝"><a href="#进程启动拒绝" class="headerlink" title="进程启动拒绝"></a>进程启动拒绝</h4><ul>
+<li>只有满足进程最大请求以及新的请求时，才会启动</li>
+<li>不是最优的，假设了<strong>最坏情况</strong>：所有进程同时发出最大的请求</li>
+<li><p>不能保证资源的最优使用率，但可以保证系统现有进程不会发生死锁</p>
+<p><img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210626153228241.png" alt="image-20210626153228241" style="zoom:50%;" /></p>
+</li>
+</ul>
+<p>$R_j=V_j+\sum_{i=1} ^N A_{ij}$ ,所有资源，要么可用，要么已分配</p>
+<p>$C_{ij} \leq Ri$ , 任意一个进程请求的资源不能超过这种资源总量</p>
+<p>$A_{ij}\leq C_ {ij}$,分配的资源，不能超过最初数目的最大资源</p>
+<p>若一个新进程的资源需求会导致死锁，则拒绝启动这个进程，当且仅当 $\forall j ,  \  \   \  R_j \geq C_{(n+1)j} + \sum_{i=1}^n C_{ij}$ </p>
+<h4 id="资源请求拒绝-银行家算法"><a href="#资源请求拒绝-银行家算法" class="headerlink" title="资源请求拒绝/银行家算法"></a>资源请求拒绝/银行家算法</h4><p>在资源动态分配过程中，某种方法防止系统进入不安全状态，从而避免死锁</p>
+<p><strong>安全状态：</strong>能够找到一个安全序列，为每个进程分配所需资源，直到满足每个进程对资源最大需求，使每个进程都可顺序完成。</p>
+<p><strong>不安全状态：</strong>无法找到一个安全序列，系统处于不安全状态</p>
+<p>不安全状态 -&gt; 可能死锁<br>死锁 -&gt; 一定处于不安全状态<br>分配资源之前判断是否进入不安全状态</p>
+<p>可用资源  Available<br>最大需求  Max<br>分配矩阵  Allocate<br>需求矩阵  Need<br>Need = Max- Allocate</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li><p>比死锁预防限制少</p>
+</li>
+<li><p>无须死锁检测中的资源剥夺和进程重启</p>
+</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li><p>必须事先声明每个进程请求的<strong>最大资源</strong></p>
+</li>
+<li><p>考虑的进程必须是<strong>无关的</strong>，即它们执行的顺序没有任何同步要求的限制</p>
+</li>
+<li><p>分配的资源数目必须是固定的</p>
+</li>
+<li><p>在占有资源时进程不能退出</p>
+</li>
+</ul>
+<h3 id="死锁的检查及解除"><a href="#死锁的检查及解除" class="headerlink" title="死锁的检查及解除"></a>死锁的检查及解除</h3><p>不限制资源访问或约束进程行为<br>只要有可能，就给进程分配请求的资源<br>周期性的执行一个算法检测循环检测条件</p>
+<h4 id="资源分配图"><a href="#资源分配图" class="headerlink" title="资源分配图"></a>资源分配图</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>进程结点</th>
+<th>对应一个进程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>资源结点</td>
+<td>对应一类资源，可能有多个</td>
+</tr>
+<tr>
+<td>进程-&gt;资源</td>
+<td>请求边，申请资源，每条边一个</td>
+</tr>
+<tr>
+<td>资源-&gt;进程</td>
+<td>分配边，分配资源，每条边一个</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>如果剩余资源不能满足进程需求：暂时阻塞<br>如果可以，则进程完成后将资源归还，删去边<br>如果最后能够消除所有的边，这个图是可完全简化的，此时一定没有发生死锁。</p>
+<p>不能消除所有边，发生死锁<br>    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210625163334688.png" alt="image-20210625163334688" style="zoom:50%;" /></p>
+<p><strong>计算上相当于银行家算法，最后不能消去的就是死锁的</strong></p>
+<h4 id="检测时机："><a href="#检测时机：" class="headerlink" title="检测时机："></a>检测时机：</h4><ul>
+<li>资源申请时（早期检测，算法相对简单，但处理机时间消耗大）</li>
+<li>周期性检测，或死锁“好像”已经发生（如CPU使用率降低到一定阈值时）</li>
+</ul>
+<h4 id="检测方法："><a href="#检测方法：" class="headerlink" title="检测方法："></a>检测方法：</h4><ul>
+<li><p>单个资源实例：检测资源分配图中是否存在环路（依据——死锁定理）</p>
+</li>
+<li><p>多个资源实例：类似银行家算法的安全检查</p>
+</li>
+</ul>
+<h4 id="死锁定理"><a href="#死锁定理" class="headerlink" title="死锁定理"></a>死锁定理</h4><p>在资源分配图中，找一个既不是孤点又不阻塞的进程（有一条有向边相连，对应资源申请数量小于空闲资源数量）<br>消去所有的请求边与分配边 ..重复</p>
+<p>死锁的条件 <strong>当且仅当</strong> 资源分配图不可完全简化 </p>
+<h4 id="死锁解除"><a href="#死锁解除" class="headerlink" title="死锁解除"></a>死锁解除</h4><h5 id="资源剥夺法"><a href="#资源剥夺法" class="headerlink" title="资源剥夺法"></a>资源剥夺法</h5><ul>
+<li>连续剥夺资源直到不再存在死锁</li>
+<li>挂起某些死锁进程，抢占资源，分配给其他的死锁进程</li>
+<li>注意被挂起进程长期得不到资源处于饥饿的状态</li>
+</ul>
+<h5 id="回退法"><a href="#回退法" class="headerlink" title="回退法"></a>回退法</h5><p>  把每个死锁进程回滚(rollback)到前面定义的某些检查点(checkpoint), 并且重新启动所有进程（死锁可能重现）<br>要求系统保持进程的历史信息，设置还原点</p>
+<h5 id="撤销进程"><a href="#撤销进程" class="headerlink" title="撤销进程"></a>撤销进程</h5><p>杀死所有进程(最常用)<br>连续杀死死锁进程直到不再存在死锁<br>杀死一个非死锁进程</p>
+<p><strong>缺点:</strong> 杀死进程/剥夺资源 代价大</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>资源分配策略</th>
+<th>不同的方案</th>
+<th>主要优点</th>
+<th>主要缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>防止</td>
+<td>保守，预提交(undercommits)资源</td>
+<td>一次性请求所有资源</td>
+<td>对执行单一突发行为的进程有效  <br>不需抢占</td>
+<td>低效 <br>延时进程的初始化<br>进程必须知道未来的资源请求</td>
+</tr>
+<tr>
+<td>抢占</td>
+<td>便于用于状态易保存和恢复的资源</td>
+<td>过多的不必要抢占</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>资源排序</td>
+<td>通过编译时检测可实施  <br>由于问题已在系统设计时解决，不需运行时再计算</td>
+<td>不允许增加资源请求</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>避免</td>
+<td>位于检测和预防中间</td>
+<td>操纵以发现至少一条安全路径</td>
+<td>不需抢占</td>
+<td>OS必须知道未来的资源请求  <br>进程可能被长期阻塞</td>
+</tr>
+<tr>
+<td>检测</td>
+<td>非常自由；尽可能地准许请求的资源</td>
+<td>周期性地调用以测试死锁</td>
+<td>不会延时进程的初始化  <br>易于在线处理</td>
+<td>n丢失固有抢占</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="哲学家就餐问题"><a href="#哲学家就餐问题" class="headerlink" title="哲学家就餐问题"></a>哲学家就餐问题</h3><p>关系分析：</p>
+<p>互斥关系：相邻哲学家对中间筷子的访问<br>同时持有两个临界资源，才能吃饭。</p>
+<p>信号量数组$chopstick[5] = {1,1,1,1,1}$<br>哲学家0-4编号，哲学家$i$左边的筷子为$i$，右边筷子为$(i+1)%5$</p>
+<p>​    <img src="C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210625211015307.png" alt="image-20210625211015307" style="zoom: 33%;" /></p>
+<p>可能存在死锁现象</p>
+<p>增加限制条件：<br>方案一：最多只允许四个哲学家进餐</p>
+<p>设置一个初始值为4的信号量</p>
+<p>方案二：奇数号哲学家先拿左边的筷子，偶数号哲学家先拿右边的筷子<br>if-else 判断处理</p>
+<p>方案三：用互斥信号量保证所有哲学家拿筷子互斥进行</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/18/%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/18/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-text">死锁的概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%88%86%E7%B1%BB%EF%BC%9A"><span class="nav-text">资源分类：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E4%BA%A7%E7%94%9F%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-text">死锁产生的原因</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%B5%84%E6%BA%90%E7%9A%84%E7%AB%9E%E4%BA%89%EF%BC%9A"><span class="nav-text">系统资源的竞争：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%8E%A8%E8%BF%9B%E9%A1%BA%E5%BA%8F%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%9A"><span class="nav-text">进程推进顺序不合理：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E4%BA%A7%E7%94%9F%E7%9A%84%E6%9D%A1%E4%BB%B6"><span class="nav-text">死锁产生的条件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E6%9D%A1%E4%BB%B6%EF%BC%9A"><span class="nav-text">互斥条件：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%A0%E6%9C%89%E4%B8%94%E7%AD%89%E5%BE%85%E6%9D%A1%E4%BB%B6%EF%BC%88-%E8%AF%B7%E6%B1%82%E5%92%8C%E4%BF%9D%E6%8C%81%EF%BC%89%EF%BC%9A"><span class="nav-text">占有且等待条件（ 请求和保持）：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%89%A5%E5%A4%BA%E6%9D%A1%E4%BB%B6%EF%BC%9A"><span class="nav-text">不剥夺条件：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E7%AD%89%E5%BE%85%E6%9D%A1%E4%BB%B6%EF%BC%9A"><span class="nav-text">循环等待条件：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E7%9A%84%E5%A4%84%E7%90%86%E7%AD%96%E7%95%A5"><span class="nav-text">死锁的处理策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E9%A2%84%E9%98%B2-deadlock-prevention"><span class="nav-text">死锁预防 (deadlock prevention)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A0%B4%E5%9D%8F%E4%BA%92%E6%96%A5%E6%9D%A1%E4%BB%B6"><span class="nav-text">破坏互斥条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A0%B4%E5%9D%8F%E5%8D%A0%E6%9C%89%E4%B8%94%E7%AD%89%E5%BE%85%E6%9D%A1%E4%BB%B6"><span class="nav-text">破坏占有且等待条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A0%B4%E5%9D%8F%E4%B8%8D%E5%89%A5%E5%A4%BA%E6%9D%A1%E4%BB%B6"><span class="nav-text">破坏不剥夺条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A0%B4%E5%9D%8F%E7%8E%AF%E8%B7%AF%E7%AD%89%E5%BE%85%E6%9D%A1%E4%BB%B6"><span class="nav-text">破坏环路等待条件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E9%81%BF%E5%85%8D"><span class="nav-text">死锁避免</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E5%90%AF%E5%8A%A8%E6%8B%92%E7%BB%9D"><span class="nav-text">进程启动拒绝</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E8%AF%B7%E6%B1%82%E6%8B%92%E7%BB%9D-%E9%93%B6%E8%A1%8C%E5%AE%B6%E7%AE%97%E6%B3%95"><span class="nav-text">资源请求拒绝&#x2F;银行家算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E7%9A%84%E6%A3%80%E6%9F%A5%E5%8F%8A%E8%A7%A3%E9%99%A4"><span class="nav-text">死锁的检查及解除</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E5%9B%BE"><span class="nav-text">资源分配图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E6%97%B6%E6%9C%BA%EF%BC%9A"><span class="nav-text">检测时机：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="nav-text">检测方法：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E5%AE%9A%E7%90%86"><span class="nav-text">死锁定理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E8%A7%A3%E9%99%A4"><span class="nav-text">死锁解除</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%89%A5%E5%A4%BA%E6%B3%95"><span class="nav-text">资源剥夺法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9B%9E%E9%80%80%E6%B3%95"><span class="nav-text">回退法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%92%A4%E9%94%80%E8%BF%9B%E7%A8%8B"><span class="nav-text">撤销进程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%B2%E5%AD%A6%E5%AE%B6%E5%B0%B1%E9%A4%90%E9%97%AE%E9%A2%98"><span class="nav-text">哲学家就餐问题</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="🐏🐚"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">🐏🐚</p>
+  <div class="site-description" itemprop="description">摇摇晃晃</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">🐏🐚</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:32</span>
+</div><a href="https://icp.gov.moe/?keyword=20180708" rel="external nofollow noreferrer" target="_blank" data-pjax-state="" style="
+    border-bottom-width: 0px;
+">萌 ICP 备 20180708 号</a>
+<!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span>
+<span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("12/31/2019 23:54:40");//此处修改你的建站时间，注意格式
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "小站在混沌中存活了 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

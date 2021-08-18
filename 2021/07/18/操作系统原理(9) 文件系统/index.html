@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta property="og:type" content="article">
+<meta property="og:title" content="操作系统原理(9) 文件系统">
+<meta property="og:url" content="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(9)%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="PAPRIKA&#39; Blog">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/18299653_629004147303116_3189945285312774144_n.jpg">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210702163648964.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210624103204359.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210702164240281.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210702164630718.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701193658999.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210622112631978.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701193906088.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701194435769.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701194954883.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623172613450.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623174112943.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701015425586.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701015901082.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701020919906.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623180800921.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701093521770.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701094320443.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701101334053.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210624111229359.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210624111756355.png">
+<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210624113555639.png">
+<meta property="article:published_time" content="2021-07-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-18T17:02:36.374Z">
+<meta property="article:author" content="🐏🐚">
+<meta property="article:tag" content="OS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/18299653_629004147303116_3189945285312774144_n.jpg">
+
+<link rel="canonical" href="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(9)%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>操作系统原理(9) 文件系统 | PAPRIKA' Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">PAPRIKA' Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">我一定要尽快调查明白</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">24</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(9)%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="🐏🐚">
+      <meta itemprop="description" content="摇摇晃晃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAPRIKA' Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          操作系统原理(9) 文件系统
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-18 00:00:00" itemprop="dateCreated datePublished" datetime="2021-07-18T00:00:00+08:00">2021-07-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-19 01:02:36" itemprop="dateModified" datetime="2021-08-19T01:02:36+08:00">2021-08-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index"><span itemprop="name">课程相关</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/OS/" itemprop="url" rel="index"><span itemprop="name">OS</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/18299653_629004147303116_3189945285312774144_n.jpg" alt="18299653_629004147303116_3189945285312774144_n" style="zoom:50%;" /></p>
+<span id="more"></span>
+<h1 id="文件管理"><a href="#文件管理" class="headerlink" title="文件管理"></a>文件管理</h1><p><strong>字段/域（field）：</strong><br>基本数据单元（数据类型、长度，如姓名、年龄）</p>
+<p><strong>记录（record）：</strong><br>一组相关的域（如雇员的信息）的集合<br>变长/定长<br>访问结构化文件的逻辑单元</p>
+<p><strong>文件（file）：</strong><br>相似记录的集合（通过名字访问的实体）<br>以计算机硬盘为载体存储在计算机上信息的集合<br>系统运行时，进程为基本单位；用户输入输出时，文件为基本单位<br><strong>数据库（database）：</strong><br>相关数据的集合（由若干类型的文件组成）,本质特征是数据元素之间存在明确的关系</p>
+<h2 id="文件管理系统"><a href="#文件管理系统" class="headerlink" title="文件管理系统:"></a>文件管理系统:</h2><p>一组系统软件,为使用文件的用户和应用程序提供服务</p>
+<h3 id="功能"><a href="#功能" class="headerlink" title="功能:"></a>功能:</h3><p>上层用户提供的服务</p>
+<p>文件命名：作为文件标识<br>访问控制：并发访问和用户权限<br>文件结构管理：划分记录，顺序，索引<br>目录管理：用于文件访问和控制的信息，不包括文件内容<br>文件操作：文件的创建、打开、读写和关闭<br>文件存取：用于完成文件的修改、追加、搜索等操作限额(quota)：限制每个用户能够建立的文件数目、占用外存空间大小等<br>审计(auditing)：记录对指定文件的使用信息（如访问时间和用户等），保存在日志中</p>
+<p>对于用户：<br>实现对文件的基本操作、按名存储和查找文件、文件共享和文件保护功能</p>
+<p>对于操作系统本身：<br>管理与磁盘的信息交换  文件逻辑结构和物理结构的交换<br>组织文件再磁盘上的存放 采取好的存放方式和磁盘调度提高整个系统的性能</p>
+<h2 id="文件组织-file-organization文件中记录的逻辑结构"><a href="#文件组织-file-organization文件中记录的逻辑结构" class="headerlink" title="文件组织 file organization文件中记录的逻辑结构"></a>文件组织 file organization文件中记录的逻辑结构</h2><p>文件中记录的逻辑结构<br>用户观点看到文件的组织形式</p>
+<h3 id="设计要求"><a href="#设计要求" class="headerlink" title="设计要求"></a>设计要求</h3><p>访问性能：访问快速（便于检索）、易于修改<br>存储性能：节省空间、维护简单（向物理存储转换方便）、可靠</p>
+<h4 id="无结构文件："><a href="#无结构文件：" class="headerlink" title="无结构文件："></a>无结构文件：</h4><p>字符流/流式文件。<br>由于没有结构，访问只能穷举搜索，故对大多数文件不适用<br>适用于对基本信息单位操作不多的文件，源程序文件 目标代码文件</p>
+<h4 id="有结构文件："><a href="#有结构文件：" class="headerlink" title="有结构文件："></a>有结构文件：</h4><p>由一组相似记录组成，记录式文件。<br>每条记录由若干数据项组成。</p>
+<h5 id="顺序文件"><a href="#顺序文件" class="headerlink" title="顺序文件"></a>顺序文件</h5><p>记录一个接一个顺序排列（逻辑上），所有记录长度相同，相同数量 长度固定的域 的 顺序组成</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210702163648964.png" alt="image-20210702163648964" style="zoom:50%;" /></p>
+<p><strong>关键域</strong>：每条记录的第一个域，唯一地表示记录，记录按照关键域存储</p>
+<p>物理实现：顺序存储 链式存储</p>
+<p><strong>优点：</strong>实现简单<br><strong>缺点：</strong>查询和更新性能差（必须顺序搜索，插入新纪录困难）</p>
+<h5 id="索引顺序文件"><a href="#索引顺序文件" class="headerlink" title="索引顺序文件"></a>索引顺序文件</h5><p>保留顺序文件的关键特征：记录按照关键域顺序组织<br>增加特征：增加随机索引（支持随机访问）和溢出文件<br>索引文件：记录关键字段和指向文件的指针<br>溢出区(overflow):处理新纪录<br>    主文件每个记录增加一个附加字段，保存指向溢出区    新纪录的指针，初始化为空。<br>    新纪录加到溢出区</p>
+<p>将记录分组，每组对应一个索引表项(每组第一个记录在索引表里)。<br>检索时，先顺序查找索引表，找到分组，再顺序查找分组</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210624103204359.png" alt="image-20210624103204359" style="zoom:50%;" /><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210702164240281.png" alt="image-20210702164240281" style="zoom:50%;" /></p>
+<p> <strong>优点</strong>：<br>提高存取速度，保留文件顺序存储的特性<br>例如：100万条记录的顺序文件，查找某个特定关键域值，平均访问50万次。如果1000项的索引表，先平均查500次，再平均查500次。<br>开销从500000降到了1000</p>
+<p><strong>缺点</strong>：增加了存储空间</p>
+<h5 id="索引文件"><a href="#索引文件" class="headerlink" title="索引文件"></a>索引文件</h5><p>顺序文件的限制：基于非关键域的其他属性查找</p>
+<p><strong>多索引结构</strong>：成为查找条件的每个域都可能有一个索引</p>
+<p>抛弃顺序性和关键域，采用多索引结构，可使用变长记录。</p>
+<p><strong>完全索引：</strong>包含主文件每条记录的索引项。<br>为了易于查找，索引表自身组织成顺序文件</p>
+<p><strong>部分索引:</strong>只包含有感兴趣域的记录的索引项</p>
+<ul>
+<li>主要用于强调速度但很少会处理文件的所有数据的场合</li>
+</ul>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210702164630718.png" alt="image-20210702164630718" style="zoom:50%;" /></p>
+<h5 id="直接文件或散列文件"><a href="#直接文件或散列文件" class="headerlink" title="直接文件或散列文件"></a>直接文件或散列文件</h5><ul>
+<li>保留关键域、抛弃排列顺序，使用基于关键域的散列，定长记录，快速访问已知单记录块</li>
+<li>常用于要求快速访问记录的情形（如目录、价格表等）</li>
+</ul>
+<h2 id="文件目录"><a href="#文件目录" class="headerlink" title="文件目录"></a>文件目录</h2><h3 id="文件控制块-（FCB）-文件说明"><a href="#文件控制块-（FCB）-文件说明" class="headerlink" title="文件控制块 （FCB）/文件说明"></a><strong>文件控制块</strong> （FCB）/文件说明</h3><p>文件名到文件内容/数据的映射</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>基本信息：</th>
+<th>文件名<br>文件类型：有无结构(流式/记录式)/内容（二进制/文本）/用途/属性<br>文件结构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址信息</td>
+<td>卷：存储文件的设备<br>起始地址：辅存中的起始物理地址 <br>文件长度</td>
+</tr>
+<tr>
+<td>访问控制信息</td>
+<td>所有者 、访问权限、许可的行为</td>
+</tr>
+<tr>
+<td>使用信息</td>
+<td>数据创建、创建者身份、最近访问、最近修改..</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="文件目录-1"><a href="#文件目录-1" class="headerlink" title="文件目录"></a><strong>文件目录</strong></h3><p>FCB的有序集合，一个FCB就是一个文件目录项<br>创建一个新的文件，系统分配一个新的FCB并存放在文件目录中<br>主要功能：从文件名到文件内容的映射</p>
+<h3 id="文件访问的步骤："><a href="#文件访问的步骤：" class="headerlink" title="文件访问的步骤："></a>文件访问的步骤：</h3><ul>
+<li>目录检索（根据用户给出的文件名，按名寻找目录项）</li>
+<li>文件寻址（根据目录项中的文件物理地址等信息，计算出文件的任意记录或字节在存取介质上的地址）</li>
+</ul>
+<h3 id="目录操作："><a href="#目录操作：" class="headerlink" title="目录操作："></a>目录操作：</h3><p>搜索：用户使用文件时，根据文件名搜索目录，找到文件对应目录项<br>创建：增加目录项<br>删除：删除相应目录项<br>显式目录：<br>修改目录：</p>
+<h3 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h3><p>目录的组织结构，设计目标主要是提高检索速率</p>
+<h4 id="单极目录结构："><a href="#单极目录结构：" class="headerlink" title="单极目录结构："></a>单极目录结构：</h4><p>整个系统中只建立一张目录表，每个文件占一个目录项，实现“按名存取”<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701193658999.png" alt="image-20210701193658999"></p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>结构简单，易实现</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>查找速度慢</li>
+<li>不允许文件重名</li>
+<li>不便于文件共享，对于多用户操作系统不适用</li>
+</ul>
+<h4 id="两级目录结构："><a href="#两级目录结构：" class="headerlink" title="两级目录结构："></a>两级目录结构：</h4><p>适用于多用户系统，各用户可有自己的专用目录</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210622112631978.png" alt="image-20210622112631978" style="zoom:50%;" /><br><strong>主文件目录 （Master File Directory)</strong>:<br>每个用户对应一个目录</p>
+<p><strong>用户文件目录(User File Directory):</strong><br>该用户的文件FCB组成</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>降低了平均检索时间</li>
+<li>允许不同用户文件重名， 部分克服了命名冲突问题</li>
+</ul>
+<p><strong>缺点</strong>: </p>
+<ul>
+<li>缺乏灵活性，不利用户对文件的分类管理</li>
+</ul>
+<h4 id="多级目录结构-树形目录结构"><a href="#多级目录结构-树形目录结构" class="headerlink" title="多级目录结构/ 树形目录结构"></a>多级目录结构/ 树形目录结构</h4><p>层次结构，每个用户可在其用户目录下自主创建若干层次的子目录(树)</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701193906088.png" alt="image-20210701193906088" style="zoom:50%;" /></p>
+<p>目录名：可以修改<br>目录树：中间结点是目录，叶结点是目录或文件<br>目录的上下级关系：</p>
+<p>​    当前目录 (current directory, working directory工    作目录)，一般用单个句点表示：.<br>​    父目录 (parent directory) ，一般用双句点表示：..<br>​    子目录 (subdirectory)<br>​    根目录(root directory) ，一般用单斜线表示<br>​    路径(path)：每个目录或文件，可以由根目录开始依    次经由的各级目录名，加上最终的目录名或文件名来    表示。一般用斜线分隔。</p>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>层次结构清晰，便于管理和保护，适用于较大的文件系统管理</li>
+<li>解决了命名冲突问题</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>目录级别太多时，会增加路径检索时间（目录文件存放在外存）</li>
+<li>不便于文件共享</li>
+</ul>
+<h4 id="改进的多级目录"><a href="#改进的多级目录" class="headerlink" title="改进的多级目录"></a>改进的多级目录</h4><p>其实在查找各级目录地过程中，只需要用到”文件名”这个信息，只有文件名匹配时，才需要读出文件地其他信息。</p>
+<p>符号目录项(次部)：文件名、文件内部标识号<br>基本目录项BFCB(主部)：其余文件说明信息<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701194435769.png" alt="image-20210701194435769" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701194954883.png" alt="image-20210701194954883" style="zoom:50%;" /></p>
+<p>索引结点：除文件名之外的其他信息<br>目录中只包含文件名和指向索引结点的指针。</p>
+<p>好处：<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623172613450.png" alt="image-20210623172613450" style="zoom:50%;" /></p>
+<p>翻车：</p>
+<p>① 计算分解前存储所有FCB需要的盘块$\frac{ 128\times48}{512} = 12$</p>
+<p>实际上一块512 = 48 x 10 +  32， 32是内部碎片，不能用的<br>要先计算一块可以存储的FCB，$\lfloor { \frac{512}{48}}\rfloor = 10$<br>所有FCB存储需要$\lceil \frac{128}{10} \rceil = 13$</p>
+<p>②计算分解后<br>首先查符号目录表，再查基本目录文件，需要+1</p>
+<h2 id="记录组块"><a href="#记录组块" class="headerlink" title="记录组块"></a>记录组块</h2><p>文件的逻辑单位是记录(record)，外存的 I/O 操作单位是块(block)，为了进行 I/O 操作，需要把文件的记录组织成块</p>
+<p>块定长：简化I/O，内存缓冲分配和外存块组织</p>
+<p>块大小：<br>    块越大：一次I/O传送记录多。利于顺序处理/搜索，若随机访问文件记录，会有不必要的传输<br>    块越小：要求内存缓冲越大，缓冲管理越难</p>
+<h3 id="记录组块的方法"><a href="#记录组块的方法" class="headerlink" title="记录组块的方法"></a>记录组块的方法</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>定长组块</th>
+<th>记录长度固定，每个块中存放的记录数目也固定</th>
+<th>常用但有内部碎片</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>变长跨越式</td>
+<td>记录长度可变，一个记录允许存放在不同块中</td>
+<td>效率高但难实现</td>
+</tr>
+<tr>
+<td>变长非跨越式</td>
+<td>记录长度可变，一个记录只能存放在一个块中</td>
+<td>浪费多</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="辅存管理"><a href="#辅存管理" class="headerlink" title="辅存管理"></a>辅存管理</h2><ul>
+<li>文件分配</li>
+</ul>
+<p>从文件在物理介质上的存放方式来研究文件，即讨论文件的物理结构</p>
+<ul>
+<li>空闲空间管理</li>
+</ul>
+<p>跟踪可用空间</p>
+<h3 id="预分配与动态分配"><a href="#预分配与动态分配" class="headerlink" title="预分配与动态分配"></a>预分配与动态分配</h3><ul>
+<li><p>预分配（preallocation）</p>
+<p>文件创建时必须要声明文件的最大长度<br>难以可靠估计文件可能的最大长度<br>倾向于估大文件长度（导致空间浪费）<br>适用于从不改变的文件</p>
+</li>
+<li><p>动态分配（dynamic allocation）</p>
+<p>需要时才给文件分配空间</p>
+</li>
+</ul>
+<h3 id="区块大小"><a href="#区块大小" class="headerlink" title="区块大小"></a>区块大小</h3><p>分配给文件的区块大小/以多大的区块为分配单位<br>考虑因素:</p>
+<ul>
+<li>连续的空间可提高性能</li>
+<li>区块多会大家文件分配表的大小</li>
+<li>固定大小分区可简化空间的再分配</li>
+<li>可变大小/固定大小的小分区可以减少存储空间浪费</li>
+</ul>
+<p>可变的大规模连续分区：<br>性能较好。大小可变避免浪费，文件分配表较小，但是空间很难再次利用</p>
+<p>块：小的固定分区提高灵活性，但是文件分配表更大/复杂</p>
+<h3 id="文件物理结构（文件分配方式）"><a href="#文件物理结构（文件分配方式）" class="headerlink" title="文件物理结构（文件分配方式）"></a>文件物理结构（文件分配方式）</h3><p>从文件在物理介质上的存放方式来研究文件（文件应该怎样存放在外存中），即讨论文件的物理结构</p>
+<h4 id="连续分配："><a href="#连续分配：" class="headerlink" title="连续分配："></a>连续分配：</h4><p>每个文件在磁盘上占有一组连续地块<br>(逻辑块号，块内地址)-&gt;(物理块号,块内地址)<br>只需要转换块号,块内地址不变<br>文件分配表表项: 起始块号和长度（实现地址映射）</p>
+<p>步骤：<br>找到文件对应的目录项<br>查到起始块号和长度，<br>起始块号+逻辑块号 = 物理块号</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623174112943.png" alt="image-20210623174112943" style="zoom:50%;" /><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701015425586.png" alt="image-20210701015425586" style="zoom:33%;" /></p>
+<p>如果需要aaa的第1块，查表得到起始是4，那么第1块的物理地址是4+1-1</p>
+<p><strong>优点</strong></p>
+<ul>
+<li>实现简单（只需在文件分配表FAT中记录起始块号和长度）</li>
+<li>支持顺序访问和直接访问， 存取速度快</li>
+<li>顺序存取速度快，所需的磁盘寻道次数和寻道时间最少</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li>不方便文件扩展</li>
+<li>反复增删会产生外部碎片（需要重新分配和压缩）</li>
+<li>预分配，创建文件需要声明文件大小</li>
+</ul>
+<h4 id="链接分配"><a href="#链接分配" class="headerlink" title="链接分配:"></a>链接分配:</h4><p>一个文件的信息存放在若干不连续的物理块中<br>各块之间通过指针连接，前一个物理块指向下一个物理块</p>
+<p><strong>过程：</strong><br>文件名，找到目录项，找到起始块号，要将这个块调入，才能知道下一个块的存放位置。<br>因此，访问第i块，前面的全部都要访问，只能顺序访问</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701015901082.png" alt="image-20210701015901082" style="zoom: 33%;" /></p>
+<p><strong>优点</strong></p>
+<ul>
+<li>消除了外部碎片,提高磁盘空间利用率</li>
+<li>有利于文件动态扩充</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li>不适于随机存取,只能顺序存取</li>
+<li>存取速度慢，更多的寻道次数和寻道时间 </li>
+</ul>
+<p><strong>改进</strong></p>
+<p>（显式链接）</p>
+<p>FAT：用于连接各文件物理块的指针显示存放在一块表中。<br>需要连续存储，并且表项大小相同（才能用索引查表）<br>整个磁盘设置一张（开机时读入内存并常驻内存,查询不需要磁盘）</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701020919906.png" alt="image-20210701020919906" style="zoom:33%;" /></p>
+<p><strong>步骤：</strong></p>
+<p> 首先aaa起始块号2，找到下一块5，再找下一块0…</p>
+<p><strong>效果：</strong><br>支持随机访问,但是文件分配表需要占一定的存储空间。</p>
+<h4 id="索引分配"><a href="#索引分配" class="headerlink" title="索引分配"></a>索引分配</h4><p>文件的信息存放在若干不连续物理块中<br>系统为<strong>每个文件</strong>建立一个专用数据结构——索引表，并将这些块的块号存放在索引表中</p>
+<p>​    （记录一一映射关系 ， 节约内存就放在外存里，只要记下索引块在哪，就能得到表，就能知道文件所有块在哪）</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210623180800921.png" alt="image-20210623180800921" style="zoom:67%;" /></p>
+<p>索引块:存放索引表的磁盘块<br>数据块:存放数据的磁盘块</p>
+<p><strong>转换</strong>:</p>
+<p>目录中根据文件名找到索引块号<br>将索引块从外存读入内存<br>查找索引表第i号逻辑块对应得物理块</p>
+<p>“aaa”的索引表在7号块，7号块是索引块，<br>  读7号块，查索引表，得到文件每一块的物理块号</p>
+<p><strong>优点</strong></p>
+<ul>
+<li>顺序存取 随机存取</li>
+<li>满足了文件动态增长、插入删除的要求，也能充分利用外存空间</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li>较多的寻道次数和寻道时间</li>
+<li>索引表本身带来了系统开销：内外存空间、存取时间（文件每一块都需要记录）</li>
+</ul>
+<p><strong>问题：</strong>如果索引表过大，一个块存不下<br>链接方案：多个索引块，链接起来。FCB中记录第一个索引块的块号<br>多层索引：多层的索引表。FCB记录顶级索引表的块号。<br>    如果一块最多256各索引项。二级索引表。若要查    询1024号逻辑块。首先1024/256=4 ，查询第4项    得到块号，调入，<br>    1024%256=2，查询这块的第二项，得到块号<br>K层索引结构，顶级索引表未调入内存。访问数据块需要K+1次读磁盘<br>混合索引：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>连续</strong></th>
+<th><strong>链接</strong></th>
+<th><strong>索引</strong></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预分配</td>
+<td>必需</td>
+<td>可能</td>
+<td>可能</td>
+<td></td>
+</tr>
+<tr>
+<td>区块大小</td>
+<td>可变</td>
+<td>固定块</td>
+<td>固定块</td>
+<td>可变</td>
+</tr>
+<tr>
+<td>区块尺寸</td>
+<td>大</td>
+<td>小</td>
+<td>小</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>分配频率</td>
+<td>一次</td>
+<td>低到高</td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr>
+<td>分配时间</td>
+<td>中等</td>
+<td>长</td>
+<td>短</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>FAT大小</td>
+<td>一个表项</td>
+<td>一个表项</td>
+<td>大</td>
+<td>中等</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="空闲空间管理："><a href="#空闲空间管理：" class="headerlink" title="空闲空间管理："></a>空闲空间管理：</h3><p>空闲磁盘块的组织<br>空闲磁盘块的分配<br>磁盘块的回收</p>
+<h4 id="空闲表法："><a href="#空闲表法：" class="headerlink" title="空闲表法："></a>空闲表法：</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>记录</th>
+<th>分配</th>
+<th>适用</th>
+<th>回收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>记录空闲块号以及长度<br /></td>
+<td>首次适应 最佳适应 最坏适应</td>
+<td>连续分配方式</td>
+<td>注意回收合并相邻空闲块<br>需要修改表项</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701093521770.png" alt="image-20210701093521770" style="zoom:33%;" /></p>
+<h4 id="链式空闲表："><a href="#链式空闲表：" class="headerlink" title="链式空闲表："></a>链式空闲表：</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>记录</th>
+<th>分配</th>
+<th>回收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空闲盘块链：<br/>每个空闲盘块存储指向下一个空闲盘块的指针<br/>空闲盘区链：<br/>盘区为单位的链（连续的空闲盘块当成一个盘区）<br/>盘区的第一个块记录盘曲长度以及下一个盘区的指针</td>
+<td>保存链头 链尾指针，分配第块，链头开始遍历，找到第K块，修改指针</td>
+<td>回收的放到链尾，修改链尾指针</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701094320443.png" alt="image-20210701094320443" style="zoom: 33%;" /></p>
+<h4 id="索引空闲表："><a href="#索引空闲表：" class="headerlink" title="索引空闲表："></a>索引空闲表：</h4><p>把空闲空间看作一个文件，该文件使用索引分配<br>（即在索引表中记录各个空闲块的块号）</p>
+<h4 id="位图："><a href="#位图：" class="headerlink" title="位图："></a>位图：</h4><p>状态压缩….</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>记录</th>
+<th>分配</th>
+<th>回收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>n二进制位反映磁盘空间中分配使用情况，每个物理块对应一位，取值0和1分别表示空闲和占用</td>
+<td>1.顺序扫描位示图,找到k各相邻/不相邻的0 <br>2.算出对应的块号,分配 <br>3.修改位示图</td>
+<td>块号修改bit为0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210701101334053.png" alt="image-20210701101334053" style="zoom: 33%;" /></p>
+<p>优点：<br>相对容易找到一个/一组连续的空闲块<br>小，长度长，</p>
+<p>存储位图: $\frac{磁盘大小（字节数）}{8\times文件系统块大小}$  单位 字节</p>
+<h2 id="文件共享"><a href="#文件共享" class="headerlink" title="文件共享"></a>文件共享</h2><p>通过唯一的共享路径：<br>    访问速度慢<br>多个目录中的不同文件名(文件别名):<br>    访问速度快，但会影响文件系统的树状结构，适用于经常访问的文件共享，同时存在一定的限制</p>
+<h3 id="文件别名的实现方法："><a href="#文件别名的实现方法：" class="headerlink" title="文件别名的实现方法："></a>文件别名的实现方法：</h3><h4 id="硬链接"><a href="#硬链接" class="headerlink" title="硬链接"></a>硬链接</h4><p>基于索引结点的方式（改进的多级目录结构）：</p>
+<p>目录项分为两部分<br>符号目录项：文件名 + 索引结点指针<br>基本目录项（索引结点）：FCB其他信息 +链接计数</p>
+<p>count(表示链接到这个结点的用户目录数)<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210624111229359.png" alt="image-20210624111229359" style="zoom:50%;" /></p>
+<p>当count=0，系统负责删除文件</p>
+<p>存在问题：</p>
+<p>记账或配额问题：<br>设B、C共享文件file，C是文件主，若C删除了file而B不删除，则file仍然存在，且仍然是C为file付账，占的也是C的配额</p>
+<h4 id="软链接："><a href="#软链接：" class="headerlink" title="软链接："></a>软链接：</h4><p>基于符号链接的方式：</p>
+<ul>
+<li>Link类型的特殊文件，内容是到另一个目录/文件路径的链接,不影响原文件,事实上各是一个文件</li>
+<li>根据路径一层层查找目录</li>
+<li>可以建立任意的别名关系，甚至原文件是在其他计算机上</li>
+</ul>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210624111756355.png" alt="image-20210624111756355"></p>
+<p><strong>缺点:</strong></p>
+<p>时间空间开销大</p>
+<p>其他用户读共享文件时，需要根据文件路径逐个查找多级目录，直到找到文件的索引结点<br>访问文件开销变大，增加磁盘启动的频率<br>符号链的索引结点也要耗费一定的磁盘空间</p>
+<h2 id="文件保护"><a href="#文件保护" class="headerlink" title="文件保护"></a>文件保护</h2><p>口令保护 ：<br>FCB/索引结点中存口令，用户访问时要提供口令<br>保持开销小，验证口令开销小<br>正确的“口令”存放在系统内部， 不够安全</p>
+<p>加密保护：<br>对文件加密处理</p>
+<p>访问控制：<br>每个文件FCB/缩影索引结点增加一个访问控制列表<br>记录用户对文件可以执行                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   的操作<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210624113555639.png" alt="image-20210624113555639" style="zoom:50%;" /></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/OS/" rel="tag"><i class="fa fa-tag"></i> OS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(4)%20%20%E6%AD%BB%E9%94%81/" rel="prev" title="操作系统原理(4)死锁">
+      <i class="fa fa-chevron-left"></i> 操作系统原理(4)死锁
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(2)%20%20%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B/" rel="next" title="操作系统原理(2)进程与线程">
+      操作系统原理(2)进程与线程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86"><span class="nav-text">文件管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="nav-text">文件管理系统:</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%9F%E8%83%BD"><span class="nav-text">功能:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%BB%84%E7%BB%87-file-organization%E6%96%87%E4%BB%B6%E4%B8%AD%E8%AE%B0%E5%BD%95%E7%9A%84%E9%80%BB%E8%BE%91%E7%BB%93%E6%9E%84"><span class="nav-text">文件组织 file organization文件中记录的逻辑结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E8%A6%81%E6%B1%82"><span class="nav-text">设计要求</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E7%BB%93%E6%9E%84%E6%96%87%E4%BB%B6%EF%BC%9A"><span class="nav-text">无结构文件：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%89%E7%BB%93%E6%9E%84%E6%96%87%E4%BB%B6%EF%BC%9A"><span class="nav-text">有结构文件：</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E6%96%87%E4%BB%B6"><span class="nav-text">顺序文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E9%A1%BA%E5%BA%8F%E6%96%87%E4%BB%B6"><span class="nav-text">索引顺序文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E6%96%87%E4%BB%B6"><span class="nav-text">索引文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E6%96%87%E4%BB%B6%E6%88%96%E6%95%A3%E5%88%97%E6%96%87%E4%BB%B6"><span class="nav-text">直接文件或散列文件</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95"><span class="nav-text">文件目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97-%EF%BC%88FCB%EF%BC%89-%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E"><span class="nav-text">文件控制块 （FCB）&#x2F;文件说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95-1"><span class="nav-text">文件目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE%E7%9A%84%E6%AD%A5%E9%AA%A4%EF%BC%9A"><span class="nav-text">文件访问的步骤：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E6%93%8D%E4%BD%9C%EF%BC%9A"><span class="nav-text">目录操作：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-text">目录结构：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E6%9E%81%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-text">单极目录结构：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%A4%E7%BA%A7%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-text">两级目录结构：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E7%BA%A7%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84-%E6%A0%91%E5%BD%A2%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-text">多级目录结构&#x2F; 树形目录结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%E7%9A%84%E5%A4%9A%E7%BA%A7%E7%9B%AE%E5%BD%95"><span class="nav-text">改进的多级目录</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E7%BB%84%E5%9D%97"><span class="nav-text">记录组块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E7%BB%84%E5%9D%97%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-text">记录组块的方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">辅存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E5%88%86%E9%85%8D%E4%B8%8E%E5%8A%A8%E6%80%81%E5%88%86%E9%85%8D"><span class="nav-text">预分配与动态分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BA%E5%9D%97%E5%A4%A7%E5%B0%8F"><span class="nav-text">区块大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%89%A9%E7%90%86%E7%BB%93%E6%9E%84%EF%BC%88%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E6%96%B9%E5%BC%8F%EF%BC%89"><span class="nav-text">文件物理结构（文件分配方式）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E5%88%86%E9%85%8D%EF%BC%9A"><span class="nav-text">连续分配：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%88%86%E9%85%8D"><span class="nav-text">链接分配:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%88%86%E9%85%8D"><span class="nav-text">索引分配</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A9%BA%E9%97%B2%E7%A9%BA%E9%97%B4%E7%AE%A1%E7%90%86%EF%BC%9A"><span class="nav-text">空闲空间管理：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B2%E8%A1%A8%E6%B3%95%EF%BC%9A"><span class="nav-text">空闲表法：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%93%BE%E5%BC%8F%E7%A9%BA%E9%97%B2%E8%A1%A8%EF%BC%9A"><span class="nav-text">链式空闲表：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E7%A9%BA%E9%97%B2%E8%A1%A8%EF%BC%9A"><span class="nav-text">索引空闲表：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%8D%E5%9B%BE%EF%BC%9A"><span class="nav-text">位图：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB"><span class="nav-text">文件共享</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E5%88%AB%E5%90%8D%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="nav-text">文件别名的实现方法：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AC%E9%93%BE%E6%8E%A5"><span class="nav-text">硬链接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E9%93%BE%E6%8E%A5%EF%BC%9A"><span class="nav-text">软链接：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E4%BF%9D%E6%8A%A4"><span class="nav-text">文件保护</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="🐏🐚"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">🐏🐚</p>
+  <div class="site-description" itemprop="description">摇摇晃晃</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">🐏🐚</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">102k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:32</span>
+</div><a href="https://icp.gov.moe/?keyword=20180708" rel="external nofollow noreferrer" target="_blank" data-pjax-state="" style="
+    border-bottom-width: 0px;
+">萌 ICP 备 20180708 号</a>
+<!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span>
+<span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("12/31/2019 23:54:40");//此处修改你的建站时间，注意格式
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "小站在混沌中存活了 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>
