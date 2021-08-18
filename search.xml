@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Basic</title>
+    <url>/1970/01/01/1basic/</url>
+    <content><![CDATA[<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/kelli-tungay-309722.jpg" alt="kelli-tungay-309722"></p>
+<span id="more"></span>
+<ul>
+<li><p>Uppercase letter X for random variable.</p>
+</li>
+<li><p>Lowercase letter <em>x</em> for an observed value</p>
+</li>
+</ul>
+<hr>
+<p>和监督学习区别</p>
+<ul>
+<li>Trial-and-error exploration</li>
+<li>delayed reward<br>不会得到立刻的反馈</li>
+<li>Time matters Sequential data</li>
+<li>data之间是连续的<br>只有到最后游戏结束才有label，因此单个的action没有一个确切的label告诉你是否正确，存在奖励的延迟</li>
+</ul>
+<h2 id="Sequential-Decision-Making"><a href="#Sequential-Decision-Making" class="headerlink" title="Sequential Decision Making"></a>Sequential Decision Making</h2><p>Environment state and agent state</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801093617789.png" alt="image-20210801093617789"></p>
+<p><strong>Full observability</strong>： agent directly observes the environment state, formally as Markov decision process (MDP)<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801094310027.png" alt="image-20210801094310027" style="zoom:50%;" /></p>
+<p><strong>Partial observability</strong>： agent indirectly observes the environment, formally as partially observable Markov decision process (POMDP)</p>
+<h2 id="Policy"><a href="#Policy" class="headerlink" title="Policy"></a>Policy</h2><p>根据观测的状态做出选择</p>
+<ul>
+<li><p>A policy is the agent’s behavior model</p>
+</li>
+<li><p>a map function from state/observation to action</p>
+</li>
+<li><p>Stochastic policy: </p>
+<p>Probabilistic sample<br>概率密度函数</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801094519911.png" alt="image-20210801094519911" style="zoom:50%;" /></p>
+<p>eg:<img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210804001119800.png" alt="image-20210804001119800" style="zoom: 50%;" /></p>
+</li>
+<li><p>Deterministic policy:</p>
+<p>​            <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801094538574.png" alt="image-20210801094538574" style="zoom:50%;" /></p>
+</li>
+</ul>
+<h2 id="Value-function"><a href="#Value-function" class="headerlink" title="Value function"></a>Value function</h2><ul>
+<li>Value function: expected discounted sum of future rewards under a particular policy $ \pi$</li>
+<li>Discount factor weights immediate <strong>vs</strong> future rewards</li>
+</ul>
+<ul>
+<li>Used to quantify goodness/badness of states and actions</li>
+<li>Ｑ-function (could be used to select among actions)</li>
+</ul>
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><p>A model predicts what the environment will do next</p>
+<p>Predict the next state:<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801094922902.png" alt="image-20210801094922902" style="zoom:50%;" /></p>
+<p>​    $S’$~$ p(·|s,a)$ 环境用状态转移函数p算出概率分布，然后概率随机抽样得到$S’$</p>
+<p>Predict the next reward:</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801094930959.png" alt="image-20210801094930959" style="zoom:50%;" /></p>
+<h2 id="Markov-Decision-Processes"><a href="#Markov-Decision-Processes" class="headerlink" title="Markov Decision Processes"></a>Markov Decision Processes</h2><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801095043231.png" alt="image-20210801095043231" style="zoom:50%;" /></p>
+<h2 id="Types-of-RL-Agents-based-on-What-the-Agent-Learns"><a href="#Types-of-RL-Agents-based-on-What-the-Agent-Learns" class="headerlink" title="Types of RL Agents based on What the Agent Learns"></a>Types of RL Agents based on What the Agent Learns</h2><p>Value-based agent:</p>
+<p>​    • Explicit: Value function</p>
+<p>​    • Implicit: Policy (can derive a policy from value function)</p>
+<p>Policy-based agent:</p>
+<p>​    • Explicit: policy</p>
+<p>​    • No value function</p>
+<p>Actor-Critic agent:</p>
+<p>​    •Explicit: policy and value function</p>
+<h2 id="Types-of-RL-Agents-on-if-there-is-model"><a href="#Types-of-RL-Agents-on-if-there-is-model" class="headerlink" title="Types of RL Agents on if there is model"></a>Types of RL Agents on if there is model</h2><p>• Model-based</p>
+<p>​    • Explicit: model</p>
+<p>​    • May or may not have policy and/or value     </p>
+<p>​    function</p>
+<p>• Model-free</p>
+<p>​    • Explicit: value function and/or policy function</p>
+<p>​    • No model. </p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801102626203.png" alt="image-20210801102626203"></p>
+<h2 id="Two-Fundamental-Problems-in-Sequential"><a href="#Two-Fundamental-Problems-in-Sequential" class="headerlink" title="Two Fundamental Problems in Sequential"></a>Two Fundamental Problems in Sequential</h2><p>Decision Making</p>
+<p>• Planning</p>
+<p>• Given model about how the environment works.</p>
+<p>• Compute how to act to maximize expected reward without external interaction.</p>
+<p>Reinforcement learning</p>
+<p>• Agent doesn’t know how world works</p>
+<p>• Interacts with world to implicitly learn how world works</p>
+<p>• Agent improves policy (also involves planning)</p>
+<h1 id="Markov-Decision-Processes-1"><a href="#Markov-Decision-Processes-1" class="headerlink" title="Markov Decision Processes"></a>Markov Decision Processes</h1><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801112251325.png" alt="image-20210801112251325" style="zoom:50%;" /></p>
+<p>Under MDP, the environment is <strong>fully observable</strong></p>
+<p>Optimal control primarily deals with <strong>continuous MDPs</strong></p>
+<p>Partially observable problems can be <strong>converted into MDPs</strong></p>
+<h2 id="Markov-Property"><a href="#Markov-Property" class="headerlink" title="Markov Property"></a>Markov Property</h2><p>The history of states: $h_t = {s_1,s_2,s_3, …,s_t}$ </p>
+<p>State $s_t$is Markovian if and only if:</p>
+<p>$p(s_{t+1}|s_t) =p(s_{t+1}|h_t)$</p>
+<p>$p(s_{t+1}|s_t,a_t) =p(s_{t+1}|h_t,a_t)$</p>
+<p>The future is independent of the past given the present</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801141313147.png" alt="image-20210801141313147" style="zoom:50%;" /></p>
+<p>State transition matrix P</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801141340936.png" alt="image-20210801141340936"></p>
+<p>$p(s_{t+1} = s_0|s_t = s) $</p>
+<h2 id="Markov-Reward-Process-MRP"><a href="#Markov-Reward-Process-MRP" class="headerlink" title="Markov Reward Process (MRP)"></a>Markov Reward Process (MRP)</h2><p>Markov Chain + reward</p>
+<p>Definition:</p>
+<ul>
+<li>S is a (finite) set of states (<em>s</em> <em>∈</em> <em>S</em>) </li>
+<li>P is dynamics/transition model that specifies $P(S_{t+1}= s_0|s_t = s)$ </li>
+<li>R is a reward function $R(st = s) = E[rt|st = s]$ </li>
+<li>Discount factor <em>γ</em> <em>∈</em> [0<em>,</em> 1]</li>
+</ul>
+<p>If finite number of states, R can be a vector</p>
+<h2 id="Return-and-Value-function"><a href="#Return-and-Value-function" class="headerlink" title="Return and Value function"></a>Return and Value function</h2><p><strong>Horizon:</strong></p>
+<ul>
+<li>Number of maximum time steps in each episode</li>
+<li>Can be infinite, otherwise called finite Markov (reward) Process</li>
+</ul>
+<p><strong>Return</strong>: (aka cumulative future reward)</p>
+<p>Discounted sum of rewards from time step <em>t</em> to horizon</p>
+<p>$G_t = R_{t+1}+γR_{t+2}+γ^2R_{t+3}+ γ^3R_{t+4} + … + γ^{T−t − 1} R_T $</p>
+<p>$R_i$ depends on $S_i$ and $A_i$</p>
+<p><strong>Action-value    function for policy $\pi$</strong></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210804011125036.png" alt="image-20210804011125036" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210804011140599.png" alt="image-20210804011140599" style="zoom:50%;" /></p>
+<p>Optimal：<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210804011227016.png" alt="image-20210804011227016" style="zoom:50%;" /><br>    关于$\pi$ 求最大化</p>
+<p><strong>state value function $V_t( s )$ for MRP</strong><br> Expected return from t in state s</p>
+<p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801142736320.png" alt="image-20210801142736320" style="zoom:50%;" /></p>
+<p>Present value of future rewards<br>     <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210804012320633.png" alt="image-20210804012320633" style="zoom:50%;" />    </p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210804012346809.png" alt="image-20210804012346809" style="zoom:50%;" /></p>
+<p>A作为随机变量，求期望消掉A</p>
+<p><strong>Why Discount Factor</strong></p>
+<ul>
+<li><p>Avoids infinite returns in cyclic Markov processes</p>
+</li>
+<li><p>Uncertainty about the future may not be fully represented</p>
+</li>
+<li><p>If the reward is financial, immediate rewards may earn more interest</p>
+<p>than delayed rewards</p>
+</li>
+<li><p>Animal/human behaviour shows preference for immediate reward</p>
+</li>
+<li><p>γ = 0: Only care about the immediate reward</p>
+<p>γ = 1: Future reward is equal to the immediate reward</p>
+</li>
+</ul>
+<p><strong>Example</strong></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801145806725.png" alt="image-20210801145806725"></p>
+<h3 id="Computing-the-Value-of-a-Markov-Reward-Process"><a href="#Computing-the-Value-of-a-Markov-Reward-Process" class="headerlink" title="Computing the Value of a Markov Reward Process"></a>Computing the Value of a Markov Reward Process</h3><p><strong>Value function:</strong> expected return from starting in state s </p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801150003908.png" alt="image-20210801150003908" style="zoom:50%;" /></p>
+<p><strong>Bellman equation</strong>:</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801150115389.png" alt="image-20210801150115389" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801150404033.png" alt="image-20210801150404033" style="zoom:50%;" /></p>
+<p><strong>Analytic solution:</strong><br> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801150642732.png" alt="image-20210801150642732" style="zoom:50%;" /></p>
+<p>Matrix inverse takes the complexity $O(N^3)$ for N states, Only possible for a small MRPs<br><strong>Iterative methods</strong></p>
+<p>Dynamic Programming:</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801151031574.png" alt="image-20210801151031574" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801151102541.png" alt="image-20210801151102541" style="zoom:50%;" /></p>
+<p>Monte-Carlo evaluation:</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801155754672.png" alt="image-20210801155754672"></p>
+<p>Temporal-Difference learning:</p>
+<h2 id="Markov-Decision-Process-MDP"><a href="#Markov-Decision-Process-MDP" class="headerlink" title="Markov Decision Process (MDP)"></a>Markov Decision Process (MDP)</h2><p>Markov Reward Process with decisions</p>
+<p><strong>Definition</strong> </p>
+<ul>
+<li>S is a finite set of states</li>
+<li>A is a finite set of actions</li>
+<li>$P^a$ is dynamics/transition model for each action<br>$P(s_{t+1} = s’|s_t = s ,a_t = a) $</li>
+<li><em>R</em> is a reward function<br>$R(s_t = s,a_t = a) = E[r_t|s_t= s,a_t= a]$ </li>
+<li>Discount factor <em>γ</em> <em>∈</em> [0<em>,</em> 1]</li>
+</ul>
+<p>MDP is a tuple: (S, A,P,R, γ)</p>
+<h3 id="Policy-in-MDP"><a href="#Policy-in-MDP" class="headerlink" title="Policy in MDP"></a>Policy in MDP</h3><p>Policy specifies what action to take in each state<br>Give a state, specify a distribution over actions<br>Policy: $π(a|s) =P(a_t = a|s_t = s)$ </p>
+<p>Policies are stationary (time-independent), </p>
+<p>$A_t ∼ π(a|s) for \ any\  t&gt; 0$</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801161022035.png" alt="image-20210801161022035" style="zoom:50%;" /></p>
+<h3 id="Comparison-of-MP-MRP-and-MDP"><a href="#Comparison-of-MP-MRP-and-MDP" class="headerlink" title="Comparison of MP/MRP and MDP"></a>Comparison of MP/MRP and MDP</h3><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801161039681.png" alt="image-20210801161039681" style="zoom:50%;" /></p>
+<h3 id="Value-function-for-MDP"><a href="#Value-function-for-MDP" class="headerlink" title="Value function for MDP"></a>Value function for MDP</h3><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801161420304.png" alt="image-20210801161420304" style="zoom:50%;" /></p>
+<p><strong>Bellman方程</strong></p>
+<p>$q_{\pi}(s,a) = \mathbb{E}_{\pi}(G_t|S_t=s, A_t=a) = \mathbb{E}_{\pi}(R_{t+1} + \gamma R_{t+2} + \gamma^2R_{t+3}+…|S_t=s,A_t=a)$</p>
+<p>$\begin{align} v_{\pi}(s) &amp;= \mathbb{E}_{\pi}(R_{t+1} + \gamma R_{t+2} + \gamma^2R_{t+3}+…|S_t=s) \\ &amp;= \mathbb{E}_{\pi}(R_{t+1} + \gamma (R_{t+2} + \gamma R_{t+3}+…)|S_t=s) \\ &amp;= \mathbb{E}_{\pi}(R_{t+1} + \gamma G_{t+1} | S_t=s) \\ &amp;=  \mathbb{E}_{\pi}(R_{t+1} + \gamma v_{\pi}(S_{t+1}) | S_t=s) \end{align}$</p>
+<p>也就是说，在t时刻的状态S_t和t+1时刻的状态S_{t+1}是满足递推关系的，即：</p>
+<p>$v_{\pi}(s) = \mathbb{E}_{\pi}(R_{t+1} + \gamma v_{\pi}(S_{t+1}) | S_t=s)$</p>
+<p>同样的方法，我们可以得到动作价值函数q_{\pi}(s,a)的贝尔曼方程：</p>
+<p>$q_{\pi}(s,a) = \mathbb{E}_{\pi}(R_{t+1} + \gamma q_{\pi}(S_{t+1},A_{t+1}) | S_t=s, A_t=a)$</p>
+<h3 id="Bellman-Expectation-Equation"><a href="#Bellman-Expectation-Equation" class="headerlink" title="Bellman Expectation Equation"></a>Bellman Expectation Equation</h3><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801161628866.png" alt="image-20210801161628866" style="zoom:50%;" /></p>
+<p>​      $v_{\pi}(s) = \sum\limits_{a \in A} \pi(a|s)q_{\pi}(s,a)$</p>
+<p>状态价值函数是所有动作价值函数基于策略$\pi$的期望。通俗说就是某状态下所有状态动作价值乘以该动作出现的概率，最后求和，就得到了对应的状态价值。</p>
+<p>$q_{\pi}(s,a) = R_s^a + \gamma \sum\limits_{s’ \in S}P_{ss’}^av_{\pi}(s’)$</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801161727430.png" alt="image-20210801161727430" style="zoom:50%;" /></p>
+<h3 id="Backup-Diagram"><a href="#Backup-Diagram" class="headerlink" title="Backup Diagram"></a>Backup Diagram</h3><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801161957419.png" alt="image-20210801161957419" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801162006501.png" alt="image-20210801162006501" style="zoom:50%;" /></p>
+<h3 id="Policy-Evaluation"><a href="#Policy-Evaluation" class="headerlink" title="Policy Evaluation"></a>Policy Evaluation</h3><p>Evaluate the value of state given a policy <em>π</em>: compute $v^π(s) $</p>
+<p>Also called as (value) prediction</p>
+<h3 id="Decision-Making-in-Markov-Decision-Process-MDP"><a href="#Decision-Making-in-Markov-Decision-Process-MDP" class="headerlink" title="Decision Making in Markov Decision Process (MDP)"></a>Decision Making in Markov Decision Process (MDP)</h3><p><strong>Prediction (evaluate a given policy)</strong>    </p>
+<p>Input: MDP$ &lt; S,A,P,R, γ &gt; $and policy <em>π</em> or MRP $&lt; S,P^π,R^π, γ &gt;$ </p>
+<p>Output: value function $v^π$ </p>
+<p><strong>Control (search the optimal policy):</strong></p>
+<p>Input: $MDP <S,A,P,R,γ>$</p>
+<p>Output: optimal value function <em>v</em>$ ^∗$ and optimal policy $π^∗$ </p>
+<p>Prediction and control in MDP can be solved by <strong>dynamic programming</strong></p>
+<h3 id="Dynamic-Programming"><a href="#Dynamic-Programming" class="headerlink" title="Dynamic Programming"></a>Dynamic Programming</h3><p>Optimal substructure<br>Overlapping subproblems</p>
+<p>Markov decision processes satisfy both properties</p>
+<ul>
+<li>Bellman equation gives recursive decomposition</li>
+<li>Value function stores and reuses solutions</li>
+</ul>
+<h3 id="Policy-evaluation-on-MDP"><a href="#Policy-evaluation-on-MDP" class="headerlink" title="Policy evaluation on MDP"></a>Policy evaluation on MDP</h3><p><strong>Objective:</strong> Evaluate a given policy <em>π</em> for a MDP</p>
+<p><strong>Output:</strong> the value function under policy $v^π$</p>
+<p><strong>Solution:</strong> iteration on Bellman expectation backup</p>
+<p><strong>Algorithm:</strong> Synchronous backup</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801170204507.png" alt="image-20210801170204507" style="zoom:50%;" /></p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801170215355.png" alt="image-20210801170215355" style="zoom:50%;" /></p>
+<p>Bellman expectation backup for a particular <strong>policy</strong></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801170357916.png" alt="image-20210801170357916" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801170416568.png" alt="image-20210801170416568" style="zoom:50%;" /></p>
+<h3 id="Optimal-Value-Function"><a href="#Optimal-Value-Function" class="headerlink" title="Optimal Value Function"></a>Optimal Value Function</h3><p><strong>optimal state-value function</strong> $v ^∗(s)$ is the maximum value function over all policies</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801172609642.png" alt="image-20210801172609642" style="zoom:50%;" /><br><strong>optimal policy</strong></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801172728339.png" alt="image-20210801172728339" style="zoom:50%;" /></p>
+<p>There exists a unique optimal value function, but could be multiple optimal policies (two actions that have the same optimal value function)</p>
+<p><strong>Finding Optimal Policy</strong><br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801172843291.png" alt="image-20210801172843291" style="zoom:50%;" /></p>
+<p>There is always a deterministic optimal policy for any MDP</p>
+<p>If we know $q^*(s, a)$, we immediately have the optimal policy</p>
+<p>最优价值函数关系也很容易得到：<br>$q_{<em>}(s,a) = R_s^a + \gamma \sum\limits_{s’ \in S}P_{ss’}^av_{</em>}(s’)$</p>
+<p>$v_{<em>}(s) = \max_a(R_s^a + \gamma \sum\limits_{s’ \in S}P_{ss’}^av_{</em>}(s’))$</p>
+<p>$<br>q_{<em>}(s,a) = R_s^a + \gamma \sum\limits_{s’ \in S}P_{ss’}^a\max_{a’}q_{</em>}(s’,a’)$</p>
+<h3 id="MDP-Control"><a href="#MDP-Control" class="headerlink" title="MDP Control"></a>MDP Control</h3><p>如何寻找最佳策略 得到最大价值函数</p>
+<h4 id="Policy-iteration"><a href="#Policy-iteration" class="headerlink" title="Policy iteration"></a>Policy iteration</h4><p><strong>Evaluate</strong> the policy <em>π</em> (computing <em>v</em> given current <em>π</em>) 第一步是使用当前策略 π∗评估计算当前策略的最终状态价值 v∗</p>
+<p><strong>Improve</strong> the policy by acting greedily with respect to $v^π$<br>根据状态价值 v∗根据一定的方法（比如贪婪法）更新策略 π∗</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801193433409.png" alt="image-20210801193433409" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801193442853.png" alt="image-20210801193442853" style="zoom:50%;" /></p>
+<p>Compute the state-action value of a policy <em>π</em>:</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801193539751.png" alt="image-20210801193539751" style="zoom:50%;" /></p>
+<p>Compute new policy$\ π_{i+1}$ for all <em>s</em> <em>∈ S</em> following</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801193633305.png" alt="image-20210801193633305" style="zoom:50%;" /></p>
+<p><strong>Monotonic Improvement in Policy</strong></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801193834537.png" alt="image-20210801193834537" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801193943618.png" alt="image-20210801193943618" style="zoom: 50%;" /></p>
+<h4 id="Bellman-Optimality-Equation"><a href="#Bellman-Optimality-Equation" class="headerlink" title="Bellman Optimality Equation"></a>Bellman Optimality Equation</h4><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801194054261.png" alt="image-20210801194054261" style="zoom:50%;" /></p>
+<h4 id="Value-iteration"><a href="#Value-iteration" class="headerlink" title="Value iteration"></a>Value iteration</h4><p>by turning the Bellman Optimality Equation as update rule</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801194303716.png" alt="image-20210801194303716" style="zoom:50%;" /></p>
+<p>Objective: fifind the optimal policy <em>π</em><br>Solution: iteration on the Bellman optimality backup<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801194354867.png" alt="image-20210801194354867" style="zoom:50%;" /></p>
+<h5 id="Difference-between-Policy-Iteration-and-Value-Iteration"><a href="#Difference-between-Policy-Iteration-and-Value-Iteration" class="headerlink" title="Difference between Policy Iteration and Value Iteration"></a>Difference between Policy Iteration and Value Iteration</h5><ul>
+<li><p>Policy iteration includes: <strong>policy evaluation</strong> + <strong>policy improvement</strong>, and the two are repeated iteratively until policy converges.</p>
+</li>
+<li><p>Value iteration includes: <strong>fifinding optimal value function</strong> + <strong>one</strong></p>
+<p><strong>policy extraction</strong>. There is no repeat of the two because once the value function is optimal, then the policy out of it should also be optimal (i.e. converged).</p>
+</li>
+</ul>
+<p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210801195527498.png" alt="image-20210801195527498"></p>
+<h2 id="Review"><a href="#Review" class="headerlink" title="Review"></a>Review</h2><p>  MDP is known<br>  Both <strong><em>R</em></strong> and <strong><em>P</em></strong> are exposed to the agent</p>
+<p>  Therefore,  policy iteration and value iteration</p>
+<p>  <strong>Policy iteration</strong>: Given a <strong>known</strong> MDP, compute the optimal policy and the optimal value function</p>
+<p>  <strong>Policy evaluation:</strong> iteration on the Bellman expectation backup</p>
+<p>  ​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210802103147323.png" alt="image-20210802103147323"></p>
+<p>  <strong>Policy improvement:</strong> <strong>greedy</strong> on action-value function <em>q</em></p>
+<p>  ​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210802103505385.png" alt="image-20210802103505385" style="zoom:50%;" /></p>
+<p>​    <strong>Value iteration:</strong> Given a <strong>known</strong> MDP, compute the optimal value function    </p>
+<p>​    Iteration on the Bellman optimality backup<br>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210802103739155.png" alt="image-20210802103739155"></p>
+<p>​    To retrieve the optimal policy after the value iteration:</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210802103747824.png" alt="image-20210802103747824" style="zoom:50%;" /></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210802103821928.png" alt="image-20210802103821928" style="zoom:50%;" /></p>
+<p>​    </p>
+]]></content>
+      <categories>
+        <category>强化学习相关</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>MPI分布式内存编程</title>
+    <url>/1970/01/01/MPI/</url>
+    <content><![CDATA[<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210818155428356.png" alt="image-20210818155428356"></p>
+<span id="more"></span>
+<h1 id="MPI分布式内存编程"><a href="#MPI分布式内存编程" class="headerlink" title="MPI分布式内存编程"></a>MPI分布式内存编程</h1><p>Message-Passing Interface </p>
+<p>并不是一种语言，而是函数库</p>
+<h2 id="分布式内存"><a href="#分布式内存" class="headerlink" title="分布式内存"></a>分布式内存</h2><p>   <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210414152345848.png" alt="image-20210414152345848" style="zoom:50%;" /></p>
+<p>核-内存对由网络连接</p>
+<p>与核相关联的内存只能由该核访问</p>
+<p>用消息传递对分布式系统进行编程</p>
+<p>一个进程调用发送函数，另一个进程调用接受函数</p>
+<h2 id="例程"><a href="#例程" class="headerlink" title="例程"></a>例程</h2><p>setting： 核数：4</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> MAX_STRING = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">char</span> greeting[MAX_STRING]; </span><br><span class="line">   <span class="keyword">int</span>  comm_sz;</span><br><span class="line">   <span class="keyword">int</span>  my_rank;</span><br><span class="line"></span><br><span class="line">   MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">   MPI_Comm_size(MPI_COMM_WORLD, &amp;comm_sz);</span><br><span class="line">   MPI_Comm_rank(MPI_COMM_WORLD, &amp;my_rank);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span>(my_rank != <span class="number">0</span>)</span><br><span class="line">   &#123;</span><br><span class="line">        <span class="built_in">sprintf</span>(greeting, <span class="string">&quot;Greetings from process %d of %d!&quot;</span>, my_rank, comm_sz);</span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;send message from rank %d\n &quot;</span>, my_rank); <span class="comment">// 发送顺序是不确定的</span></span><br><span class="line">        MPI_Send(greeting, <span class="built_in">strlen</span>(greeting)+<span class="number">1</span>, MPI_CHAR, <span class="number">0</span>, <span class="number">0</span>, MPI_COMM_WORLD);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">   &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Greetings from process %d of %d!\n&quot;</span>, my_rank, comm_sz); <span class="comment">// 0 号的打印</span></span><br><span class="line">      <span class="comment">// 其余的消息的打印</span></span><br><span class="line">    <span class="comment">// 接受是按顺序---打印顺序是确定的 </span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> q=<span class="number">1</span>; q&lt;comm_sz; q++)</span><br><span class="line">        &#123;</span><br><span class="line">             MPI_Recv(greeting, MAX_STRING, MPI_CHAR, q, <span class="number">0</span>,   MPI_COMM_WORLD, MPI_STATUS_IGNORE);</span><br><span class="line">             <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, greeting);</span><br><span class="line">        &#125;    </span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   MPI_Finalize();</span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight cc"><table><tr><td class="code"><pre><span class="line">======== ERROR ========</span><br><span class="line">======== OUTPUT ========</span><br><span class="line">Greetings from process <span class="number">0</span> of <span class="number">4</span>!</span><br><span class="line">Greetings from process <span class="number">1</span> of <span class="number">4</span>!</span><br><span class="line">send message from rank <span class="number">1</span></span><br><span class="line">send message from rank <span class="number">3</span></span><br><span class="line">Greetings from process <span class="number">2</span> of <span class="number">4</span>!</span><br><span class="line">Greetings from process <span class="number">3</span> of <span class="number">4</span>!</span><br><span class="line">send message from rank <span class="number">2</span></span><br><span class="line">======== REPORT ========</span><br></pre></td></tr></table></figure>
+<p>发送顺序是不确定的</p>
+<p>接受是按顺序—-因为循环了设置了接受来源—-打印顺序是确定的（q）<br> MPI_Recv(greeting, MAX_STRING, MPI_CHAR, <strong>q</strong>, 0,   MPI_COMM_WORLD, MPI_STATUS_IGNORE); </p>
+<p> 但是后面可能已经完成了，要等到前面的发送(阻塞)</p>
+<p>每个进程都发给0号进程，0号进程只是打印</p>
+<p><code>MPI_ANY_SOURCE</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Recv(greeting, MAX_STRING, MPI_CHAR,  MPI_ANY_SOURCE , <span class="number">0</span>,   MPI_COMM_WORLD, MPI_STATUS_IGNORE);</span><br></pre></td></tr></table></figure>
+<p>可以按照接受顺序打印</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210414155058917.png" alt="image-20210414155058917" style="zoom:67%;" /></p>
+<h2 id="变量名"><a href="#变量名" class="headerlink" title="变量名"></a>变量名</h2><p>•Identifiers defined by MPI start with “MPI_”.</p>
+<p>•First letter following underscoreis uppercase.</p>
+<p>​    •For function names and MPI-defined types.</p>
+<p>​    •Helps to avoid confusion.</p>
+<h2 id="MPI-Init-和-MPI-Finalize"><a href="#MPI-Init-和-MPI-Finalize" class="headerlink" title="MPI_Init 和 MPI_Finalize"></a>MPI_Init 和 MPI_Finalize</h2><p>MPI_Init： 告知MPI做所有必要的初始化</p>
+<p> MPI_Finalize： 告知使用完毕，分配的资源可以释放</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213209234.png" alt="image-20210320213209234" style="zoom:67%;" /></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213227904.png" alt="image-20210320213227904" style="zoom: 80%;" /></p>
+<h2 id="Basic-Outline"><a href="#Basic-Outline" class="headerlink" title="Basic Outline"></a>Basic Outline</h2><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213406820.png" alt="image-20210320213406820" style="zoom: 33%;" /></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">  int  comm_sz;</span><br><span class="line">  int  my_rank;</span><br><span class="line">  MPI_Comm comm;</span><br><span class="line">  MPI_Init(NULL, NULL);</span><br><span class="line">  comm = MPI_COMM_WORLD;</span><br><span class="line">  MPI_Comm_size(MPI_COMM_WORLD, &amp;comm_sz);</span><br><span class="line">  MPI_Comm_rank(MPI_COMM_WORLD, &amp;my_rank);</span><br><span class="line">...</span><br><span class="line">  MPI_Finalize();</span><br></pre></td></tr></table></figure>
+<h2 id="Communicator-通信子"><a href="#Communicator-通信子" class="headerlink" title="Communicator 通信子"></a>Communicator 通信子</h2><ul>
+<li>一组可以互相发送消息的进程集合，指定通信范围</li>
+<li>MPI_Init : 用户启动程序时，定义由用户启动的<strong>所有进程组成的通信子</strong><br>MPI_COMM_WORLD</li>
+</ul>
+<p><strong>MPI_Comm_size()</strong></p>
+<p>返回通信子进程数(传指针进去修改)</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213804772.png" alt="image-20210320213804772" style="zoom:67%;" /></p>
+<p><strong>MPI_Comm_rank()</strong></p>
+<p>返回进程号(传指针进去修改)</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210320213811915.png" alt="image-20210320213811915" style="zoom:67%;" /></p>
+<h3 id="SPMD-（Single-Program-Multiple-Data）"><a href="#SPMD-（Single-Program-Multiple-Data）" class="headerlink" title="SPMD （Single-Program-Multiple-Data）"></a>SPMD （Single-Program-Multiple-Data）</h3><ul>
+<li>一个程序，不同进程不同动作，</li>
+<li>0号做不同的事， receive and print</li>
+<li>If-else 语句实现</li>
+</ul>
+<h2 id="通信Communication"><a href="#通信Communication" class="headerlink" title="通信Communication"></a>通信Communication</h2><h3 id="MPI-Send"><a href="#MPI-Send" class="headerlink" title="MPI_Send"></a>MPI_Send</h3><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210321095623959.png" alt="image-20210321095623959" style="zoom:67%;" /></p>
+<p><strong>消息内容</strong></p>
+<ul>
+<li><p>msg_buf_p（指向包含消息内存块的指针） </p>
+</li>
+<li><p>msg_size ：数据量 </p>
+</li>
+<li><p>msg_type : 因为类型名 int char 不能作为参数传递给函数<br>如果字符串， msg_size = strlen(s) + 1</p>
+</li>
+</ul>
+<p><strong>MPI数据类型</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210321100013704.png" alt="image-20210321100013704" style="zoom:50%;" /></p>
+<p>接收方</p>
+<ul>
+<li><p>dest ： 接受消息进程号</p>
+</li>
+<li><p>tag：非负int，区分看上去完全一样的消息</p>
+<pre><code>     比如，有些接受的数据打印，有的不需要，则用tag来标记
+</code></pre></li>
+<li><p>communicator ：通信子，指定通信范围</p>
+</li>
+</ul>
+<p>不同通信子不能通信</p>
+<h3 id="MPI-Recv"><a href="#MPI-Recv" class="headerlink" title="MPI_Recv"></a>MPI_Recv</h3><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210321100507553.png" alt="image-20210321100507553" style="zoom:67%;" /></p>
+<p>前六个与Send 对应</p>
+<p>source： 匹配进程号，也可以<code>MPI_ANY_SOURCE</code></p>
+<p>按发送的顺序接受（就是不指定source，先到的先发）</p>
+<p>tag 匹配<br>communicator匹配<br>status_p 大部分情况下不调用, 赋予<strong>MPI_STATUS_IGBORE</strong></p>
+<h3 id="Matching"><a href="#Matching" class="headerlink" title="Matching"></a>Matching</h3><p>若q号发给r</p>
+<ul>
+<li>recv_comm = send_comm</li>
+<li>recv_tag = send_tag</li>
+<li>dest = r</li>
+<li>src = q</li>
+</ul>
+<p>recv_type = send_type</p>
+<p>recv_buf_sz &gt;= send_buf_sz</p>
+<h3 id="接受顺序-阻塞"><a href="#接受顺序-阻塞" class="headerlink" title="接受顺序/阻塞"></a>接受顺序/阻塞</h3><p>如果按照进程号接受结果，那么跑的快的必须等待跑的慢的</p>
+<p>Send 与buffersize cutoffs blocking 有关</p>
+<ul>
+<li>Recv总是阻塞，直到接受到</li>
+</ul>
+<p><strong>问题</strong>：悬挂，如果调用MPI_Send()发生了阻塞，没有相匹配的接受，发生进程被悬挂</p>
+<p>MPI_ANY_SOURCE ,可以按接受顺序执行</p>
+<p> MPI_Recv(greeting, MAX_STRING, MPI_CHAR,  <strong>MPI_ANY_SOURCE</strong> , 0,   MPI_COMM_WORLD, MPI_STATUS_IGNORE);</p>
+<p>那么对应的tag也可以是<strong>MPI_ANT_TAG</strong></p>
+<ul>
+<li>发送可以阻塞或者缓冲发送的消息<br>较小的消息会缓冲,较大的消息会选择阻塞模式(就是等待接手之后再发)<br>如果每个进程都发可能会都在等待接收,造成死锁<ul>
+<li>解决①,偶数先发再收,奇数先收再发</li>
+<li>解决②,用SendRecv( ),系统会调度收和发,保证不会死锁</li>
+</ul>
+</li>
+</ul>
+<h3 id="通配符wildcard"><a href="#通配符wildcard" class="headerlink" title="通配符wildcard"></a>通配符wildcard</h3><p>MPI_ANY_SOURCE</p>
+<p>MPI_ANT_TAG</p>
+<p>只有接收者可以使用通配符<br>通信子没有通配符</p>
+<h3 id="status-p-argument"><a href="#status-p-argument" class="headerlink" title="status_p argument"></a>status_p argument</h3><p>其实接受时可以不知道：数据量、source、tag<br>（数据量只要size大就行；source可以是MPI_ANY_SOURCE， tag可以是MPI_ANT_TAG）</p>
+<p>如果想要知道：</p>
+<p>结构体 MPI_Status status </p>
+<p>包含 MPI_SOURCE  MPI_TAG   MPI_ERROR（至少）</p>
+<p>将&amp;status 作为参数给MPI_Recv, 可以检查结构体成员确定source和tag</p>
+<p>确定数据量要用MPI_Get_count 函数</p>
+<h3 id="MPI-Get-count"><a href="#MPI-Get-count" class="headerlink" title="MPI_Get_count"></a>MPI_Get_count</h3><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210519153356322.png" alt="image-20210519153356322"></p>
+<p>count取决于数量类型，确定值需要一次计算</p>
+<h3 id="MPI-Ssend"><a href="#MPI-Ssend" class="headerlink" title="MPI_Ssend()"></a>MPI_Ssend()</h3><p>直到对应的接受开始前，发送端一直阻塞</p>
+<h3 id="MPI-Sendrecv"><a href="#MPI-Sendrecv" class="headerlink" title="MPI_Sendrecv()"></a>MPI_Sendrecv()</h3><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710145939942.png" alt="image-20210710145939942"></p>
+<p>MPI库实现通信调度<br>分别执行一次阻塞式消息发送和一次消息接受<br>(避免死锁)</p>
+<h3 id="MPI-Sendrecv-replace"><a href="#MPI-Sendrecv-replace" class="headerlink" title="MPI_Sendrecv_replace()"></a>MPI_Sendrecv_replace()</h3><p>如果发生和接受使用同一个缓冲区</p>
+<h2 id="实现梯形积分法"><a href="#实现梯形积分法" class="headerlink" title="实现梯形积分法"></a>实现梯形积分法</h2><p>Version1:</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210602152549102.png" alt="image-20210602152549102" style="zoom: 67%;" /><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210602152606599.png" alt="image-20210602152606599" style="zoom: 67%;" /></p>
+<h2 id="输入输出处理"><a href="#输入输出处理" class="headerlink" title="输入输出处理"></a>输入输出处理</h2><h4 id="输出"><a href="#输出" class="headerlink" title="输出:"></a>输出:</h4><p>顺序无法预测</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> my_rank, comm_sz;</span><br><span class="line"></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;comm_sz);</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;my_rank);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Proc %d of %d &gt; Does anyone have a toothpick?\n&quot;</span>, my_rank, comm_sz);</span><br><span class="line"></span><br><span class="line">    MPI_Finalize();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210412165944576.png" alt="image-20210412165944576" style="zoom:50%;" /><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210412165957451.png" alt="image-20210412165957451" style="zoom:50%;" /></p>
+<h4 id="输入"><a href="#输入" class="headerlink" title="输入:"></a>输入:</h4><ul>
+<li>只允许0号进程访问标准输入stdin,发给其他进程</li>
+<li><p>初始化my_rank 和 comm_sz后才能调用</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210321235144926.png" alt="image-20210321235144926" style="zoom:67%;" /></p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210421154731641.png" alt="image-20210421154731641" style="zoom:50%;" /></p>
+</li>
+</ul>
+<p>rank0 读入a、n、p，发送给其他的进程</p>
+<h2 id="集合通信"><a href="#集合通信" class="headerlink" title="集合通信"></a>集合通信</h2><ul>
+<li><p>集合通信: 涉及通信子中所有进程的通信<br>所以进程都有调用集合通信的函数</p>
+</li>
+<li><p>点对点通信: MPI_Send() MPI_Recv()</p>
+</li>
+<li><p>点对点是通过标签和通信子匹配<br>集合通信不使用表标签，只使用通信子和调用顺序匹配</p>
+<h3 id="树形"><a href="#树形" class="headerlink" title="树形"></a>树形</h3><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710163829209.png" alt="image-20210710163829209" style="zoom:50%;" /></p>
+</li>
+</ul>
+<h3 id="MPI-Reduce"><a href="#MPI-Reduce" class="headerlink" title="MPI_Reduce()"></a>MPI_Reduce()</h3><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322000002008.png" alt="image-20210322000002008" style="zoom:67%;" /></p>
+<ul>
+<li><p><strong>MPI_Op</strong> ：运算符</p>
+</li>
+<li><p><strong>count</strong>:　个数</p>
+</li>
+</ul>
+<p>count&gt;1,可以应用到数组上(理解向量操作一组数据)</p>
+<p>N维向量加法</p>
+<p> $sum[i] = \sum_{rank=0}^n loacl _ x[i]$</p>
+<p>每个进程都有数组local_x[N]</p>
+<p>sum[N]是对应下标和</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322000749003.png" alt="image-20210322000749003" style="zoom:80%;" /></p>
+<p>例子：直方图 统计在各个分为内元素的个数，每个进程分别统计，再将结果加起来</p>
+<ul>
+<li>匹配</li>
+</ul>
+<p>点对点是使用标签和通信子来匹配，集合通信不适用标签，只通过通信子和调用顺序来进行匹配</p>
+<ul>
+<li>都给dest_process的output_data</li>
+</ul>
+<ul>
+<li><p>内存位置的名称与调用的匹配无关<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711165136045.png" alt="image-20210711165136045"></p>
+<p>假设dest是0,结果在process 0<br>第一次reduce:<br>结果 1 +２+1 = 4 , b  = 4<br>第二次reduce:<br>结果2+1+2 = 5, d = 5</p>
+</li>
+</ul>
+<h3 id="MPI-Allreduce"><a href="#MPI-Allreduce" class="headerlink" title="MPI_Allreduce()"></a>MPI_Allreduce()</h3><p>通信子所有进程都保存结果（前面reduce只有dest有结果）<br>蝶形通信<br>     <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710164820812.png" alt="image-20210710164820812"></p>
+<p> 没有dest_rocess参数，因为所有进程都得到结果<img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322003031962.png" alt="image-20210322003031962" style="zoom:67%;" /></p>
+<p>input_data_p 输入指针</p>
+<p>count 输入数据个数</p>
+<p>（知道数据类型就可以一个一个发送了，因为数据类型决定占的空间大小）</p>
+<h2 id="广播"><a href="#广播" class="headerlink" title="广播"></a>广播</h2><h3 id="MPI-Bcast"><a href="#MPI-Bcast" class="headerlink" title="MPI_Bcast()"></a>MPI_Bcast()</h3><p>Data belonging to a single process is sent to all of the processesin the communicator<br>一个进程数据发送到通信子中所有进程</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322003155674.png" alt="image-20210322003155674" style="zoom:67%;" /></p>
+<p> （count和数据类型和data_p可以寻址所有要发的数据地址）<br>Bcast取代send和recv</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710120051093.png" alt="image-20210710120051093"></th>
+<th><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710120022981.png" alt="image-20210710120022981"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre><code> &lt;img src=&quot;C:\Users\youngbest\AppData\Roaming\Typora\typora-user-images\image-20210711165726902.png&quot; alt=&quot;image-20210711165726902&quot; style=&quot;zoom:50%;&quot; /&gt;
+</code></pre><h2 id="数据划分"><a href="#数据划分" class="headerlink" title="数据划分"></a>数据划分</h2><p>块划分</p>
+<p>循环划分</p>
+<p>块-循环划分</p>
+<h3 id="MPI-Scatter"><a href="#MPI-Scatter" class="headerlink" title="MPI_Scatter()"></a>MPI_Scatter()</h3><p>0号进程读入整个向量，只将<strong>分量</strong>发送给需要分量的其他进程</p>
+<p>如果通信子comm有comm_sz个进程，会将send_buf_p引用的数据分成comm_sz份</p>
+<p>依次给0、1、2…进程</p>
+<p>只适用于<strong>块划分法</strong>,并且n可以<strong>整除</strong>comm_sz的情况</p>
+<p>send_count 发送到<strong>每个进程的数据量 = recv_count</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322004004585.png" alt="image-20210322004004585" style="zoom:67%;" /></p>
+<p>   <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210519164849725.png" alt="image-20210519164849725"></p>
+<p>  send_count = recv_count = local_n 每块的数量 = total/comm_size</p>
+<h3 id="MPI-Gather"><a href="#MPI-Gather" class="headerlink" title="MPI_Gather()"></a>MPI_Gather()</h3><p>所有都收集到dest进程上 </p>
+<p>块划分，整除</p>
+<p><strong>revc_count 是总共的count</strong></p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322005530400.png" alt="image-20210322005530400" style="zoom:67%;" /></p>
+<p>dest= 0,所有给0号。0号来打印<br>（不是0号也可以，if条件和函数参数修改即可）</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711170516458.png" alt="image-20210711170516458" style="zoom:50%;" /></p>
+<p>上面gather是收集给dest进程</p>
+<h3 id="MPI-Allgather-全局聚集"><a href="#MPI-Allgather-全局聚集" class="headerlink" title="MPI_Allgather()  全局聚集"></a>MPI_Allgather()  全局聚集</h3><p>串联send_buf_p,存储到每个进程的recv_buf_p</p>
+<p>recv_count指<strong>从每个进程接受的数据量</strong></p>
+<p>大部分情况下，recv_count = send_count</p>
+<p>（结果聚集给所有进程）</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322080458951.png" alt="image-20210322080458951"></p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210710142335981.png" alt="image-20210710142335981"></p>
+<p>local_y是进程算的本地的一部分<br>结果聚集作为下一次的x向量</p>
+<h2 id="派生数据类型"><a href="#派生数据类型" class="headerlink" title="派生数据类型"></a>派生数据类型</h2><h3 id="MPI-Type-create-struct"><a href="#MPI-Type-create-struct" class="headerlink" title="MPI_Type_create_struct()　"></a>MPI_Type_create_struct()　</h3><p>P(117)</p>
+<p>不同数据基本类型组成派生</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322081418377.png" alt="image-20210322081418377"  /></p>
+<p>count：元素个数</p>
+<p>array_of_blocklengths[]:  每一个元素有多少项</p>
+<p>单独数据项可能是数组/子数组 </p>
+<p>​            如果第一个元素是一个5个元素数组 array_of_blocklengths[0] = 5,</p>
+<p>​            都不是数组  array_of_blocklengths[ ] ={1,1,1,…,1} </p>
+<p>array_of_displacements: 距离起始位置偏移,字节为单位</p>
+<p>$eg:$ </p>
+<p> <code>&#123;(MPI_DOUBLE,0),(MPI_DOUBLE,16),(MPI_INT,24)&#125;</code><br>0 16 24 是偏移</p>
+<p>count = 3<br>array_of_blocklengths[] = {1，1，1}<br>array_of_displacements[] = {0,16,24}<br>array_of_types[]={MPI_DOUBLE,MPI_DOUBLE,MPI_INT}</p>
+<p>$eg:$ 如果一元素是数组<br>比如 int a 和 int b[5] 组合<br>count = 2<br>array_of_blocklengths[] = {1，5}<br>array_of_displacements[] = {0,8}<br>{MPI_INT,  MPI_INT}</p>
+<h3 id="MPI-Get-address"><a href="#MPI-Get-address" class="headerlink" title="MPI_Get_address()"></a>MPI_Get_address()</h3><p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322082527901.png" alt="image-20210322082527901"></p>
+<p>MPI_Aint: 整数型， 长度足以表示系统地址</p>
+<p>返回location_p指向内存单元的地址</p>
+<p>用来得到array_of_displacements里的各个值</p>
+<p> 创建</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711184314205.png" alt="image-20210711184314205"></p>
+<p>每个进程都要Bacast得到值</p>
+<h3 id="MPI-Type-commit"><a href="#MPI-Type-commit" class="headerlink" title="MPI_Type_commit()"></a>MPI_Type_commit()</h3><p>使用通信函数中的input_mpi_t之前 要指定<br>允许MPI实现为了在通信函数内使用这一数据类型，优化数据类型的内部表示</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322082959528.png" alt="image-20210322082959528"></p>
+<p>为了使用新的数据类型，每个进程调用Bcast</p>
+<p> <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210322083215361.png" alt="image-20210322083215361"></p>
+<h3 id="MPI-Type-free"><a href="#MPI-Type-free" class="headerlink" title="MPI_Type_free()"></a>MPI_Type_free()</h3><h2 id="奇偶交换排序"><a href="#奇偶交换排序" class="headerlink" title="奇偶交换排序"></a>奇偶交换排序</h2><p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210711185918862.png" alt="image-20210711185918862"></p>
+<p>偶数轮次:<br>    my_rank是奇数的,partner是rank-1<br>    my_rank是偶数的,partner是rank+1</p>
+<p>奇数轮次:</p>
+<p>my_rank是奇数的,partner是rank+1<br>my_rank是偶数的,partner是rank1-1</p>
+<h2 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h2><h3 id="MPI-Barrier"><a href="#MPI-Barrier" class="headerlink" title="MPI_Barrier()"></a>MPI_Barrier()</h3><p><code>int MPI_Barrier(MPI_Comm comm /* in */)</code></p>
+]]></content>
+      <categories>
+        <category>课程相关</category>
+      </categories>
+  </entry>
+</search>
