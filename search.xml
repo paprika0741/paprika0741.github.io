@@ -3005,6 +3005,133 @@
       </categories>
   </entry>
   <entry>
+    <title>强化学习：多智能体强化学习基础</title>
+    <url>/2021/08/21/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20210818212945.png" alt="微信图片_20210818212945"></p>
+<span id="more"></span>
+<h2 id="Terminologies"><a href="#Terminologies" class="headerlink" title="Terminologies"></a>Terminologies</h2><p>There are n agents.<br><strong>$\mathcal{S}$</strong>: state<br><strong>$\mathcal{A^i}$</strong>: i-th agent’s action<br><strong>State transition:</strong><br>$p(s\prime|s,a^1,\dots,a^n)=\boldsymbol{P}(S’=s’|S=s,A^1=a^1,\dots,A^n=a^n)$<br>The next state S’ depends on all the agents’ actions.</p>
+<h3 id="Reward"><a href="#Reward" class="headerlink" title="Reward"></a>Reward</h3><p><strong>$\mathcal{R^i}$</strong>: i-th agent’s reward<br> $R^i$ depends on $A^i$ as well as other agents’ actions ${A^j}_{j\neq i}$</p>
+<h3 id="Return"><a href="#Return" class="headerlink" title="Return"></a>Return</h3><p>$R_t^i$ :the reward received by the i-th agent at time t<br>$U_t^i = R_t^i +  R_{t+1}^i + R_{t+2}^i +R_{t+３}^i　+ \dots$  </p>
+<p>Discounted return:<br>$U_t^i = R_t^i + \gamma \cdot R_{t+1}^i +\gamma^2 \cdot R_{t+2}^i + \gamma^3 \cdot R_{t+３}^i　+ \dots$<br>$\gamma$ is the discount rate</p>
+<h4 id="Uncertainty-in-the-Return"><a href="#Uncertainty-in-the-Return" class="headerlink" title="Uncertainty in the Return"></a>Uncertainty in the Return</h4><p> $R^i_t$ depends on $S_t$ and $A_t^1,A^2_t,\dots,A^n_t$</p>
+<ul>
+<li><p>Uncertainty in $S_t$ is from the state transition,  $p$</p>
+</li>
+<li><p>Uncertainty in $A_t^i$ is from the policy network, $\pi(a^i|s;\theta^i)$</p>
+</li>
+<li>$U_t^i=\sum^    \infty_{k=0} \gamma^k \cdot R^i_{t+k}$ depends on all the future states and actions </li>
+</ul>
+<h3 id="Policy-network"><a href="#Policy-network" class="headerlink" title="Policy network"></a>Policy network</h3><ul>
+<li><p>Each agent has its own policy network: $\pi(a^i|s;\theta^i)$</p>
+</li>
+<li><p>Policy networks can be exchangeable:$\theta^i=\theta^j$</p>
+<p>Self-driving cars can have the same policy</p>
+</li>
+<li><p>Policy networks can be nonexchangeable<br>$\theta^i \neq \theta^j$<br>Soccer players have different roles..striker, defender, goalkeeper.</p>
+</li>
+</ul>
+<h3 id="State-Value-Function"><a href="#State-Value-Function" class="headerlink" title="State-Value Function"></a>State-Value Function</h3><p>$V^{i}\left(s_{t} ; \boldsymbol{\theta}^{1}, \cdots, \boldsymbol{\theta}^{n}\right)=\mathbb{E}\left[U_{t}^{i} \mid S_{t}=s_{t}\right]$</p>
+<p>期望关于所有future actions and states except $S_t$</p>
+<p>Randomness in actions:$A_{t}^{j} \sim \pi\left(\cdot \mid s_{t} ; \boldsymbol{\theta}^{j}\right), \text { for all } j=1, \cdots, n$</p>
+<ul>
+<li></li>
+</ul>
+<h2 id="Settings"><a href="#Settings" class="headerlink" title="Settings"></a>Settings</h2><h3 id="Fully-cooperative"><a href="#Fully-cooperative" class="headerlink" title="Fully cooperative"></a>Fully cooperative</h3><p>Agents collaborate to optimize a common return.<br>所有agents奖励相等 $R^1=R^2=\dots=R^n$ </p>
+<h3 id="Fully-competitive"><a href="#Fully-competitive" class="headerlink" title="Fully competitive"></a>Fully competitive</h3><p>One agent’s gain is the other agent’s loss.<br>比较典型的零和博弈，双方获得奖励总和为0</p>
+<p>机器人格斗（零和博弈）/捕猎</p>
+<p>$R^1 \propto -R^2 $</p>
+<h3 id="Mixed-Cooperative-amp-competitive"><a href="#Mixed-Cooperative-amp-competitive" class="headerlink" title="Mixed Cooperative &amp; competitive"></a>Mixed Cooperative &amp; competitive</h3><p>There are both cooperative setting and competitive setting</p>
+<p>队伍之间是竞争关系，队伍内部是合作关系<br>比如星际争霸游戏</p>
+<h3 id="Self-interested"><a href="#Self-interested" class="headerlink" title="Self-interested"></a>Self-interested</h3><p>Agents are self-interested. Their rewards may or may not conflict<br>利己主义，比如股票自动交易系统/</p>
+<h2 id="Convergence"><a href="#Convergence" class="headerlink" title="Convergence"></a>Convergence</h2><p>无法通过改进策略得到更大的期望汇报</p>
+<h3 id="Single-agent"><a href="#Single-agent" class="headerlink" title="Single agent:"></a>Single agent:</h3><ul>
+<li>Policy network: $\pi(a |s;\theta )$</li>
+<li>State-value function: $V(s;\theta )$</li>
+<li>$J(\boldsymbol{\theta})=\mathbb{E}_{S}[V(S ; \boldsymbol{\theta})]$ evaluate the policy<br>(期望消掉s)</li>
+<li>Learn the policy network’s parameter $\theta$ by<br>$ \underset{\boldsymbol{\theta}}  \max    J\               (\boldsymbol{\theta})$</li>
+<li><strong>Convergence:</strong> $J(\boldsymbol{\theta})$ stops increasing</li>
+</ul>
+<h3 id="Multi-Agent"><a href="#Multi-Agent" class="headerlink" title="Multi-Agent"></a>Multi-Agent</h3><h4 id="Nash-Equilibrium："><a href="#Nash-Equilibrium：" class="headerlink" title="Nash Equilibrium："></a>Nash Equilibrium：</h4><p>While all the other agents’ policy remain the<br>same, the i-th agent cannot get better expected return by changing its own policy。其他agent不改变策略的情况下，一个agent改变策略无法让自己得到更多的回报。</p>
+<p>Every agent is playing a best-response to the    other agents’ policies. 每个agent都以最优的方式应对<br>Nash equilibrium indicates convergence because no one has any incentive to deviate.<br>纳什均衡情况下，所有agent都不会改变策略</p>
+<h4 id="Difficulty-of-MARL"><a href="#Difficulty-of-MARL" class="headerlink" title="Difficulty of MARL"></a>Difficulty of MARL</h4><p>如果直接套用single agent到MARL<br>n个agent，独立和环境交互，每个agent都能观测到环境s和奖励r</p>
+<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210821010056859.png" alt="image-20210821010056859" style="zoom:50%;" /></p>
+<p>agent之间都不通信，不知道其他agent的信息</p>
+<ul>
+<li><p>Policy network: $\pi(a^i |s;\theta^i )$</p>
+</li>
+<li><p>State-value function: $V^i(s;\theta^1,\dots,\theta^n )$</p>
+</li>
+<li><p>$J^i(\theta^1,\dots,\theta^n)=\mathbb{E}_{S}[V^i(S ;  {\theta^1,\dots,\theta^n})]$ evaluate the policy</p>
+</li>
+<li><p>Learn the policy network’s parameter $\theta^i$ by<br>$ \underset{\boldsymbol{\theta}^i}  \max    J^i\               (\boldsymbol{\theta})^i$</p>
+<p>每个agent都有自己的目标函数，各不相同，agent没有共同的目标，各自更新各自的参数$\theta^i$,<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210821010538082.png" alt="image-20210821010538082" style="zoom:50%;" /></p>
+<p>It may not converge…<br>一个agent更新策略，其他的目标函数都会发生变化</p>
+</li>
+</ul>
+<h2 id="通信方式：Centralized-VS-Decentralized"><a href="#通信方式：Centralized-VS-Decentralized" class="headerlink" title="通信方式：Centralized VS Decentralized"></a>通信方式：Centralized VS Decentralized</h2><p><strong>Partial Observations</strong></p>
+<ul>
+<li>An agent may or may not have full knowledge of the state, s</li>
+<li>$o^i$ ： the i-th agent’s observation</li>
+<li>Partial observation $o^{i} \neq s$</li>
+<li>Full observation $o^{1}=\cdots=o^{n}=S  $</li>
+</ul>
+<h3 id="Architectures"><a href="#Architectures" class="headerlink" title="Architectures"></a><strong>Architectures</strong></h3><h4 id="Fully-decentralized"><a href="#Fully-decentralized" class="headerlink" title="Fully decentralized:"></a><strong>Fully decentralized:</strong></h4><p>Every agent uses its own observations and rewards to learn its policy.<br>Agents do not communicate.彼此不交流</p>
+<p>​     <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210821012056178.png" alt="image-20210821012056178" style="zoom:50%;" /></p>
+<p>训练和执行都是独立的，本质是single agent RL</p>
+<p><strong>Fully Decentralized Actor-Critic Method</strong></p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210821012152636.png" alt="image-20210821012152636" style="zoom:50%;" /></p>
+<p>忽视了agent之间的相互影响，不应该是独立的</p>
+<h4 id="Fully-centralized"><a href="#Fully-centralized" class="headerlink" title="Fully centralized:"></a>Fully centralized:</h4><p>The agents send everything to the central controller.<br>The controller makes decisions for all the agents </p>
+<p>Centralized Training &amp; Centralized Execution </p>
+<ul>
+<li>中央控制器收集所有agent的观测 奖励 动作<br>训练得到n个策略网络，$\pi\left(a^{i} \mid O^{1}, \cdots, o^{n} ; \boldsymbol{\theta}^{i}\right), \text { for all } i=1,2, \cdots, n$<br>中央控制器n个策略网络，结构可以相同，参数不同</li>
+<li>agent上没有策略网络，agent不做决策（决策需要所有的o，一个agent没有足够的信息），执行中央的指令</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210821012551308.png" alt="image-20210821012551308" style="zoom:50%;" /></p>
+<h5 id="Centralized-Actor-Critic-Method"><a href="#Centralized-Actor-Critic-Method" class="headerlink" title="Centralized Actor-Critic Method"></a>Centralized Actor-Critic Method</h5><ul>
+<li>$\mathbf{a}=\left[a^{1}, a^{2}, \cdots, a^{n}\right]$  contain all the agents’ actions</li>
+<li>$\mathbf{o}=\left[o^{1}, o^{2}, \cdots, o^{n}\right]$ contain all the agents’ observations.</li>
+<li>The central controller knows $\mathbf{a} $ $\mathbf{o} $ and all the rewards</li>
+<li>The controller has 8 policy networks and 8 value networks<ul>
+<li>Policy network (actor) for the i-th agent $\pi\left(a^{i} \mid \mathbf{o} ; \boldsymbol{\theta}^{i}\right)  $  — policy gradient</li>
+<li>Value network (critic) for the i-th agent<br>$q\left(\mathbf{o}, \mathbf{a} ; \mathbf{w}^{i}\right)$ — TD algorithm</li>
+</ul>
+</li>
+</ul>
+<h5 id="Shortcoming-Slow-during-Execution"><a href="#Shortcoming-Slow-during-Execution" class="headerlink" title="Shortcoming: Slow during Execution"></a>Shortcoming: Slow during Execution</h5><ul>
+<li>agent收集所有观测给中央，中央得到所有观测才能将决策发给agent</li>
+<li>Communication and synchronization    cost time. 同步，所有都要等待最慢的那个</li>
+<li>Real-time decision is impossible</li>
+</ul>
+<h4 id="Centralized-training-with-decentralized-execution"><a href="#Centralized-training-with-decentralized-execution" class="headerlink" title="Centralized training with decentralized execution:"></a>Centralized training with decentralized execution:</h4><p>A central controller is used during training. The controller is disabled after training.</p>
+<p>中央控制器指导所有agent的观测 奖励 动作<br>中央控制器帮助agent训练策略网络<br>agent有自己的策略网络，根据自己的观测做决策，决策的不需要通信</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210821015417225.png" alt="image-20210821015417225" style="zoom:50%;" /></p>
+<h5 id="Actor-Critic-Method"><a href="#Actor-Critic-Method" class="headerlink" title="Actor-Critic Method"></a>Actor-Critic Method</h5><ul>
+<li>Each agent has its own policy network    (actor) $\pi\left(a^{i} \mid o^{i} ; \boldsymbol{\theta}^{i}\right)$</li>
+<li>The central controller has n value    networks (critics) $q\left(\mathbf{o}, \mathbf{a} ; \mathbf{w}^{i}\right)$</li>
+</ul>
+<p><strong>Centralized Training:</strong><br>During training, the central controller knows all the agents’ observations, actions, and rewards</p>
+<p><strong>Decentralized Execution</strong><br>During execution, the central controller and its value networks are not used</p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210821020547149.png" alt="image-20210821020547149"></p>
+<p><strong>Training</strong></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210821020737616.png" alt="image-20210821020737616" style="zoom:50%;" /></p>
+<p>   <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210821020807901.png" alt="image-20210821020807901"></p>
+<p><strong>Execution</strong></p>
+<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210821020835616.png" alt="image-20210821020835616" style="zoom:50%;" /></p>
+<h5 id="Parameter-Sharing"><a href="#Parameter-Sharing" class="headerlink" title="Parameter Sharing"></a>Parameter Sharing</h5><p>Shall the networks share parameters?</p>
+<p>取决于具体的应用</p>
+<p>Share parameters if the agents are exchangeable.</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210821021013404.png" alt="image-20210821021013404" style="zoom:50%;" /></p>
+]]></content>
+      <categories>
+        <category>RL</category>
+      </categories>
+      <tags>
+        <tag>RL</tag>
+        <tag>MARL</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Basic</title>
     <url>/2021/08/18/1basic/</url>
     <content><![CDATA[<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/kelli-tungay-309722.jpg" alt="kelli-tungay-309722" style="zoom: 25%;" /></p>
@@ -3253,7 +3380,7 @@
 <p>​    </p>
 ]]></content>
       <categories>
-        <category>强化学习相关</category>
+        <category>RL</category>
       </categories>
   </entry>
 </search>
