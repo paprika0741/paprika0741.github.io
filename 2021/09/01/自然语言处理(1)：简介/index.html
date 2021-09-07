@@ -21,33 +21,29 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="article">
-<meta property="og:title" content="操作系统原理(7）磁盘">
-<meta property="og:url" content="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(7%EF%BC%89%20%E7%A3%81%E7%9B%98/index.html">
+  <meta name="description" content="简介基本问题与主要困难 基本问题 形态学(morphology)：词由有意义的基本单位—词素（词根、前缀、后缀、词尾）的构成问题、单词识别&#x2F;汉语分词问题 句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾） 语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思） 语用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自然语言处理(1)：简介">
+<meta property="og:url" content="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/index.html">
 <meta property="og:site_name" content="PAPRIKA&#39; Blog">
+<meta property="og:description" content="简介基本问题与主要困难 基本问题 形态学(morphology)：词由有意义的基本单位—词素（词根、前缀、后缀、词尾）的构成问题、单词识别&#x2F;汉语分词问题 句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾） 语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思） 语用">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/36780301_244103683074589_5111196160970719232_n.jpg">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704164431420.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704164552863.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704164735369.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704164849390.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704175748068.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704180722911.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704183703771.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704183948338.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704183825572.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704183913882.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704184034777.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704184053121.png">
-<meta property="og:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704184119554.png">
-<meta property="article:published_time" content="2021-07-17T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-08-18T17:03:12.540Z">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201851512.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201913346.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906162810630.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831204814939.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164225405.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164301376.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906214936471.png">
+<meta property="article:published_time" content="2021-08-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-09-07T11:36:08.107Z">
 <meta property="article:author" content="🐏🐚">
-<meta property="article:tag" content="OS">
+<meta property="article:tag" content="nlp">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/36780301_244103683074589_5111196160970719232_n.jpg">
+<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png">
 
-<link rel="canonical" href="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(7%EF%BC%89%20%E7%A3%81%E7%9B%98/">
+<link rel="canonical" href="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/">
 
 
 <script id="page-configurations">
@@ -60,7 +56,7 @@
   };
 </script>
 
-  <title>操作系统原理(7）磁盘 | PAPRIKA' Blog</title>
+  <title>自然语言处理(1)：简介 | PAPRIKA' Blog</title>
   
 
 
@@ -215,7 +211,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(7%EF%BC%89%20%E7%A3%81%E7%9B%98/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -228,7 +224,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          操作系统原理(7）磁盘
+          自然语言处理(1)：简介
         </h1>
 
         <div class="post-meta">
@@ -238,14 +234,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-07-18 00:00:00" itemprop="dateCreated datePublished" datetime="2021-07-18T00:00:00+08:00">2021-07-18</time>
+              <time title="创建时间：2021-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2021-09-01T00:00:00+08:00">2021-09-01</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-08-19 01:03:12" itemprop="dateModified" datetime="2021-08-19T01:03:12+08:00">2021-08-19</time>
+                <time title="修改时间：2021-09-07 19:36:08" itemprop="dateModified" datetime="2021-09-07T19:36:08+08:00">2021-09-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -257,7 +253,7 @@
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/OS/" itemprop="url" rel="index"><span itemprop="name">OS</span></a>
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/nlp/" itemprop="url" rel="index"><span itemprop="name">nlp</span></a>
                 </span>
             </span>
 
@@ -274,14 +270,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.2k</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>1 分钟</span>
             </span>
 
         </div>
@@ -293,214 +289,78 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/36780301_244103683074589_5111196160970719232_n.jpg" alt="36780301_244103683074589_5111196160970719232_n" style="zoom:50%;" /></p>
-<span id="more"></span>
-<h1 id="磁盘硬件"><a href="#磁盘硬件" class="headerlink" title="磁盘硬件"></a>磁盘硬件</h1><p><strong>磁盘</strong>：将若干个涂有铁磁的圆形金属或塑料片组合在一起构成的盘组，每个圆盘有上下两个盘面</p>
-<p><strong>扇区：</strong><br>一个磁道又被分成许多扇区，一般每条磁道上扇区数目在8至32之间，每个扇区的字节数相同（一般为512）</p>
-<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704164431420.png" alt="image-20210704164431420" style="zoom: 33%;" /></p>
-<p><strong>磁道</strong>：<br>盘组旋转一周，相对固定的磁头在盘面上的移动轨迹称为磁道（一个圆），各个盘面上半径相同的磁道合起来构成一个<strong>柱面</strong><br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704164552863.png" alt="image-20210704164552863" style="zoom:33%;" /></p>
-<p><strong>读写磁头</strong>：</p>
-<p>每个盘面有一个读写磁头，读写磁盘时，磁头通过存取臂在盘面上移动，而盘体绕中心轴高速旋转</p>
-<p><strong>读写一个磁盘块：</strong><br>移臂/寻道（将存取臂移动到相应柱面上）<br>旋转（等待相应扇区旋转到磁头下）<br>实际传输</p>
-<p><strong>物理地址</strong></p>
-<p>柱面号 盘面号 扇区<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704164735369.png" alt="image-20210704164735369" style="zoom:50%;" /><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704164849390.png" alt="image-20210704164849390" style="zoom: 67%;" /></p>
-<h1 id="磁盘调度"><a href="#磁盘调度" class="headerlink" title="磁盘调度"></a>磁盘调度</h1><p>时间：<br><strong>寻道时间：</strong><br>启动磁头壁：s<br>移动磁头：假设匀速 跨越磁道m，跨越n条，$m\times n$<br><strong>旋转时间：</strong><br>平均$\frac{1}{2r}$  r是r转/s<br><strong>传输时间</strong>：（读取扇区要转动磁盘）<br>数据传输，每个磁道N个字节，总共b个<br>T= $ \frac{1}{r} \frac{b}{N}$<br>每个磁道需要1/r，总共b/N个磁道</p>
-<p>转速越快，时间越少，硬件层面<br>OS 只能优化寻道时间</p>
-<p>计算平均移到时间：</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>先进先出FIFO</td>
-<td>按访问请求到达的先后次序服务</td>
-<td>简单，公平</td>
-<td>一般效率不高，多个进程时性能接近随机调度<br>相邻两次请求可能会造成最内到最外的柱面寻道，使磁头反复移动，增加了服务时间，对机械也不利</td>
-</tr>
-<tr>
-<td>优先级PRI</td>
-<td>目标并不在于优化磁盘效率而是满足操作系统的其他目的</td>
-<td></td>
-<td>短的批作业可能具有较高优先级，从而提供较小的交互响应时间<br>长作业可能要等待过长时间</td>
-</tr>
-<tr>
-<td>后进先出LIFO</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>最短服务时间优先SSTF</td>
-<td>优先选择距当前磁头最近的访问请求进行服务，主要考虑寻道优先   \</td>
-<td>平均寻找时间最短</td>
-<td></td>
-<td>可能造成某些访问请求长期等待得不到服务（饥饿）</td>
-</tr>
-<tr>
-<td>扫描算法/电梯算法（SCAN）</td>
-<td>一个方向移动，只有磁头移动到最外（内）再也没有请求，才能改变方向</td>
-<td>性能较好，平均寻道时间较短<br>不会产生饥饿</td>
-<td>对各个位置磁道响应频率不平均，偏爱靠内&amp;外道服务</td>
-</tr>
-<tr>
-<td>C-SCAN</td>
-<td>读写<strong>请求的</strong>最低编号柱面开始递增扫描，途中按照柱面次序处理访问请求；<br/>处理完最高编号<strong>柱面上的请求</strong>后，存取臂<strong>立即带动读写磁头快速返回</strong>到有读写<strong>请求的</strong>最低编号柱面，返回时不处理任何访问请求；<br>返回后可再次递增扫描<br>（某个方向运动才扫描）</td>
-<td>响应频率平均，不偏爱靠内&amp;外道服务</td>
-<td></td>
-</tr>
-<tr>
-<td>N-step-SCAN</td>
-<td>将磁盘请求队列分成若干个长度为N的子队列<br/>每一次SCAN处理一个子队列<br/>新来的请求必须加入到没在处理的子队列中</td>
-<td>克服了SCAN偏爱最近作业（磁头臂粘性）的缺点</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704175748068.png" alt="image-20210704175748068" style="zoom:50%;" /></p>
-<p>频率不平均：比如从90向外，访问160频率高于90<br>解决：C-SACN<br>向外才处理请求<br>100 - 150 - 160 - 184<br>18 - 38 - 39 - 55 - 58 - 90 </p>
-<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704180722911.png" alt="image-20210704180722911"></p>
-<h2 id="RAID"><a href="#RAID" class="headerlink" title="RAID"></a>RAID</h2><p>Redundant Array of Independent/Inexpensive Disks，独立/廉价磁盘冗余阵列)</p>
-<p>把多个<strong>物理磁盘组织在一起</strong>，作为一个<strong>逻辑</strong>驱动器：<br>提供磁盘跨越功能</p>
-<p>数据分成多个数据块，分布在阵列的各个物理磁盘上：可以并行写入/读出多个磁盘，提高访问<strong>磁盘的速度</strong></p>
-<p>利用磁盘冗余可进行<strong>镜像</strong>或<strong>校验</strong>操作等：<br>提高<strong>意外恢复能力</strong></p>
-<p>硬件RAID：若干独立的物理磁盘，通过磁盘控制器或磁盘存储柜，组合成逻辑磁盘。冗余信息的创建和重新生成由控制器负责处理 </p>
-<p>软件RAID：不连续的磁盘空间通过容错软件磁盘驱动程序(Fault-Tolerant software DISK driver,FTDISK)组合成逻辑分区。Windows的软件RAID机制实现了<strong>RAID1（镜像）和RAID5（交错块分布式奇偶校验）</strong></p>
-<h3 id="RAID0"><a href="#RAID0" class="headerlink" title="RAID0"></a>RAID0</h3><ul>
-<li><p>整个逻辑盘的数据被分散分布（通过阵列管理软件）在多个(至少两个)物理盘上，并行读写</p>
+        <span id="more"></span>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="基本问题与主要困难"><a href="#基本问题与主要困难" class="headerlink" title="基本问题与主要困难"></a>基本问题与主要困难</h2><ul>
+<li>基本问题<ul>
+<li>形态学(morphology)：词由有意义的基本单位—<strong>词素</strong>（词根、前缀、后缀、词尾）的构成问题、单词识别/汉语分词问题</li>
+<li>句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾）</li>
+<li>语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思）</li>
+<li>语用学(pragmatics):研究在不同上下文语句的应用，以及上下文对语句理解产生的影响</li>
+</ul>
 </li>
-<li><p>没有冗余能力</p>
-<p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704183703771.png" alt="image-20210704183703771"></p>
-</li>
-<li><p>strip(条带)可以是物理块、扇区或其他单位</p>
-<p>​    </p>
+<li>主要困难<ul>
+<li>Ambiguity <ul>
+<li>Lexical ambiguity 词法歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png" alt="image-20210831201442069" style="zoom:50%;" /></li>
+<li>Part-of-speech ambiguity 词性歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201851512.png" alt="image-20210831201851512" style="zoom:50%;" /></li>
+<li>Structural ambiguity 结构歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201913346.png" alt="image-20210831201913346" style="zoom:50%;" /><br>主语 谓语 状语 宾语修饰关系</li>
+</ul>
 </li>
 </ul>
-<h3 id="RAID1"><a href="#RAID1" class="headerlink" title="RAID1"></a>RAID1</h3><ul>
-<li><p>把一个磁盘的<strong>数据镜像</strong>到另一个磁盘上，可从任一磁盘读数据，数据同时更新到两个磁盘</p>
 </li>
-<li><p>两个盘上实施，数据冗余，数据安全性最好</p>
-</li>
-<li><p>磁盘利用率最低（50%）</p>
-<p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704183948338.png" alt="image-20210704183948338" style="zoom:67%;" /></p>
-</li>
+<li>unknown language phenomena<br>大量未知语言现象：新词、人名、地名、术语、新含义、新句法、新句型</li>
 </ul>
-<h3 id="RAID2"><a href="#RAID2" class="headerlink" title="RAID2"></a>RAID2</h3><ul>
-<li><p>并行读写：所有磁盘都参与每一次I/O请求（所有磁头任何时刻都处于同一位置）</p>
-</li>
-<li><p>通过汉明码（Hamming code，一位纠错，两位检错）实现数据冗余（需要的磁盘数少于RAID 1）</p>
-</li>
-<li><p>仅用于错误率高的环境中（不太实用）</p>
-<p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704183825572.png" alt="image-20210704183825572" style="zoom:67%;" /></p>
-</li>
+<h2 id="Text-Normalization"><a href="#Text-Normalization" class="headerlink" title="Text Normalization"></a>Text Normalization</h2><p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906162810630.png" alt="image-20210906162810630" style="zoom:50%;" /></p>
+<h3 id="Tokenizing-segmenting-words"><a href="#Tokenizing-segmenting-words" class="headerlink" title="Tokenizing (segmenting) words"></a>Tokenizing (segmenting) words</h3><p>标记化（分段）单词</p>
+<ul>
+<li>white-space segmentation<br>有些词语切割不正确/有些语言没有空格</li>
+<li>single-character segmentation</li>
+<li>word segmentation</li>
 </ul>
-<h3 id="RAID3"><a href="#RAID3" class="headerlink" title="RAID3"></a>RAID3</h3><ul>
-<li><p>只采用一个冗余磁盘存储校验数据</p>
-</li>
-<li><p>校验数据：P(b)=b0⊕b1⊕b2⊕b3</p>
-</li>
-<li><p>丢失数据可从校验数据及其他数据恢复：  b1 =b0⊕P(b)⊕b2⊕b3</p>
-</li>
-<li><p>数据速率高，但同时只能处理一个I/O请求</p>
-<p>  <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704183913882.png" alt="image-20210704183913882" style="zoom:67%;" /></p>
-</li>
+<h4 id="space-based-tokenization"><a href="#space-based-tokenization" class="headerlink" title="space-based  tokenization"></a>space-based  tokenization</h4><p>issues：</p>
+<ul>
+<li>Can’t just blindly remove punctuation（标点）:</li>
+<li>Clitic: a word that doesn’t stand on its own<br>”are“ in we’re</li>
+<li>When should multiword expressions be words?<br>New York, rock ’n’ roll </li>
 </ul>
-<h3 id="RAID-4"><a href="#RAID-4" class="headerlink" title="RAID 4"></a>RAID 4</h3><ul>
-<li><p>独立读写：阵列中每个磁盘的存取各自独立进行，从而可同时处理多个I/O请求</p>
-</li>
-<li><p>校验基于数据块进行（假设更新B1 ）：<br>P(B0~3) = B0⊕B1⊕B2⊕B3<br>P (B0~3)’ = B0⊕B1’⊕B2⊕B3<br>=B0⊕B1’⊕B2⊕B3 ⊕B1⊕B1 = P(B0~3)⊕B1⊕B1’</p>
-<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704184034777.png" alt="image-20210704184034777"></p>
-</li>
+<h4 id="Word-tokenization-in-Chinese"><a href="#Word-tokenization-in-Chinese" class="headerlink" title="Word tokenization in Chinese"></a>Word tokenization in Chinese</h4><p>词素 morpheme：<br>each character/ segment the sentence</p>
+<h3 id="Use-the-data-to-tell-us-how-to-tokenize"><a href="#Use-the-data-to-tell-us-how-to-tokenize" class="headerlink" title="Use the data to tell us how to tokenize"></a>Use the data to tell us how to tokenize</h3><p>使用数据来告诉我们如何进行切割。</p>
+<h3 id="Subword-tokenization"><a href="#Subword-tokenization" class="headerlink" title="Subword tokenization"></a>Subword tokenization</h3><p>基于子词的<br>Three common algorithms</p>
+<ul>
+<li>Byte-Pair Encoding (BPE）</li>
+<li>Unigram language modeling tokenization</li>
+<li>WordPiece</li>
 </ul>
-<h3 id="RAID-5"><a href="#RAID-5" class="headerlink" title="RAID 5"></a>RAID 5</h3><p>类似RAID 4，但校验数据分布在各个磁盘上<br>可避免RAID 4中可能出现的瓶颈——校验磁盘</p>
-<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704184053121.png" alt="image-20210704184053121" style="zoom:67%;" /></p>
-<h3 id="RAID-6"><a href="#RAID-6" class="headerlink" title="RAID 6"></a>RAID 6</h3><p>采用两种不同的数据校验方法<br>可以处理有两个磁盘出错的情形<br>数据可靠性极高<br>写性能损失严重<br>    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210704184119554.png" alt="image-20210704184119554"></p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>类别</th>
-<th>级别</th>
-<th>说明</th>
-<th>磁盘需求</th>
-<th>数据可用性</th>
-<th>大I/O数据量传输能力</th>
-<th>小I/O请求率</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>条带</td>
-<td>0</td>
-<td>非冗余</td>
-<td>N</td>
-<td>低于单个磁盘</td>
-<td>很高</td>
-<td>读写都高</td>
-</tr>
-<tr>
-<td>镜像</td>
-<td>1</td>
-<td>被镜像</td>
-<td>2N</td>
-<td>高于2~5、低于6</td>
-<td>读高于0，写与0相近</td>
-<td>读为0的2倍，写~0</td>
-</tr>
-<tr>
-<td>并行访问</td>
-<td>2</td>
-<td>汉明码冗余</td>
-<td>N+m</td>
-<td>高于0可比</td>
-<td>最高</td>
-<td>0的2倍</td>
-</tr>
-<tr>
-<td>3</td>
-<td>交错位奇偶</td>
-<td>N+1</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>独立访问</td>
-<td>4</td>
-<td>交错块奇偶</td>
-<td>N+1</td>
-<td>读与0相近，写（4明显）慢于0</td>
-<td>读与0相近，写（4明显）慢于0</td>
-<td></td>
-</tr>
-<tr>
-<td>5</td>
-<td>交错块分布式奇偶校验</td>
-<td>N+1</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>6</td>
-<td>交错块双重分布式奇偶</td>
-<td>N+2</td>
-<td>最高</td>
-<td>读与0相近，写慢于5</td>
-<td>读与0相近，写明显慢于5</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>All have 2 parts:</p>
+<ul>
+<li>A token <strong>learner</strong> that takes a raw training corpus（语料库） and induces a vocabulary</li>
+<li>A token <strong>segmenter</strong> that takes a raw test sentence and tokenizes it according to that vocabulary</li>
+</ul>
+<h5 id="Byte-Pair-Encoding-BPE"><a href="#Byte-Pair-Encoding-BPE" class="headerlink" title="Byte-Pair Encoding (BPE)"></a>Byte-Pair Encoding (BPE)</h5><p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831204814939.png" alt="image-20210831204814939" style="zoom:50%;" /></p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164225405.png" alt="image-20210906164225405" style="zoom: 50%;" /></p>
+<p>初始词典，不断找数据集里相邻出现次数最多A B，’AB’替换里面的‘A’ ‘B’</p>
+<p>结束条件 循环次数 词典的大小</p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164301376.png" alt="image-20210906164301376"></p>
+<h5 id="Properties-of-BPE-tokens"><a href="#Properties-of-BPE-tokens" class="headerlink" title="Properties of BPE tokens"></a>Properties of BPE tokens</h5><ul>
+<li>Usually include frequent words</li>
+<li>frequent subwords<br> -est -er</li>
+</ul>
+<h5 id="Unigram-language-modeling-tokenization"><a href="#Unigram-language-modeling-tokenization" class="headerlink" title="Unigram language modeling tokenization"></a>Unigram language modeling tokenization</h5><h5 id="WordPiece"><a href="#WordPiece" class="headerlink" title="WordPiece"></a>WordPiece</h5><h3 id="Word-Normalization"><a href="#Word-Normalization" class="headerlink" title="Word Normalization"></a>Word Normalization</h3><p>规范化字格式</p>
+<ul>
+<li>U.S.A. or USA</li>
+<li>am, is, be, are </li>
+<li>uhhuh or uh-huh</li>
+<li>Fed or fed </li>
+</ul>
+<p><strong>Lemmatization:</strong><br>Represent all words as their lemma 词根<br><em>am, are, is</em> → <em>be</em><br><em>car, cars, car’s</em>, <em>cars’</em> → <em>car</em></p>
+<p><strong>Stemming：</strong><br>Reduce terms to stems, chopping off affixes crudely<br>词干 ， 单词后缀丢掉</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906214936471.png" alt="image-20210906214936471" style="zoom:50%;" /></p>
+<h3 id="Sentence-Segmentation"><a href="#Sentence-Segmentation" class="headerlink" title="Sentence Segmentation"></a>Sentence Segmentation</h3><p>句子提取<br>简单的标点符号会出现问题</p>
+<p>先用机器学习对标点符号判断分类</p>
+<ul>
+<li>Sentence boundary</li>
+</ul>
+<p>+　Abbreviations like Inc. or Dr.<br>  An abbreviation dictionary can help<br>+　Numbers like .02% or 4.3</p>
+<p>在用标点符号对句子切割</p>
 
     </div>
 
@@ -511,7 +371,7 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/OS/" rel="tag"><i class="fa fa-tag"></i> OS</a>
+              <a href="/tags/nlp/" rel="tag"><i class="fa fa-tag"></i> nlp</a>
           </div>
 
         
@@ -520,12 +380,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(8)%20IO%E8%AE%BE%E5%A4%87/" rel="prev" title="操作系统原理(8)I/O设备">
-      <i class="fa fa-chevron-left"></i> 操作系统原理(8)I/O设备
+    <a href="/2021/08/21/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" rel="prev" title="强化学习：多智能体强化学习基础">
+      <i class="fa fa-chevron-left"></i> 强化学习：多智能体强化学习基础
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/07/18/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86(5)%20%E5%A4%84%E7%90%86%E5%99%A8%E8%B0%83%E5%BA%A6/" rel="next" title="操作系统原理(5) 处理器调度">
-      操作系统原理(5) 处理器调度 <i class="fa fa-chevron-right"></i>
+    <a href="/2021/09/07/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(2)%EF%BC%9A%20N-gram%20Language%20Model/" rel="next" title="自然语言处理(2)： N-gram Language Model">
+      自然语言处理(2)： N-gram Language Model <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -594,7 +454,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E7%A1%AC%E4%BB%B6"><span class="nav-text">磁盘硬件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6"><span class="nav-text">磁盘调度</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RAID"><span class="nav-text">RAID</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RAID0"><span class="nav-text">RAID0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAID1"><span class="nav-text">RAID1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAID2"><span class="nav-text">RAID2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAID3"><span class="nav-text">RAID3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAID-4"><span class="nav-text">RAID 4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAID-5"><span class="nav-text">RAID 5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAID-6"><span class="nav-text">RAID 6</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E9%97%AE%E9%A2%98%E4%B8%8E%E4%B8%BB%E8%A6%81%E5%9B%B0%E9%9A%BE"><span class="nav-text">基本问题与主要困难</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Text-Normalization"><span class="nav-text">Text Normalization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tokenizing-segmenting-words"><span class="nav-text">Tokenizing (segmenting) words</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#space-based-tokenization"><span class="nav-text">space-based  tokenization</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Word-tokenization-in-Chinese"><span class="nav-text">Word tokenization in Chinese</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Use-the-data-to-tell-us-how-to-tokenize"><span class="nav-text">Use the data to tell us how to tokenize</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Subword-tokenization"><span class="nav-text">Subword tokenization</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Byte-Pair-Encoding-BPE"><span class="nav-text">Byte-Pair Encoding (BPE)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Properties-of-BPE-tokens"><span class="nav-text">Properties of BPE tokens</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Unigram-language-modeling-tokenization"><span class="nav-text">Unigram language modeling tokenization</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WordPiece"><span class="nav-text">WordPiece</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Word-Normalization"><span class="nav-text">Word Normalization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sentence-Segmentation"><span class="nav-text">Sentence Segmentation</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
