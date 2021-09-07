@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-07 19:36:08" itemprop="dateModified" datetime="2021-09-07T19:36:08+08:00">2021-09-07</time>
+                <time title="修改时间：2021-09-07 19:58:59" itemprop="dateModified" datetime="2021-09-07T19:58:59+08:00">2021-09-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -392,7 +392,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-09-07 00:00:00 / 修改时间：19:36:51" itemprop="dateCreated datePublished" datetime="2021-09-07T00:00:00+08:00">2021-09-07</time>
+              <time title="创建时间：2021-09-07 00:00:00 / 修改时间：19:58:53" itemprop="dateCreated datePublished" datetime="2021-09-07T00:00:00+08:00">2021-09-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -433,7 +433,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="N-gram-Language-Model"><a href="#N-gram-Language-Model" class="headerlink" title="N-gram Language Model"></a>N-gram Language Model</h1><h2 id="Probabilistic-Language-Models"><a href="#Probabilistic-Language-Models" class="headerlink" title="Probabilistic Language Models"></a>Probabilistic Language Models</h2><p>统计的语言模型</p>
+          <span id="more"></span>
+<h1 id="N-gram-Language-Model"><a href="#N-gram-Language-Model" class="headerlink" title="N-gram Language Model"></a>N-gram Language Model</h1><h2 id="Probabilistic-Language-Models"><a href="#Probabilistic-Language-Models" class="headerlink" title="Probabilistic Language Models"></a>Probabilistic Language Models</h2><p>统计的语言模型</p>
 <p><strong>goal:</strong> assign a probability to a sentence　计算句子的概率</p>
 <ul>
 <li>Machine Translation<br>source language 翻译成target language，多个可能结果时，选择出现概率最大的</li>
@@ -504,7 +505,8 @@
 </table>
 </div>
 <p>Add-one estimation</p>
-<p>每一项加一<br>$MLE estimate:  P_{M L E}\left(w_{i} \mid w_{i-1}\right)=\frac{c\left(w_{i-1}, w_{i}\right)}{c\left(w_{i-1}\right)} \\<br>Add-1 estimate:  P_{A d d-1}\left(w_{i} \mid w_{i-1}\right)=\frac{c\left(w_{i-1}, w_{i}\right)+1}{c\left(w_{i-1}\right)+V} $</p>
+<p>每一项加一<br>$MLE estimate:  P_{M L E}\left(w_{i} \mid w_{i-1}\right)=\frac{c\left(w_{i-1}, w_{i}\right)}{c\left(w_{i-1}\right)}$</p>
+<p>$Add-1 estimate:  P_{A d d-1}\left(w_{i} \mid w_{i-1}\right)=\frac{c\left(w_{i-1}, w_{i}\right)+1}{c\left(w_{i-1}\right)+V} $</p>
 <p>就不会出现0的概率</p>
 
       
