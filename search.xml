@@ -2001,6 +2001,226 @@
       </tags>
   </entry>
   <entry>
+    <title>自然语言处理(7)：POS &amp; Named Entities</title>
+    <url>/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(7)%EF%BC%9APOS%20&amp;%20Named%20Entities/</url>
+    <content><![CDATA[<h1 id="Part-of-Speech-and-Named-Entities"><a href="#Part-of-Speech-and-Named-Entities" class="headerlink" title="Part of Speech and Named Entities"></a>Part of Speech and Named Entities</h1><h2 id="词性-part-of-speech"><a href="#词性-part-of-speech" class="headerlink" title="词性 part of speech"></a>词性 part of speech</h2><p>用词性标记在句子中注释每个单词 （label）</p>
+<ul>
+<li>Closed class 封闭类</li>
+</ul>
+<p>​       固定的</p>
+<ul>
+<li><p>Open class 开放类 类别词语里面的词可能一直在变化</p>
+<p>​    <em>Nouns</em> (Googler), <em>Verbs</em> (Google), <em>Adjectives</em> (geeky), <em>Abverb</em> (automagically) </p>
+</li>
+</ul>
+<p>ADJ: adjective<br>ADP: adposition<br>ADV: adverb<br>AUX: auxiliary verb<br>CONJ: coordinating conjunction<br>DET: determiner<br>INTJ: interjection<br>NOUN: noun<br>NUM: numeral<br>PART: particle<br>PRON: pronoun<br>PROPN: proper noun<br>PUNCT: punctuation<br>SCONJ: subordinating conjunction<br>SYM: symbol<br>VERB: verb<br>X: other</p>
+<h2 id="词性标注任务-Part-of-Speech-Tagging"><a href="#词性标注任务-Part-of-Speech-Tagging" class="headerlink" title="词性标注任务  Part of Speech Tagging"></a>词性标注任务  Part of Speech Tagging</h2><p><strong>useful for other NLP tasks</strong></p>
+<ul>
+<li><p>parse  从语法上描述或分析（词句等） ：POS标记可以改进语法解析</p>
+</li>
+<li><p>MT(机器翻译)： 有些需要调整名词和形容词顺序 （例如西班牙语-&gt;英语）</p>
+</li>
+<li><p>Sentiment or affective tasks ：感情或情感任务中词性很重要，评价的是名词，描述是形容词</p>
+</li>
+<li><p>Text-to-speech 文本和语音 ：词性不一样 发音不同</p>
+</li>
+</ul>
+<p><strong>Difficulty</strong></p>
+<ul>
+<li><p>Roughly 15% of word types are ambiguous  大约15%的单词词性是不明确的</p>
+</li>
+<li><p>Ambiguity </p>
+<p>一个词可以有多个 词性</p>
+</li>
+</ul>
+<p><strong>实现：</strong></p>
+<ul>
+<li><p>提取句子(不需要考虑不同句子的关系，消除标点符号的歧义，检查句子边界)</p>
+</li>
+<li><p>句子中每个词语的词性确认</p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018175728173.png" alt="image-20211018175728173" style="zoom:80%;" /></p>
+<ul>
+<li><p>可用信息：</p>
+<ul>
+<li><p>先验知识</p>
+<ul>
+<li><p>词表中有词语的词性类别， 去除大部分干扰</p>
+<p>比如 will 通常是 AUX</p>
+</li>
+<li><p>相邻单词的标识<br>the 意味着下一个词不会是动词</p>
+</li>
+</ul>
+</li>
+<li><p>Morphology and wordshape: 形态学和文字形态</p>
+<p>词法 Morphology and  词形wordshape:<br>前缀 后缀 大小写 </p>
+<p> <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018175651362.png" alt="image-20211018175651362" style="zoom:50%;" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Standard-algorithms-for-POS-tagging"><a href="#Standard-algorithms-for-POS-tagging" class="headerlink" title="Standard algorithms for POS tagging"></a>Standard algorithms for POS tagging</h3><ul>
+<li><p>Supervised Machine Learning Algorithms</p>
+<ul>
+<li><p>Hidden Markov Models 隐马尔可夫</p>
+</li>
+<li><p>Conditional Random Fields (CRF) 条件随机场</p>
+</li>
+<li><p>Neural sequence models (RNNs or Transformers)</p>
+</li>
+<li><p>Large Language Models (like BERT), finetuned</p>
+<p>All required a <strong>hand-labeled</strong> training set, all about equal performance </p>
+<p>(97% on English) 需要一个手工标记的训练集 / 等性能</p>
+</li>
+<li><p>利用先验信息：<br>HMMs and CRFs ：Via human created features<br>Neural LMs ：Via representation learning</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>问题：</p>
+<ul>
+<li><p>标准分类问题假设单个案例是独立的(i.i.d.：独立且同分布）</p>
+</li>
+<li><p>Many NLP problems do not satisfy this assumption and involve  making many connected decisions, each resolving a different  ambiguity, but which are mutually dependent 相互依赖的</p>
+</li>
+<li><p>深度学习 联合考虑</p>
+<p>Sequence Labeling Problem 序列标记问题</p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211025165418516.png" alt="image-20211025165418516" style="zoom:67%;" /></p>
+<p>​    循环神经网络实现</p>
+<h1 id="命名实体识别-Named-Entity-Recognition"><a href="#命名实体识别-Named-Entity-Recognition" class="headerlink" title="命名实体识别 Named Entity Recognition"></a>命名实体识别 Named Entity Recognition</h1><p>PER (Person) 人名：</p>
+<p>LOC (Location): 地名：</p>
+<p>ORG (Organization): 组织</p>
+<p>GPE (Geo-Political Entity):地源政治</p>
+<p>dates日期  times 时间  prices价格</p>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li>长度多于一个，几个词语组成</li>
+<li>词语拆分可能有不同的意思，需要整体提取出来，整体识别<br>比如北京大学 </li>
+</ul>
+<h3 id="任务："><a href="#任务：" class="headerlink" title="任务："></a>任务：</h3><p> named entity recognition (NER): </p>
+<ul>
+<li><p>找出一个片段 （命名实体）对应的位置</p>
+</li>
+<li><p>找出类别，标记属于哪一种命名实体</p>
+<pre><code> &lt;img src=&quot;C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211025170318024.png&quot; alt=&quot;image-20211025170318024&quot; style=&quot;zoom:67%;&quot; /&gt;
+</code></pre></li>
+</ul>
+<h3 id="Why-NER？"><a href="#Why-NER？" class="headerlink" title="Why NER？"></a>Why NER？</h3><p>Sentiment analysis 情绪分析：消费者对特定公司还是个人的情绪？</p>
+<p>Question Answering 问答系统：问题里面出现问答实体，回答有关一个实体的问题，需要将实体完整地识别出来  </p>
+<p>Information Extraction：Extracting facts about entities from text</p>
+<h3 id="Why-NER-is-hard"><a href="#Why-NER-is-hard" class="headerlink" title="Why NER is hard"></a>Why NER is hard</h3><ul>
+<li><p>Segmentation<br>分隔的问题：NER需要识别边界，要找候选的边界<br>词性标注每个词语都是识别的单元 不存在边界的问题 </p>
+</li>
+<li><p>Type ambiguity<br>歧义</p>
+</li>
+</ul>
+<p>基于序列标注</p>
+<h3 id="BIO-Tagging"><a href="#BIO-Tagging" class="headerlink" title="BIO Tagging"></a>BIO Tagging</h3><p>句子里面每一个词语打一个标记，每个位置对应 B  I  O中的一个</p>
+<p>B: token that <em>begins</em> a span</p>
+<p>I: tokens <em>inside</em> a span</p>
+<p>O: tokens outside of any span</p>
+<ul>
+<li><p>考虑实体的类别 BIOES</p>
+</li>
+<li><p>IO</p>
+</li>
+</ul>
+<p>然后根据标记合起来</p>
+<p>左边 B 右边 I 合并</p>
+<p>O 跳过</p>
+<h3 id="Standard-algorithms-for-NER"><a href="#Standard-algorithms-for-NER" class="headerlink" title="Standard algorithms for NER"></a>Standard algorithms for NER</h3><p>Supervised Machine Learning</p>
+<ul>
+<li>Hidden Markov Models</li>
+<li>Conditional Random Fields (CRF)</li>
+<li>Neural sequence models (RNNs or Transformers)</li>
+<li>Large Language Models (like BERT), finetuned</li>
+</ul>
+]]></content>
+      <categories>
+        <category>课程相关</category>
+        <category>nlp</category>
+      </categories>
+      <tags>
+        <tag>nlp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>自然语言处理(6)：Neural Language Modeling</title>
+    <url>/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/</url>
+    <content><![CDATA[<p>激活函数特点：</p>
+<ul>
+<li><p>非线性:</p>
+</li>
+<li><p>简单：因为很多层 很多神经元 不能太复杂 0</p>
+</li>
+<li><p>求导方便简单：反向传播容易计算</p>
+</li>
+<li><p>函数图像简单，有某种规律</p>
+</li>
+</ul>
+<hr>
+<p>Text classification 文本分类</p>
+<p>Language modeling 语言模型化</p>
+<p>Sentiment Features</p>
+<p>特征工程的方式</p>
+<p>对原始文本数据 提取特征 特征化处理</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175529541.png" alt="image-20211011175529541" style="zoom:80%;" /></p>
+<p>例如：x1表示出现在正向词典的个数</p>
+<p>输出：特征vector</p>
+<p>输出：分类结果</p>
+<p>效果不太好，需要人工定义特征 human-engineered features</p>
+<p>没有考虑词语的语义信息/关系 没有考虑语句的意思</p>
+<p>representation learning 特征学习</p>
+<p>输入：词向量</p>
+<p>低维稠密向量 而且包含词语语义信息</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018164059500.png" alt="image-20211018164059500" style="zoom:50%;" /></p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175830068.png" alt="image-20211011175830068" style="zoom:80%;" /></p>
+<p>输出：分类 softmax 映射到一个概率分布</p>
+<p>问题：文本有不同的大小</p>
+<p>有的句子5个词语 有的句子10个词语….输入和固定网络结构之间不匹配<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018163708099.png" alt="image-20211018163708099" style="zoom:67%;" /></p>
+<p>解决一：找出最长的，短的则填充0，测试时长度超过则截断</p>
+<p>解决二：输入的文本创建句子的词嵌入， 文本片段表示为向量  SA</p>
+<p>​                1. 文本词向量求平均</p>
+<p>​                2.pooling 每一维的取最大值<br>​                    For each dimension, pick the max value from all words    </p>
+<h3 id="Neural-Language-Models-LMs"><a href="#Neural-Language-Models-LMs" class="headerlink" title="Neural Language Models (LMs)"></a>Neural Language Models (LMs)</h3><p>任务：计算给定一些历史的序列中下一个单词的概率。</p>
+<p>问题：可能处理任意长度序列</p>
+<p>解决：滑动窗口 Sliding windows (of fixed length) </p>
+<p>​        </p>
+<p>输入：窗口的词语  词嵌入参与网络计算</p>
+<p>蓝色框 滑动窗口</p>
+<p>任务 预测$w_t$ 的词语 用这三个词语预测第四个</p>
+<p>输出：词表大小 对于$w_t$ 为词表任意一个词的概率 </p>
+<p>​            对应概率最大的词为$w_t$ 的预测</p>
+<h4 id="为什么Neural-Language-Models-LMs-优于-N-gram-LMs"><a href="#为什么Neural-Language-Models-LMs-优于-N-gram-LMs" class="headerlink" title="为什么Neural Language Models (LMs) 优于 N-gram LMs"></a>为什么Neural Language Models (LMs) 优于 N-gram LMs</h4><p>eg: 训练集有I have to make sure that the cat gets fed.  但是没用 dog gets fed</p>
+<p>传统统计的语言模型：<br>    统计频率 对训练集要求高  不能获得词语之间的关联<br>    dog gets fed 可能是0或者很小的值</p>
+<p>神经语言模型：参与计算的是词嵌入(能够表达词语的相似度)，dog和cat相近的语义关系</p>
+<p>训练：</p>
+<p>对于每个(x,y)</p>
+<ul>
+<li><p>forward  computation  得到 $\hat y$</p>
+</li>
+<li><p>计算 loss  $L(y, \hat y)$ </p>
+</li>
+<li>backward computation 更新参数</li>
+</ul>
+<p>Loss Function： 逻辑回归<br> 二元逻辑斯蒂回归<br>         <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170214980.png" alt="image-20211018170214980" style="zoom: 67%;" /></p>
+<p>​        <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170256972.png" alt="image-20211018170256972" style="zoom:67%;" /></p>
+<p>链式法则            </p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170516379.png" alt="image-20211018170516379" style="zoom:67%;" />                </p>
+<p>计算图  Computation Graphs： </p>
+<p>我们需要损失对网络的每一层中的每个权重的导数</p>
+]]></content>
+      <categories>
+        <category>课程相关</category>
+        <category>nlp</category>
+      </categories>
+      <tags>
+        <tag>nlp</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>自然语言处理(1)：简介</title>
     <url>/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/</url>
     <content><![CDATA[<span id="more"></span>
@@ -2014,16 +2234,31 @@
 </li>
 <li>主要困难<ul>
 <li>Ambiguity <ul>
-<li>Lexical ambiguity 词法歧义<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210831201442069.png" alt="image-20210831201442069" style="zoom:50%;" /></li>
-<li>Part-of-speech ambiguity 词性歧义<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210831201851512.png" alt="image-20210831201851512" style="zoom:50%;" /></li>
-<li>Structural ambiguity 结构歧义<br><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210831201913346.png" alt="image-20210831201913346" style="zoom:50%;" /><br>主语 谓语 状语 宾语修饰关系</li>
+<li>Lexical ambiguity 词法歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png" alt="image-20210831201442069" style="zoom:50%;" /></li>
+<li>Part-of-speech ambiguity 词性歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201851512.png" alt="image-20210831201851512" style="zoom:50%;" /></li>
+<li>Structural ambiguity 结构歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201913346.png" alt="image-20210831201913346" style="zoom:50%;" /><br>主语 谓语 状语 宾语修饰关系</li>
 </ul>
 </li>
 </ul>
 </li>
 <li>unknown language phenomena<br>大量未知语言现象：新词、人名、地名、术语、新含义、新句法、新句型</li>
 </ul>
-<h2 id="Text-Normalization"><a href="#Text-Normalization" class="headerlink" title="Text Normalization"></a>Text Normalization</h2><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210906162810630.png" alt="image-20210906162810630" style="zoom:50%;" /></p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><ul>
+<li>Question Answering &amp; Dialogue Systems 问答系统</li>
+<li>Knowledge Graph 知识图谱</li>
+<li>Automatic Summarization 自动摘要</li>
+<li>Sentiment Analysis 情感分析</li>
+</ul>
+<h2 id="文本处理"><a href="#文本处理" class="headerlink" title="文本处理"></a>文本处理</h2><p>Corpora  语料库，可以是单个文档或文档集合</p>
+<h2 id="Text-Normalization"><a href="#Text-Normalization" class="headerlink" title="Text Normalization"></a>Text Normalization</h2><p>Every NLP task requires text normalization: </p>
+<ol>
+<li><p>Tokenizing (segmenting) words 分词</p>
+</li>
+<li><p>Normalizing word formats 规范单词格式</p>
+</li>
+<li><p>Segmenting sentences 分割句子</p>
+</li>
+</ol>
 <h3 id="Tokenizing-segmenting-words"><a href="#Tokenizing-segmenting-words" class="headerlink" title="Tokenizing (segmenting) words"></a>Tokenizing (segmenting) words</h3><p>标记化（分段）单词</p>
 <ul>
 <li>white-space segmentation<br>有些词语切割不正确/有些语言没有空格</li>
@@ -2032,13 +2267,26 @@
 </ul>
 <h4 id="space-based-tokenization"><a href="#space-based-tokenization" class="headerlink" title="space-based  tokenization"></a>space-based  tokenization</h4><p>issues：</p>
 <ul>
-<li>Can’t just blindly remove punctuation（标点）:</li>
-<li>Clitic: a word that doesn’t stand on its own<br>”are“ in we’re</li>
+<li><p>Can’t just blindly remove punctuation（标点）:</p>
+<ul>
+<li>m.p.h., Ph.D., AT&amp;T, cap’n </li>
+<li>prices ($45.55) </li>
+<li>dates (01/02/06) </li>
+<li>URLs (<a href="http://www.stanford.edu">http://www.stanford.edu</a>) </li>
+</ul>
+</li>
+<li><p>Clitic: a word that doesn’t stand on its own<br>”are“ in we’re 词不独立存在</p>
+</li>
 <li>When should multiword expressions be words?<br>New York, rock ’n’ roll </li>
 </ul>
-<h4 id="Word-tokenization-in-Chinese"><a href="#Word-tokenization-in-Chinese" class="headerlink" title="Word tokenization in Chinese"></a>Word tokenization in Chinese</h4><p>词素 morpheme：<br>each character/ segment the sentence</p>
-<h3 id="Use-the-data-to-tell-us-how-to-tokenize"><a href="#Use-the-data-to-tell-us-how-to-tokenize" class="headerlink" title="Use the data to tell us how to tokenize"></a>Use the data to tell us how to tokenize</h3><p>使用数据来告诉我们如何进行切割。</p>
-<h3 id="Subword-tokenization"><a href="#Subword-tokenization" class="headerlink" title="Subword tokenization"></a>Subword tokenization</h3><p>基于子词的<br>Three common algorithms</p>
+<h5 id="Word-tokenization-in-Chinese"><a href="#Word-tokenization-in-Chinese" class="headerlink" title="Word tokenization in Chinese"></a>Word tokenization in Chinese</h5><ul>
+<li><p>Chinese words are composed of characters called “<strong>hanzi”</strong> </p>
+</li>
+<li><p>词素 morpheme： a meaning unit<br>each character/ segment the sentence</p>
+</li>
+</ul>
+<h4 id="Use-the-data-to-tell-us-how-to-tokenize"><a href="#Use-the-data-to-tell-us-how-to-tokenize" class="headerlink" title="Use the data to tell us how to tokenize"></a>Use the data to tell us how to tokenize</h4><p>使用数据来告诉我们如何进行切割。</p>
+<h4 id="Subword-tokenization"><a href="#Subword-tokenization" class="headerlink" title="Subword tokenization"></a>Subword tokenization</h4><p>基于子词的<br>Three common algorithms</p>
 <ul>
 <li>Byte-Pair Encoding (BPE）</li>
 <li>Unigram language modeling tokenization</li>
@@ -2049,11 +2297,11 @@
 <li>A token <strong>learner</strong> that takes a raw training corpus（语料库） and induces a vocabulary</li>
 <li>A token <strong>segmenter</strong> that takes a raw test sentence and tokenizes it according to that vocabulary</li>
 </ul>
-<h5 id="Byte-Pair-Encoding-BPE"><a href="#Byte-Pair-Encoding-BPE" class="headerlink" title="Byte-Pair Encoding (BPE)"></a>Byte-Pair Encoding (BPE)</h5><p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210831204814939.png" alt="image-20210831204814939" style="zoom:50%;" /></p>
-<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210906164225405.png" alt="image-20210906164225405" style="zoom: 50%;" /></p>
+<h5 id="Byte-Pair-Encoding-BPE"><a href="#Byte-Pair-Encoding-BPE" class="headerlink" title="Byte-Pair Encoding (BPE)"></a>Byte-Pair Encoding (BPE)</h5><p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831204814939.png" alt="image-20210831204814939" style="zoom:50%;" /></p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164225405.png" alt="image-20210906164225405" style="zoom: 50%;" /></p>
 <p>初始词典，不断找数据集里相邻出现次数最多A B，’AB’替换里面的‘A’ ‘B’</p>
 <p>结束条件 循环次数 词典的大小</p>
-<p><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210906164301376.png" alt="image-20210906164301376"></p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164301376.png" alt="image-20210906164301376"></p>
 <h5 id="Properties-of-BPE-tokens"><a href="#Properties-of-BPE-tokens" class="headerlink" title="Properties of BPE tokens"></a>Properties of BPE tokens</h5><ul>
 <li>Usually include frequent words</li>
 <li>frequent subwords<br> -est -er</li>
@@ -2066,15 +2314,17 @@
 <li>Fed or fed </li>
 </ul>
 <p><strong>Lemmatization:</strong><br>Represent all words as their lemma 词根<br><em>am, are, is</em> → <em>be</em><br><em>car, cars, car’s</em>, <em>cars’</em> → <em>car</em></p>
-<p><strong>Stemming：</strong><br>Reduce terms to stems, chopping off affixes crudely<br>词干 ， 单词后缀丢掉</p>
-<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210906214936471.png" alt="image-20210906214936471" style="zoom:50%;" /></p>
-<h3 id="Sentence-Segmentation"><a href="#Sentence-Segmentation" class="headerlink" title="Sentence Segmentation"></a>Sentence Segmentation</h3><p>句子提取<br>简单的标点符号会出现问题</p>
-<p>先用机器学习对标点符号判断分类</p>
+<p><strong>Stemming：</strong><br>Reduce terms to stems, chopping off affixes crudely<br>找出词干 ，附加部分(前缀后缀)丢掉</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906214936471.png" alt="image-20210906214936471" style="zoom:50%;" /></p>
+<h3 id="Sentence-Segmentation"><a href="#Sentence-Segmentation" class="headerlink" title="Sentence Segmentation"></a>Sentence Segmentation</h3><p>句子提取</p>
 <ul>
-<li>Sentence boundary</li>
+<li>简单的标点符号会出现问题<ul>
+<li>Abbreviations like Inc. or Dr.</li>
+<li>Numbers like .02% or 4.3</li>
 </ul>
-<p>+　Abbreviations like Inc. or Dr.<br>  An abbreviation dictionary can help<br>+　Numbers like .02% or 4.3</p>
-<p>在用标点符号对句子切割</p>
+</li>
+</ul>
+<p>先用机器学习对标点符号判断,判断是否句子边界，再用标点符号对句子切割</p>
 ]]></content>
       <categories>
         <category>课程相关</category>
@@ -2089,7 +2339,7 @@
     <url>/2021/09/07/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(2)%EF%BC%9A%20N-gram%20Language%20Model/</url>
     <content><![CDATA[<p>​    </p>
 <span id="more"></span>
-<h1 id="N-gram-Language-Model"><a href="#N-gram-Language-Model" class="headerlink" title="N-gram Language Model"></a>N-gram Language Model</h1><h2 id="Probabilistic-Language-Models"><a href="#Probabilistic-Language-Models" class="headerlink" title="Probabilistic Language Models"></a>Probabilistic Language Models</h2><p>统计的语言模型</p>
+<h1 id="N-gram-Language-Model"><a href="#N-gram-Language-Model" class="headerlink" title="N-gram Language Model"></a>N-gram Language Model</h1><h2 id="Probabilistic-Language-Models"><a href="#Probabilistic-Language-Models" class="headerlink" title="Probabilistic Language Models"></a>Probabilistic Language Models</h2><p>基于统计的语言模型</p>
 <p><strong>goal:</strong> assign a probability to a sentence　计算句子的概率</p>
 <ul>
 <li>Machine Translation<br>source language 翻译成target language，多个可能结果时，选择出现概率最大的</li>
@@ -2098,12 +2348,16 @@
 </ul>
 <p>概率越高，越符合人类的语言习惯</p>
 <h3 id="Probabilistic-Language-Modeling"><a href="#Probabilistic-Language-Modeling" class="headerlink" title="Probabilistic Language Modeling"></a>Probabilistic Language Modeling</h3><p><strong>Goal</strong>: compute the probability of a sentence or sequence of words: </p>
-<p>计算句子的概率</p>
+<ul>
+<li><p>计算句子的概率</p>
 <p>$P(W) = P(w_1 ,w_2 ,w_3 ,w_4 ,w_5 … w_n)$</p>
-<p>条件概率<br>计算下一个单词的概率<br>$P(W) = P( w_n|w_1 ,w_2 ,w_3 ,w_4 ,w_5 … w_{n-1})$</p>
+</li>
+<li><p>条件概率<br>计算下一个单词的概率<br>$P(W) = P( w_n|w_1 ,w_2 ,w_3 ,w_4 ,w_5 … w_{n-1})$</p>
+</li>
+</ul>
 <h4 id="Chain-Rule"><a href="#Chain-Rule" class="headerlink" title="Chain Rule"></a>Chain Rule</h4><p>$\mathrm{P}\left(\mathrm{x}_{1}, \mathrm{x}_{2}, \mathrm{x}_{3}, \ldots, \mathrm{x}_{\mathrm{n}}\right)=\mathrm{P}\left(\mathrm{x}_{1}\right) \mathrm{P}\left(\mathrm{x}_{2} \mid \mathrm{x}_{1}\right) \mathrm{P}\left(\mathrm{x}_{3} \mid \mathrm{x}_{1}, \mathrm{x}_{2}\right) \ldots \mathrm{P}\left(\mathrm{x}_{\mathrm{n}} \mid \mathrm{x}_{1}, \ldots, \mathrm{x}_{\mathrm{n}-1}\right)$</p>
 <p>$P\left(w_{1} w_{2} \cdots w_{n}\right)=\prod_{i} P\left(w_{i} \mid w_{1} w_{2} \cdots w_{i-1}\right)$</p>
-<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210906170320339.png" alt="image-20210906170320339" style="zoom:50%;" /></p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906170320339.png" alt="image-20210906170320339" style="zoom:50%;" /></p>
 <p><strong>problem：</strong>有些句子长 出现概率很低</p>
 <p><strong>solution：</strong>Markov Assumption</p>
 <p>$P\left(w_{i} \mid w_{1} w_{2} \cdots w_{i-1}\right) \approx P\left(w_{i} \mid w_{i-k} \cdots w_{i-1}\right)$</p>
@@ -2112,12 +2366,19 @@
 <p>$P\left(w_{1} w_{2} \cdots w_{n}\right)=\prod_{i} P\left(w_{i}\right)$</p>
 <p>每个词语都是独立的，没有考虑语词语间的关系，表达的信息非常有限</p>
 <h3 id="Bigram-model"><a href="#Bigram-model" class="headerlink" title="Bigram model"></a>Bigram model</h3><p>二元文法<br>每个词语只依赖于前面一个词语<br>$P\left(w_{i} \mid w_{1} w_{2} \cdots w_{i-1}\right) \approx P\left(w_{i} \mid w_{i-1}\right)$</p>
-<h3 id="N-gram-models"><a href="#N-gram-models" class="headerlink" title="N-gram models"></a>N-gram models</h3><p>problem:  language has <strong>long-distance dependencies</strong>:</p>
-<p>​    <img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210906172538587.png" alt="image-20210906172538587" style="zoom: 50%;" /></p>
+<h3 id="N-gram-models"><a href="#N-gram-models" class="headerlink" title="N-gram models"></a>N-gram models</h3><p>problem:  language has <strong>long-distance dependencies</strong>: 远距离依赖关系</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906172538587.png" alt="image-20210906172538587" style="zoom: 50%;" /></p>
 <p>But we can often get away with N-gram models</p>
 <h2 id="Estimating-N-gram-Probabilities"><a href="#Estimating-N-gram-Probabilities" class="headerlink" title="Estimating N-gram Probabilities"></a>Estimating N-gram Probabilities</h2><p><strong>极大似然估计</strong>  maximum likelihood estimate</p>
 <p>$\begin{array}{l}<br>P\left(w_{i} \mid w_{i-1}\right)=\frac{\operatorname{count}\left(w_{i-1}, w_{i}\right)}{\operatorname{count}\left(w_{i-1}\right)} \\<br>P\left(w_{i} \mid w_{i-1}\right)=\frac{c\left(w_{i-1}, w_{i}\right)}{c\left(w_{i-1}\right)}<br>\end{array}$</p>
 <p>训练过程<br>在预料库里计算次数，然后计算条件概率</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211116233632369.png" alt="image-20211116233632369" style="zoom:67%;" /></p>
+<p>对于$P(I|<s>)$  ,$c(<s>) = 3$ ,<br>$<s>$ 后面是I次数是2，所以是$\frac{2}{3}$</p>
+<hr>
+<p>例子：<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211116234334663.png" alt="image-20211116234334663" style="zoom: 50%;" /></p>
+<p>计算每个词的频数：<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211116234603618.png" alt="image-20211116234603618" style="zoom:50%;" /></p>
+<p>p(eat|i)=0.0036这个概率值讲解，“i”一共出现了2533次，而其后出现eat的次数一共有9次，p(eat|i)=p(eat,i)/p(i)=count(i,eat)/count(i)=9/2533 = 0.0036</p>
+<p>计算句子的概率：<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211116234833175.png" alt="image-20211116234833175" style="zoom:50%;" /></p>
 <p><strong>Practical Issues</strong></p>
 <p>log place：转换到log空间计算</p>
 <ul>
@@ -2148,8 +2409,8 @@
 <table>
 <thead>
 <tr>
-<th><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210906175701283.png" alt="image-20210906175701283" style="zoom:50%;" /></th>
-<th><img src="https://pig-1307013046.cos.ap-nanjing.myqcloud.com/PigCo/image-20210906175713078.png" alt="image-20210906175713078" style="zoom:50%;" /></th>
+<th><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906175701283.png" alt="image-20210906175701283" style="zoom:50%;" /></th>
+<th><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906175713078.png" alt="image-20210906175713078" style="zoom:50%;" /></th>
 </tr>
 </thead>
 <tbody>
@@ -2163,6 +2424,424 @@
 <p>每一项加一<br>$MLE estimate:  P_{M L E}\left(w_{i} \mid w_{i-1}\right)=\frac{c\left(w_{i-1}, w_{i}\right)}{c\left(w_{i-1}\right)}$</p>
 <p>$Add-1 estimate:  P_{A d d-1}\left(w_{i} \mid w_{i-1}\right)=\frac{c\left(w_{i-1}, w_{i}\right)+1}{c\left(w_{i-1}\right)+V} $</p>
 <p>就不会出现0的概率</p>
+]]></content>
+      <categories>
+        <category>课程相关</category>
+        <category>nlp</category>
+      </categories>
+      <tags>
+        <tag>nlp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>自然语言处理(3)：Text Classification</title>
+    <url>/2021/09/13/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(3)%EF%BC%9AText%20Classification/</url>
+    <content><![CDATA[<span id="more"></span>
+<h1 id="朴素贝叶斯法"><a href="#朴素贝叶斯法" class="headerlink" title="朴素贝叶斯法"></a>朴素贝叶斯法</h1><ul>
+<li><p>基于<strong>贝叶斯定理</strong>和<strong>特征条件独立假设</strong>的分类方法</p>
+</li>
+<li><p>训练数据集 $T=\left\{\left(x_{1}, y_{1}\right),\left(x_{2}, y_{2}\right), \cdots,\left(x_{N}, y_{N}\right)\right\}$    </p>
+</li>
+<li><p>训练时<br>通过训练集学习以下先验概率分布和条件概率分布</p>
+<pre><code>先验概率分布：
+$P\left(Y=c_&#123;k&#125;\right), \quad k=1,2, \cdots, K$
+条件概率分布：
+$P\left(X=x \mid Y=c_&#123;k&#125;\right)=P\left(X^&#123;(1)&#125;=x^&#123;(1)&#125;, \cdots, X^&#123;(n)&#125;=x^&#123;(n)&#125; \mid Y=c_&#123;k&#125;\right), \quad k=1,2, \cdots, K$        
+</code></pre><p>​    又由条件独立性假设</p>
+<p>​    用于分类的特征在类确定的条件下都是条件独立的<br>​    $\begin{aligned} P\left(X=x \mid Y=c_{k}\right) &amp;=P\left(X^{(1)}=x^{(1)}, \cdots, X^{(n)}=x^{(n)} \mid Y=c_{k}\right) \\ &amp;=\prod_{j=1}^{n} P\left(X^{(j)}=x^{(j)} \mid Y=c_{k}\right) \end{aligned}$</p>
+</li>
+<li><p>分类时<br>输入x，通过学习到的模型计算后验概率分布$P(Y=c_k|X=x)$,将后验概率最大的类作为x的类输出</p>
+<p>$P\left(Y=c_{k} \mid X=x\right)=\frac{P\left(X=x \mid Y=c_{k}\right) P\left(Y=c_{k}\right)}{\sum_{k} P\left(X=x \mid Y=c_{k}\right) P\left(Y=c_{k}\right)}$</p>
+<p>代入<br>$P\left(Y=c_{k} \mid X=x\right)=\frac{P\left(Y=c_{k}\right) \prod_{j} P\left(X^{(j)}=x^{(j)} \mid Y=c_{k}\right)}{\sum_{k} P\left(Y=c_{k}\right) \prod_{j} P\left(X^{(j)}=x^{(j)} \mid Y=c_{k}\right)}, \quad k=1,2, \cdots, K$</p>
+<p>于是，朴素贝叶斯分类器可以表示为<br>$y=f(x)=\arg \max _{c_{k}} \frac{P\left(Y=c_{k}\right) \prod_{j} P\left(X^{(j)}=x^{(j)} \mid Y=c_{k}\right)}{\sum_{k} P\left(Y=c_{k}\right) \prod_{j} P\left(X^{(j)}=x^{(j)} \mid Y=c_{k}\right)}$</p>
+</li>
+</ul>
+<p>​       注意到，对分母所有$c_k$都是相同的</p>
+<p>​        $y=\arg \max _{c_{k}} P\left(Y=c_{k}\right) \prod_{j} P\left(X^{(J)}=x^{(j)} \mid Y=c_{k}\right)$</p>
+<h1 id="Text-Classification"><a href="#Text-Classification" class="headerlink" title="Text Classification"></a>Text Classification</h1><p><strong>Input：</strong><br>a document <strong>d</strong><br>a fixed set of class $C=\left\{c_{1}, c_{2}, \ldots, c_{j}\right\} $</p>
+<p><strong>Output:</strong><br>a predicted class $ c\in C$</p>
+<p>Supervised Machine Learning:<br><strong>Input:</strong><br>a document <strong>d</strong><br>a fixed set of class $C=\left\{c_{1}, c_{2}, \ldots, c_{j}\right\} $</p>
+<p>training set : A training set of <em>m</em> hand-labeled documents $\left(d_{1}, c_{1}\right), \ldots,\left(d_{m} c_{m}\right)$</p>
+<p><strong>Output</strong>：A learned classifier $f:d\rightarrow c$</p>
+<p>o Naïve Bayes</p>
+<p>o Logistic regression</p>
+<p>o Neural networks</p>
+<p>o <em>k</em>-Nearest Neighbors</p>
+<h2 id="Naive-Bayes-Classifier"><a href="#Naive-Bayes-Classifier" class="headerlink" title="Naive Bayes Classifier"></a>Naive Bayes Classifier</h2><ul>
+<li><p>Based on Bayes rule<br>假设词语之间是独立的</p>
+</li>
+<li><p>Bag of words</p>
+<p>   <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210913165119280.png" alt="image-20210913165119280" style="zoom:33%;" /></p>
+<p>预处理 词语标准化 词根还原<br>统计每个词出现的次数</p>
+</li>
+<li><p>d: document<br>c: class<br>$P(c \mid d)=\frac{P(d \mid c) P(c)}{P(d)}$</p>
+</li>
+</ul>
+<p>忽略词语之间的顺序关系</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210913170439316.png" alt="image-20210913170439316" style="zoom:50%;" /></th>
+<th>最大化后验概率P（d）<br />可以看成一个常数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210913170447431.png" alt="image-20210913170447431" style="zoom:50%;" /></td>
+<td>P（C）先验概率<br />How often does this class occur，How often does this class occur</td>
+</tr>
+<tr>
+<td><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210913170455058.png" alt="image-20210913170455058" style="zoom:50%;" /></td>
+<td></td>
+</tr>
+<tr>
+<td><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210913171939982.png" alt="image-20210913171939982" style="zoom:50%;" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p> $P\left(x_{1}, x_{2}, \cdots, x_{n} \mid c\right)$    独立假设 👇</p>
+<p>$P\left(x_{1}, \ldots, x_{n} \mid c\right)=P\left(x_{1} \mid c\right) P\left(x_{2} \mid c\right) P\left(x_{3} \mid c\right) \ldots P\left(x_{n} \mid c\right)$</p>
+<p>$c_{M A P}=\underset{c \in C}{\operatorname{argmax}} P\left(x_{1}, x_{2}, \cdots, x_{n} \mid c\right) P(c)$<br>$c_{N B}=\underset{c \in C}{\operatorname{argmax}} P\left(c_{j}\right) \prod_{x, \in X} P\left(x_{i} \mid c\right)$</p>
+<p>Problem：floating-point underflow<br>Solution：对数空间</p>
+<p>$c_{\mathrm{NB}}=\underset{c_{j} \in C}{\operatorname{argmax}}\left[\log P\left(c_{j}\right)+\sum_{i \in \text { positions }} \log P\left(x_{i} \mid c_{j}\right)\right]$</p>
+<p>$\Rightarrow$ linear model ， linear classifier</p>
+<h2 id="Learning"><a href="#Learning" class="headerlink" title="Learning"></a>Learning</h2><ul>
+<li><p>计算先验部分<br>统计每个类别的概率<br>每个类别每个词语的条件概率<br>$\hat{P}\left(c_{j}\right)=\frac{N_{c_{j}}}{N_{\text {total }}}$<br>$\hat{P}\left(w_{i} \mid c_{j}\right)=\frac{\operatorname{count}\left(w_{i}, c_{j}\right)}{\sum_{w\llcorner} \operatorname{count}\left(w, c_{j}\right)}$</p>
+<p>具体实现：同一类别拼接成一个文档，统计词的概率</p>
+</li>
+<li><p>Problem：训练集从未出现过 出现在测试集<br>Laplace (add-1) smoothing</p>
+<p>$\begin{aligned} \hat{P}\left(w_{i} \mid c\right) &amp;=\frac{\operatorname{count}\left(w_{i}, c\right)+1}{\sum_{w\lfloor V}(\operatorname{count}(w, c)+1)} \\ &amp;=\frac{\operatorname{count}\left(w_{i}, c\right)+1}{\left(\sum_{w \in V} \operatorname{count}(w, c)\right)+|V|} \end{aligned}$</p>
+</li>
+</ul>
+<h2 id="Unknown-Words"><a href="#Unknown-Words" class="headerlink" title="Unknown Words"></a>Unknown Words</h2><p>出现在测试集但不在训练集 </p>
+<p> ignore</p>
+<h2 id="Stop-words"><a href="#Stop-words" class="headerlink" title="Stop words"></a>Stop words</h2><ul>
+<li>very frequent words like <em>the</em> and <em>a</em></li>
+<li>统计文件中词出现的次数，删掉次数最多的10/50个词</li>
+</ul>
+<h2 id="Sentiment-and-Binary-Naive-Bayes"><a href="#Sentiment-and-Binary-Naive-Bayes" class="headerlink" title="Sentiment and Binary Naive Bayes"></a><strong>Sentiment and Binary Naive Bayes</strong></h2><p>1 计算先验部分</p>
+<p>2 丢掉 stop words（可选的）</p>
+<p>3 计算条件概率</p>
+<p>4.测试样本的条件概率</p>
+<p>样本一个词语出现多次，考虑多次还是一次？</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117001709632.png" alt="image-20211117001709632" style="zoom: 50%;" /></p>
+<h2 id="Naive-Bayes-Relationship-to-Language-Modeling"><a href="#Naive-Bayes-Relationship-to-Language-Modeling" class="headerlink" title="Naïve Bayes: Relationship to Language Modeling"></a>Naïve Bayes: Relationship to Language Modeling</h2><p>和unigram 相似 都只考虑单个词语 不考虑词语之间依赖关系</p>
+<h2 id="Precision-Recall-and-F-measure"><a href="#Precision-Recall-and-F-measure" class="headerlink" title="Precision, Recall, and F measure"></a><strong>Precision, Recall, and F measure</strong></h2><p>评价分类器</p>
+<p>混淆矩阵<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210913175532208.png" alt="image-20210913175532208" style="zoom:50%;" /></p>
+<ul>
+<li>true代表预测和实际一样<br>false 表示预测和实际不一样</li>
+<li>true positive真阳：<br>positive 表示预测为positive</li>
+<li><p>false positive</p>
+<p>预测是错的<br>negative 表示预测为negative</p>
+</li>
+<li>recall 差全率 召回率 </li>
+<li>accurary准确率：$\frac{true}{true+false}$</li>
+<li>precision :$\frac{true \ positive}{true \ positive \ + false \ positive}$</li>
+</ul>
+<p>Why don’t we use <strong>accuracy</strong> as our metric?</p>
+<p>如果只用accurary，假如100万样本，positive只有100个，不需要学习，全部分为negative..准确度高</p>
+<h3 id="F-measure"><a href="#F-measure" class="headerlink" title="F measure"></a>F measure</h3><p>a single number that combines <em>P</em> and <em>R</em><br>$F_{\beta}=\frac{\left(\beta^{2}+1\right) P R}{\beta^{2} P+R}$</p>
+<p>balanced $F_1$ ($\beta = 1$)<br>$F_{1}=\frac{2 P R}{P+R}$</p>
+]]></content>
+      <categories>
+        <category>课程相关</category>
+        <category>nlp</category>
+      </categories>
+      <tags>
+        <tag>nlp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>自然语言处理(4)：Vector Semantics &amp; Embeddings (I)</title>
+    <url>/2021/09/18/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(4)%EF%BC%9A%20Vector%20Semantics%20&amp;%20Embeddings/</url>
+    <content><![CDATA[<span id="more"></span>
+<p><img src="D:/Pictures/BP/241962676_572608620845589_4741626510035757324_n.jpg" style="zoom: 33%;" /></p>
+<h1 id="Lecture-4-Vector-Semantics-amp-Embeddings-I"><a href="#Lecture-4-Vector-Semantics-amp-Embeddings-I" class="headerlink" title="Lecture 4: Vector Semantics &amp; Embeddings (I)"></a>Lecture 4: Vector Semantics &amp; Embeddings (I)</h1><h2 id="Word-Meaning"><a href="#Word-Meaning" class="headerlink" title="Word Meaning"></a>Word Meaning</h2><ul>
+<li><p>N-gram： 词语，字符串组合，没有考虑语义信息</p>
+</li>
+<li><p>逻辑的方式表示</p>
+<p>语言学上：词根和语义</p>
+</li>
+<li><p>A sense or “concept” is the meaning component of a word</p>
+</li>
+<li><p>Lemmas（词根） can be polysemous (have multiple senses) 多种意思</p>
+</li>
+</ul>
+<h2 id="Relations-between-senses"><a href="#Relations-between-senses" class="headerlink" title="Relations between senses"></a>Relations between senses</h2><p>Synonymy/Antonymy/Similarity/Relatedness/Connotation</p>
+<ul>
+<li><p>Synonymy 同义<br>同义词在某些或所有上下文中具有相同的含义。</p>
+</li>
+<li><p>Similarity </p>
+<p>Words with similar meanings.  Not synonyms, but sharing some element of meaning 相关 但不是同义词<br>car, bicycle / cow, horse</p>
+</li>
+<li><p>Antonymy 反义词</p>
+<p>仅就意义的一个特征而言是对立的感觉<br>dark/light  short/long… </p>
+</li>
+<li><p>Word relatedness</p>
+<p><strong>Semantic field 语义场</strong></p>
+<p>Words that  cover a particular semantic domain  /  bear structured relations with each other.<br>覆盖特定语义域/相互之间有着结构化的关系</p>
+<p><strong>hospitals</strong></p>
+<p><em>surgeon</em>, <em>scalpel</em>, <em>nurse</em>, <em>anaesthetic</em>, <em>hospital</em></p>
+<p><strong>restaurants</strong></p>
+<p><em>waiter</em>, <em>menu</em>, <em>plate</em>, <em>food, chef</em></p>
+<p><strong>houses</strong></p>
+<p><em>door</em>, <em>roof</em>, <em>kitchen</em>, <em>family</em>, <em>bed</em></p>
+</li>
+<li><p>Connotation (sentiment)  内涵（情感）</p>
+<p> 词语具有情感意义 </p>
+<p> 三种维度表示每个词语:</p>
+<p> Valence (警觉度) :the pleasantness of the stimulus<br> Arousal (唤醒度) : the intensity of emotion provoked by the stimulus<br> Dominance (支配度):the degree of control exerted by the stimulus</p>
+</li>
+</ul>
+<h2 id="Vector-Semantics"><a href="#Vector-Semantics" class="headerlink" title="Vector Semantics"></a>Vector Semantics</h2><p>Computational models of word meaning 词义计算模型</p>
+<blockquote>
+<p>words are defined by their environments单词由其环境（周围的单词）定义</p>
+</blockquote>
+<p><strong>Idea 1：</strong>Defining meaning by linguistic distribution 用语言分布定义意义</p>
+<p>​    通过一个词在语言使用中的分布来定义它的含义，也就是它的相邻词或语法    环境</p>
+<p><strong>Idea 2:</strong> Meaning as a point in space</p>
+<ul>
+<li><p>用一个三维向量表示, 将词语含义映射到空间，用一个点表示<br>Valence (警觉度) Arousal (唤醒度) Dominance (支配度)</p>
+</li>
+<li><p>可以计算两个词语的相关性</p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117003247774.png" alt="image-20211117003247774" style="zoom:50%;" /></p>
+<h2 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h2><ul>
+<li><p>embedding 词映射到向量空间的过程，被称为“嵌入”，因为它嵌入到一个空间中</p>
+</li>
+<li><p>why vectors？</p>
+<ul>
+<li><p>With <strong>words</strong>, a feature is a word identity<br>需要完全相同的单词来进行训练和测试</p>
+</li>
+<li><p>With <strong>embeddings</strong>: Feature is a word vector </p>
+</li>
+</ul>
+<p>​       泛化到相似但是没见过的词</p>
+</li>
+</ul>
+<h3 id="2-kinds-of-embeddings"><a href="#2-kinds-of-embeddings" class="headerlink" title="2 kinds of embeddings"></a>2 kinds of embeddings</h3><h4 id="Tf-idf"><a href="#Tf-idf" class="headerlink" title="Tf-idf"></a><strong>Tf-idf</strong></h4><p><strong>(Term Frequency-Inverse Document Frequency, 词频-逆文件频率)</strong></p>
+<ul>
+<li><p>词语表示向量,稀疏的Sparse vectors</p>
+</li>
+<li><p>长, 很多为0的位置</p>
+</li>
+<li><p>单词由附近单词的计数（一个简单函数）表示</p>
+</li>
+</ul>
+<h4 id="Word2vec"><a href="#Word2vec" class="headerlink" title="Word2vec"></a><strong>Word2vec</strong></h4><ul>
+<li><p>Dense vectors稠密的向量短</p>
+</li>
+<li><p>Representation is created by training a classifier to predict whether a word is likely to appear nearby<br>表示是通过训练分类器来预测单词是否可能出现在附近而创建的</p>
+</li>
+<li><p>由周围的词语获得每个词语的词向量 <strong>contextual embeddings</strong></p>
+</li>
+<li><p>自监督 </p>
+</li>
+<li><p>周围的词语 预测一个词语</p>
+</li>
+</ul>
+<h2 id="Words-and-Vectors"><a href="#Words-and-Vectors" class="headerlink" title="Words and Vectors"></a>Words and Vectors</h2><h3 id="Term-document-matrix"><a href="#Term-document-matrix" class="headerlink" title="Term-document matrix"></a>Term-document matrix</h3><p>行—词语 ； 列—document<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117004314186.png" alt="image-20211117004314186" style="zoom:67%;" /></p>
+<p><strong>从列看：</strong></p>
+<ul>
+<li>每个文档可以有一个向量表示</li>
+<li>向量之间的关系可以比较两个文档之间的关系</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117004516787.png" alt="image-20211117004516787" style="zoom:67%;" /></p>
+<p>​    </p>
+<p><strong>从行看：</strong></p>
+<ul>
+<li>获取词向量表示方式</li>
+<li>每个词语在文档上分布，得到每个词的向量表示方式</li>
+</ul>
+<p>粗糙的1：两个词语在文档分布相似 不代表词语相似</p>
+<p>对比词语之间的关系</p>
+<h3 id="word-word-matrix"><a href="#word-word-matrix" class="headerlink" title="word-word matrix"></a>word-word matrix</h3><p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210918173153971.png" alt="image-20210918173153971" style="zoom:55%;" /></p>
+<p>对比两个词语出现在同一个语境的次数<br>如果两个词的上下文向量相似，那么它们的意思就相似</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210918173431801.png" alt="image-20210918173431801" style="zoom:50%;" /></p>
+<h2 id="Cosine-for-computing-word-similarity-计算词语的相似度"><a href="#Cosine-for-computing-word-similarity-计算词语的相似度" class="headerlink" title="Cosine for computing word similarity 计算词语的相似度"></a><strong>Cosine for computing word similarity</strong> 计算词语的相似度</h2><h3 id="Dot-product"><a href="#Dot-product" class="headerlink" title="Dot product"></a>Dot product</h3><p>$\operatorname{dot} \operatorname{product}(\mathbf{v}, \mathbf{w})=\mathbf{v} \cdot \mathbf{w}=\sum_{i=1}^{N} v_{i} w_{i}=v_{1} w_{1}+v_{2} w_{2}+\ldots+v_{N} w_{N}$</p>
+<p>当两个向量在相同维度上具有较大值时，点积往往较高</p>
+<p>$\Rightarrow $ 向量之间有用的相似性度量</p>
+<p>Problem:</p>
+<ul>
+<li>Dot product favors long vectors<br>长度的影响,如果向量较长，则点积更高</li>
+<li>Dot product overly favors frequent words<br>有些频繁使用的词有很长的向量（因为它们与其他单词一起出现了很多次） </li>
+</ul>
+<h3 id="Cosine"><a href="#Cosine" class="headerlink" title="Cosine"></a>Cosine</h3><p>normalized dot product</p>
+<p>$\operatorname{cosine}(\vec{v}, \vec{w})=\frac{\vec{v} \cdot \vec{w}}{|\vec{v}||\vec{w}|}=\frac{\sum_{i=1}^{N} v_{i} w_{i}}{\sqrt{\sum_{i=1}^{N} v_{i}^{2}} \sqrt{\sum_{i=1}^{N} w_{i}^{2}}}$</p>
+<ul>
+<li>-1 vectors point in opposite directions</li>
+<li>+1 vectors point in same directions</li>
+<li>0  vectors are orthogonal</li>
+</ul>
+<p>频数不可能出现负的,所以范围0 - 1</p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927195013369.png" alt="image-20210927195013369"></p>
+<h2 id="TF-IDF"><a href="#TF-IDF" class="headerlink" title="TF-IDF"></a>TF-IDF</h2><p>上述都是基于频率 词语出现次数/在文档中出现次数</p>
+<p><strong>问题：</strong> the it they…  无用的词语频率很高<br>tf-idf：为了使有用词语频率 ↑  无用 ↓</p>
+<ul>
+<li><p><strong>tf </strong>   词频 term frequency</p>
+<p>​      $\mathrm{tf}_{t, d}=\operatorname{count}(t, d)$        </p>
+<p>​      $\mathrm{tf}_{t, d}=\log _{10}(\operatorname{count}(t, d)+1)$</p>
+</li>
+<li><p><strong>idf</strong>  词语在很多文档出现 重要性降低</p>
+<p>​        “the” “it” —&gt; low idf</p>
+<ul>
+<li><strong>Document Frequency (df)</strong><br>在多少个文档里面出现过<br>$\operatorname{idf}_{t}=\log _{10}\left(\frac{N}{\mathrm{df}_{t}}\right)$      N是集合中的文档总数。</li>
+</ul>
+</li>
+<li><p><strong>tf-idf</strong> value for word <strong>$t$</strong> in document <strong>$d$</strong> :</p>
+</li>
+</ul>
+<script type="math/tex; mode=display">
+w_{t, d}=\mathrm{tf}_{t, d} \times \mathrm{idf}_{t}</script><p>对于tf-idf 文档可以是任何内容，经常把每一段称为文档</p>
+<h2 id="PMI-Pointwise-mutual-information"><a href="#PMI-Pointwise-mutual-information" class="headerlink" title="PMI: (Pointwise mutual information)"></a>PMI: (Pointwise mutual information)</h2><ul>
+<li><p>计算两个词语在概率上的分布</p>
+</li>
+<li><p>Pointwise mutual information 点式互信息：</p>
+<p>事件x和y共同发生的次数和独立发生的次数 </p>
+<p>$\operatorname{PMI}(X, Y)=\log _{2} \frac{P(x, y)}{P(x) P(y)}$</p>
+<p>$\operatorname{PMI}\left(\right.$ word $_{1}$, word $\left._{2}\right)=\log _{2} \frac{P\left(\text { word }_{1}, \text { word }_{2}\right)}{P\left(\text { word }_{1}\right) P\left(\text { word }_{2}\right)}$</p>
+<p>范围 $(-\infty, +\infty)$</p>
+</li>
+<li><p>如果完全独立 log = 0，负的结果没有意义，如果&lt;0 强制设为零</p>
+</li>
+<li><p>PPMI(word $_{1}$, word $\left._{2}\right)=\max \left(\log _{2} \frac{P\left(\text { word }_{1}, \text { word }_{2}\right)}{P\left(\text { word }_{1}\right) P\left(\text { word }_{2}\right)}, 0\right)$</p>
+<p> Positive PMI</p>
+</li>
+</ul>
+<h2 id="为什么要稠密的向量"><a href="#为什么要稠密的向量" class="headerlink" title="为什么要稠密的向量"></a>为什么要稠密的向量</h2><ul>
+<li><p>短向量可能更容易用作机器学习中的特征（需要调整的权重更少）</p>
+</li>
+<li><p>dense vectors may <strong>generalize</strong> better than explicit counts<br>更好地泛化</p>
+</li>
+<li><p>Dense vectors may do better at capturing synonymy<br>获取同义词关系</p>
+</li>
+<li><p>In practice, they work better</p>
+</li>
+</ul>
+<h2 id="获取稠密向量方法"><a href="#获取稠密向量方法" class="headerlink" title="获取稠密向量方法"></a>获取稠密向量方法</h2><ul>
+<li><p>“Neural Language Model”-inspired models</p>
+<ul>
+<li><p>Word2vec (skipgram, CBOW), GloVe</p>
+<p><a href="https://code.google.com/archive/p/word2vec/">https://code.google.com/archive/p/word2vec/</a></p>
+<p><a href="http://nlp.stanford.edu/projects/glove/">http://nlp.stanford.edu/projects/glove/</a></p>
+<p>静态的 在数据集上学习到词向量 运用到新任务不改变</p>
+</li>
+</ul>
+</li>
+<li><p>Singular Value Decomposition (SVD) 奇异值分解<br> LSA – Latent Semantic Analysis</p>
+</li>
+<li><p>Alternative to these “static embeddings”:<br>根据输入语境获取更加灵活的词向量</p>
+<ul>
+<li>Contextual Embeddings (ELMo, BERT)</li>
+<li>Compute distinct embeddings for a word in its context</li>
+<li>Separate embeddings for each token of a word</li>
+</ul>
+</li>
+</ul>
+<h2 id="Word2vec-1"><a href="#Word2vec-1" class="headerlink" title="Word2vec"></a>Word2vec</h2><ul>
+<li><p>不同于tfidf 基于统计计数，是机器学习学习出来的 ，</p>
+</li>
+<li><p>idea: predict rather than count ， self-supervision:</p>
+<p>一个词语c 用周围的词语预测c / 中间c 预测周围的词语<br>Is <em>w</em> likely to show up near “bank”? </p>
+<p>自监督：No need for human labels</p>
+</li>
+<li><p>skip-gram with negative sampling (SGNS)</p>
+</li>
+</ul>
+<p>分类的任务 输入 c 判断周围的词语（一个窗口内）<br>或者 输入 c w 输出 true/false 是否在一个窗口 — 建模分类问题</p>
+<p>并不是很关心分类器,关心每个词语词向量表示</p>
+<p>词向量可以很好地预测周围的词语</p>
+<p>学习目的 得到词语的词向量， take the learned classifier weights as the word embedding</p>
+<p><strong>skip-gram with negative sampling (SGNS)</strong></p>
+<p>方法：</p>
+<ol>
+<li><p>w 和相邻的同一语境的词c<br>positive example 正样本, true label</p>
+<pre><code>&lt;img src=&quot;C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011165429504.png&quot; alt=&quot;image-20211011165429504&quot; style=&quot;zoom:80%;&quot; /&gt;
+</code></pre></li>
+<li><p>随机采样负样本<br>训练集</p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927173011674.png" alt="image-20210927173011674" style="zoom:67%;" /></p>
+</li>
+</ol>
+<ol>
+<li><p>训练分类器</p>
+<p>logistic regression classifier<br>逻辑回归 sigmoid 激活函数（ normalize to get a probability）</p>
+<p>输入: 一个（w,c）pair<br>输出: + - 的概率(分类) 即为预测的结果</p>
+<p>Stochastic gradient descent<br>Loss Function </p>
+</li>
+<li><p>学习到每个词语的相向量<br>Use the learned weights as the embeddings 向量就是模型的参数</p>
+</li>
+</ol>
+<p><strong>计算相似性</strong>：如果两个向量具有高点积，则它们是相似的<br>为什么dot product 而不是cosine</p>
+<ul>
+<li><p>Cosine就是normalized dot product，这里词向量的维度都是一样的,不存在长度的差别，</p>
+</li>
+<li><p>优化的时候用随机梯度下降，cos 不容易计算梯度，用点积很好优化</p>
+</li>
+</ul>
+<p><strong>sigmoid  ：</strong>将相似度转换成概率 </p>
+<script type="math/tex; mode=display">\begin{aligned}P(+\mid w, c) &=\sigma(c \cdot w)=\frac{1}{1+\exp (-c \cdot w)} \\
+P(-\mid w, c) &=1-P(+\mid w, c) \\
+&=\sigma(-c \cdot w)=\frac{1}{1+\exp (c \cdot w)}
+\end{aligned}</script><p>相似度高，则意味着+的概率大</p>
+<p><strong>如何计算P(+|w,c)</strong></p>
+<p>窗口里面其他的词语 全部乘起来（假设独立）</p>
+<p>​    $\begin{aligned} P\left(+\mid w, c_{1: L}\right) &amp;=\prod_{i=1}^{L} \sigma\left(c_{i} \cdot w\right) \\ \log P\left(+\mid w, c_{1: L}\right) &amp;=\sum_{i=1}^{L} \log \sigma\left(c_{i} \cdot w\right) \end{aligned}$</p>
+<p>通过计算 w (embeddings)  和 c1:L(embeddings)的相似性，计算w出现在窗口的概率</p>
+<h2 id="Word2vec-Learning-the-embeddings"><a href="#Word2vec-Learning-the-embeddings" class="headerlink" title="Word2vec: Learning the embeddings"></a>Word2vec: Learning the embeddings</h2><p>训练集：</p>
+<ul>
+<li>窗口内的positive examples</li>
+<li>每个正面示例，我采样k个负面示例</li>
+</ul>
+<p>​            为什么负采样：模型学习判断两个词语关系的能力，</p>
+<p>​            为什么不是所有词语而是采样 ： 计算量 </p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927202609207.png" alt="image-20210927202609207" style="zoom:50%;" /></p>
+<p>向量集随机初始化</p>
+<ul>
+<li><p>学习目标：<br>调整词向量<br>最大化:target word, context word 的相似性<br>最小化:negative examples 单词对的相似性<br>make the positive pairs more likely,the negative pairs less likely,</p>
+</li>
+<li><p>loss function：</p>
+</li>
+</ul>
+<p>​      <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211203011003751.png" alt="image-20211203011003751" style="zoom:67%;" /></p>
+<ul>
+<li>随机梯度下降</li>
+</ul>
+<hr>
+<p>初始化： 每个词语随机初始词向量</p>
+<p>+-样本训练分类器：</p>
+<p>然后不断学习更新</p>
+<p>每个词语既可以作为中心词 也可以作为语境词</p>
+<p>真实情况下 两个相同词语在同一个窗口的概率很小</p>
+<hr>
+<h2 id="Properties-of-Embeddings"><a href="#Properties-of-Embeddings" class="headerlink" title="Properties of Embeddings"></a>Properties of Embeddings</h2><ul>
+<li><p>滑动窗口决定词的语境</p>
+<p>如果窗口很小，计算出来词向量，相似的话，词语结构相似</p>
+<p>如果窗口较大大， 词语语义相似（用一个领域）</p>
+</li>
+</ul>
+<ul>
+<li><p>Analogical relations 类比</p>
+<p>类比推理的经典平行四边形模型</p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011163704506.png" alt="image-20211011163704506" style="zoom:67%;" /></p>
+<p>​    苹果和树的关系 葡萄和葡萄树关系</p>
+<ul>
+<li><p>vector里面存储更多的语义信息</p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164105341.png" alt="image-20211011164045927" style="zoom:80%;" /></p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164128298.png" alt="image-20211011164128298" style="zoom:80%;" /></p>
+<ul>
+<li><p>注意：在频率非常高的词语得到这些关系</p>
+<p>It only seems to work for frequent words, small distances and certain  relations (relating countries to capitals, or parts of speech), but not  others 只适用于频繁的单词、小距离和某些关系</p>
+</li>
+<li><p>Embeddings reflect cultural bias：<br>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164637375.png" alt="image-20211011164637375" style="zoom:80%;" /></p>
+</li>
+</ul>
 ]]></content>
       <categories>
         <category>课程相关</category>

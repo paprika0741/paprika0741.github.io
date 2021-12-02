@@ -21,28 +21,28 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="简介基本问题与主要困难 基本问题 形态学(morphology)：词由有意义的基本单位—词素（词根、前缀、后缀、词尾）的构成问题、单词识别&#x2F;汉语分词问题 句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾） 语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思） 语用">
+  <meta name="description" content="激活函数特点：  非线性:  简单：因为很多层 很多神经元 不能太复杂 0  求导方便简单：反向传播容易计算  函数图像简单，有某种规律    Text classification 文本分类 Language modeling 语言模型化 Sentiment Features 特征工程的方式 对原始文本数据 提取特征 特征化处理 ​     例如：x1表示出现在正向词典的个数 输出：特征vect">
 <meta property="og:type" content="article">
-<meta property="og:title" content="自然语言处理(1)：简介">
-<meta property="og:url" content="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:title" content="自然语言处理(6)：Neural Language Modeling">
+<meta property="og:url" content="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/index.html">
 <meta property="og:site_name" content="PAPRIKA&#39; Blog">
-<meta property="og:description" content="简介基本问题与主要困难 基本问题 形态学(morphology)：词由有意义的基本单位—词素（词根、前缀、后缀、词尾）的构成问题、单词识别&#x2F;汉语分词问题 句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾） 语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思） 语用">
+<meta property="og:description" content="激活函数特点：  非线性:  简单：因为很多层 很多神经元 不能太复杂 0  求导方便简单：反向传播容易计算  函数图像简单，有某种规律    Text classification 文本分类 Language modeling 语言模型化 Sentiment Features 特征工程的方式 对原始文本数据 提取特征 特征化处理 ​     例如：x1表示出现在正向词典的个数 输出：特征vect">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201851512.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201913346.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831204814939.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164225405.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164301376.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906214936471.png">
-<meta property="article:published_time" content="2021-08-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-11-16T13:55:59.683Z">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175529541.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018164059500.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175830068.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018163708099.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170214980.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170256972.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170516379.png">
+<meta property="article:published_time" content="2021-12-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-12-02T17:43:53.049Z">
 <meta property="article:author" content="🐏🐚">
 <meta property="article:tag" content="nlp">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png">
+<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175529541.png">
 
-<link rel="canonical" href="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/">
+<link rel="canonical" href="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/">
 
 
 <script id="page-configurations">
@@ -55,7 +55,7 @@
   };
 </script>
 
-  <title>自然语言处理(1)：简介 | PAPRIKA' Blog</title>
+  <title>自然语言处理(6)：Neural Language Modeling | PAPRIKA' Blog</title>
   
 
 
@@ -210,7 +210,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -223,7 +223,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          自然语言处理(1)：简介
+          自然语言处理(6)：Neural Language Modeling
         </h1>
 
         <div class="post-meta">
@@ -232,16 +232,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2021-09-01T00:00:00+08:00">2021-09-01</time>
+              <time title="创建时间：2021-12-03 00:00:00 / 修改时间：01:43:53" itemprop="dateCreated datePublished" datetime="2021-12-03T00:00:00+08:00">2021-12-03</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-16 21:55:59" itemprop="dateModified" datetime="2021-11-16T21:55:59+08:00">2021-11-16</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -269,14 +263,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2k</span>
+              <span>1k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>1 分钟</span>
             </span>
 
         </div>
@@ -288,108 +282,68 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="基本问题与主要困难"><a href="#基本问题与主要困难" class="headerlink" title="基本问题与主要困难"></a>基本问题与主要困难</h2><ul>
-<li>基本问题<ul>
-<li>形态学(morphology)：词由有意义的基本单位—<strong>词素</strong>（词根、前缀、后缀、词尾）的构成问题、单词识别/汉语分词问题</li>
-<li>句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾）</li>
-<li>语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思）</li>
-<li>语用学(pragmatics):研究在不同上下文语句的应用，以及上下文对语句理解产生的影响</li>
-</ul>
-</li>
-<li>主要困难<ul>
-<li>Ambiguity <ul>
-<li>Lexical ambiguity 词法歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png" alt="image-20210831201442069" style="zoom:50%;" /></li>
-<li>Part-of-speech ambiguity 词性歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201851512.png" alt="image-20210831201851512" style="zoom:50%;" /></li>
-<li>Structural ambiguity 结构歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201913346.png" alt="image-20210831201913346" style="zoom:50%;" /><br>主语 谓语 状语 宾语修饰关系</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>unknown language phenomena<br>大量未知语言现象：新词、人名、地名、术语、新含义、新句法、新句型</li>
-</ul>
-<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><ul>
-<li>Question Answering &amp; Dialogue Systems 问答系统</li>
-<li>Knowledge Graph 知识图谱</li>
-<li>Automatic Summarization 自动摘要</li>
-<li>Sentiment Analysis 情感分析</li>
-</ul>
-<h2 id="文本处理"><a href="#文本处理" class="headerlink" title="文本处理"></a>文本处理</h2><p>Corpora  语料库，可以是单个文档或文档集合</p>
-<h2 id="Text-Normalization"><a href="#Text-Normalization" class="headerlink" title="Text Normalization"></a>Text Normalization</h2><p>Every NLP task requires text normalization: </p>
-<ol>
-<li><p>Tokenizing (segmenting) words 分词</p>
-</li>
-<li><p>Normalizing word formats 规范单词格式</p>
-</li>
-<li><p>Segmenting sentences 分割句子</p>
-</li>
-</ol>
-<h3 id="Tokenizing-segmenting-words"><a href="#Tokenizing-segmenting-words" class="headerlink" title="Tokenizing (segmenting) words"></a>Tokenizing (segmenting) words</h3><p>标记化（分段）单词</p>
+        <p>激活函数特点：</p>
 <ul>
-<li>white-space segmentation<br>有些词语切割不正确/有些语言没有空格</li>
-<li>single-character segmentation</li>
-<li>word segmentation</li>
-</ul>
-<h4 id="space-based-tokenization"><a href="#space-based-tokenization" class="headerlink" title="space-based  tokenization"></a>space-based  tokenization</h4><p>issues：</p>
-<ul>
-<li><p>Can’t just blindly remove punctuation（标点）:</p>
-<ul>
-<li>m.p.h., Ph.D., AT&amp;T, cap’n </li>
-<li>prices ($45.55) </li>
-<li>dates (01/02/06) </li>
-<li>URLs (<a target="_blank" rel="noopener" href="http://www.stanford.edu">http://www.stanford.edu</a>) </li>
-</ul>
+<li><p>非线性:</p>
 </li>
-<li><p>Clitic: a word that doesn’t stand on its own<br>”are“ in we’re 词不独立存在</p>
+<li><p>简单：因为很多层 很多神经元 不能太复杂 0</p>
 </li>
-<li>When should multiword expressions be words?<br>New York, rock ’n’ roll </li>
-</ul>
-<h5 id="Word-tokenization-in-Chinese"><a href="#Word-tokenization-in-Chinese" class="headerlink" title="Word tokenization in Chinese"></a>Word tokenization in Chinese</h5><ul>
-<li><p>Chinese words are composed of characters called “<strong>hanzi”</strong> </p>
+<li><p>求导方便简单：反向传播容易计算</p>
 </li>
-<li><p>词素 morpheme： a meaning unit<br>each character/ segment the sentence</p>
+<li><p>函数图像简单，有某种规律</p>
 </li>
 </ul>
-<h4 id="Use-the-data-to-tell-us-how-to-tokenize"><a href="#Use-the-data-to-tell-us-how-to-tokenize" class="headerlink" title="Use the data to tell us how to tokenize"></a>Use the data to tell us how to tokenize</h4><p>使用数据来告诉我们如何进行切割。</p>
-<h4 id="Subword-tokenization"><a href="#Subword-tokenization" class="headerlink" title="Subword tokenization"></a>Subword tokenization</h4><p>基于子词的<br>Three common algorithms</p>
+<hr>
+<p>Text classification 文本分类</p>
+<p>Language modeling 语言模型化</p>
+<p>Sentiment Features</p>
+<p>特征工程的方式</p>
+<p>对原始文本数据 提取特征 特征化处理</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175529541.png" alt="image-20211011175529541" style="zoom:80%;" /></p>
+<p>例如：x1表示出现在正向词典的个数</p>
+<p>输出：特征vector</p>
+<p>输出：分类结果</p>
+<p>效果不太好，需要人工定义特征 human-engineered features</p>
+<p>没有考虑词语的语义信息/关系 没有考虑语句的意思</p>
+<p>representation learning 特征学习</p>
+<p>输入：词向量</p>
+<p>低维稠密向量 而且包含词语语义信息</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018164059500.png" alt="image-20211018164059500" style="zoom:50%;" /></p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175830068.png" alt="image-20211011175830068" style="zoom:80%;" /></p>
+<p>输出：分类 softmax 映射到一个概率分布</p>
+<p>问题：文本有不同的大小</p>
+<p>有的句子5个词语 有的句子10个词语….输入和固定网络结构之间不匹配<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018163708099.png" alt="image-20211018163708099" style="zoom:67%;" /></p>
+<p>解决一：找出最长的，短的则填充0，测试时长度超过则截断</p>
+<p>解决二：输入的文本创建句子的词嵌入， 文本片段表示为向量  SA</p>
+<p>​                1. 文本词向量求平均</p>
+<p>​                2.pooling 每一维的取最大值<br>​                    For each dimension, pick the max value from all words    </p>
+<h3 id="Neural-Language-Models-LMs"><a href="#Neural-Language-Models-LMs" class="headerlink" title="Neural Language Models (LMs)"></a>Neural Language Models (LMs)</h3><p>任务：计算给定一些历史的序列中下一个单词的概率。</p>
+<p>问题：可能处理任意长度序列</p>
+<p>解决：滑动窗口 Sliding windows (of fixed length) </p>
+<p>​        </p>
+<p>输入：窗口的词语  词嵌入参与网络计算</p>
+<p>蓝色框 滑动窗口</p>
+<p>任务 预测$w_t$ 的词语 用这三个词语预测第四个</p>
+<p>输出：词表大小 对于$w_t$ 为词表任意一个词的概率 </p>
+<p>​            对应概率最大的词为$w_t$ 的预测</p>
+<h4 id="为什么Neural-Language-Models-LMs-优于-N-gram-LMs"><a href="#为什么Neural-Language-Models-LMs-优于-N-gram-LMs" class="headerlink" title="为什么Neural Language Models (LMs) 优于 N-gram LMs"></a>为什么Neural Language Models (LMs) 优于 N-gram LMs</h4><p>eg: 训练集有I have to make sure that the cat gets fed.  但是没用 dog gets fed</p>
+<p>传统统计的语言模型：<br>    统计频率 对训练集要求高  不能获得词语之间的关联<br>    dog gets fed 可能是0或者很小的值</p>
+<p>神经语言模型：参与计算的是词嵌入(能够表达词语的相似度)，dog和cat相近的语义关系</p>
+<p>训练：</p>
+<p>对于每个(x,y)</p>
 <ul>
-<li>Byte-Pair Encoding (BPE）</li>
-<li>Unigram language modeling tokenization</li>
-<li>WordPiece</li>
-</ul>
-<p>All have 2 parts:</p>
-<ul>
-<li>A token <strong>learner</strong> that takes a raw training corpus（语料库） and induces a vocabulary</li>
-<li>A token <strong>segmenter</strong> that takes a raw test sentence and tokenizes it according to that vocabulary</li>
-</ul>
-<h5 id="Byte-Pair-Encoding-BPE"><a href="#Byte-Pair-Encoding-BPE" class="headerlink" title="Byte-Pair Encoding (BPE)"></a>Byte-Pair Encoding (BPE)</h5><p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831204814939.png" alt="image-20210831204814939" style="zoom:50%;" /></p>
-<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164225405.png" alt="image-20210906164225405" style="zoom: 50%;" /></p>
-<p>初始词典，不断找数据集里相邻出现次数最多A B，’AB’替换里面的‘A’ ‘B’</p>
-<p>结束条件 循环次数 词典的大小</p>
-<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164301376.png" alt="image-20210906164301376"></p>
-<h5 id="Properties-of-BPE-tokens"><a href="#Properties-of-BPE-tokens" class="headerlink" title="Properties of BPE tokens"></a>Properties of BPE tokens</h5><ul>
-<li>Usually include frequent words</li>
-<li>frequent subwords<br> -est -er</li>
-</ul>
-<h5 id="Unigram-language-modeling-tokenization"><a href="#Unigram-language-modeling-tokenization" class="headerlink" title="Unigram language modeling tokenization"></a>Unigram language modeling tokenization</h5><h5 id="WordPiece"><a href="#WordPiece" class="headerlink" title="WordPiece"></a>WordPiece</h5><h3 id="Word-Normalization"><a href="#Word-Normalization" class="headerlink" title="Word Normalization"></a>Word Normalization</h3><p>规范化字格式</p>
-<ul>
-<li>U.S.A. or USA</li>
-<li>am, is, be, are </li>
-<li>uhhuh or uh-huh</li>
-<li>Fed or fed </li>
-</ul>
-<p><strong>Lemmatization:</strong><br>Represent all words as their lemma 词根<br><em>am, are, is</em> → <em>be</em><br><em>car, cars, car’s</em>, <em>cars’</em> → <em>car</em></p>
-<p><strong>Stemming：</strong><br>Reduce terms to stems, chopping off affixes crudely<br>找出词干 ，附加部分(前缀后缀)丢掉</p>
-<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906214936471.png" alt="image-20210906214936471" style="zoom:50%;" /></p>
-<h3 id="Sentence-Segmentation"><a href="#Sentence-Segmentation" class="headerlink" title="Sentence Segmentation"></a>Sentence Segmentation</h3><p>句子提取</p>
-<ul>
-<li>简单的标点符号会出现问题<ul>
-<li>Abbreviations like Inc. or Dr.</li>
-<li>Numbers like .02% or 4.3</li>
-</ul>
+<li><p>forward  computation  得到 $\hat y$</p>
 </li>
+<li><p>计算 loss  $L(y, \hat y)$ </p>
+</li>
+<li>backward computation 更新参数</li>
 </ul>
-<p>先用机器学习对标点符号判断,判断是否句子边界，再用标点符号对句子切割</p>
+<p>Loss Function： 逻辑回归<br> 二元逻辑斯蒂回归<br>         <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170214980.png" alt="image-20211018170214980" style="zoom: 67%;" /></p>
+<p>​        <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170256972.png" alt="image-20211018170256972" style="zoom:67%;" /></p>
+<p>链式法则            </p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170516379.png" alt="image-20211018170516379" style="zoom:67%;" />                </p>
+<p>计算图  Computation Graphs： </p>
+<p>我们需要损失对网络的每一层中的每个权重的导数</p>
 
     </div>
 
@@ -409,12 +363,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/08/21/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" rel="prev" title="强化学习：多智能体强化学习基础">
-      <i class="fa fa-chevron-left"></i> 强化学习：多智能体强化学习基础
+    <a href="/2021/09/18/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(4)%EF%BC%9A%20Vector%20Semantics%20&%20Embeddings/" rel="prev" title="自然语言处理(4)：Vector Semantics & Embeddings (I)">
+      <i class="fa fa-chevron-left"></i> 自然语言处理(4)：Vector Semantics & Embeddings (I)
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/09/07/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(2)%EF%BC%9A%20N-gram%20Language%20Model/" rel="next" title="自然语言处理(2)： N-gram Language Model">
-      自然语言处理(2)： N-gram Language Model <i class="fa fa-chevron-right"></i>
+    <a href="/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(7)%EF%BC%9APOS%20&%20Named%20Entities/" rel="next" title="自然语言处理(7)：POS & Named Entities">
+      自然语言处理(7)：POS & Named Entities <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -483,7 +437,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E9%97%AE%E9%A2%98%E4%B8%8E%E4%B8%BB%E8%A6%81%E5%9B%B0%E9%9A%BE"><span class="nav-text">基本问题与主要困难</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-text">应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86"><span class="nav-text">文本处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Text-Normalization"><span class="nav-text">Text Normalization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tokenizing-segmenting-words"><span class="nav-text">Tokenizing (segmenting) words</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#space-based-tokenization"><span class="nav-text">space-based  tokenization</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Word-tokenization-in-Chinese"><span class="nav-text">Word tokenization in Chinese</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Use-the-data-to-tell-us-how-to-tokenize"><span class="nav-text">Use the data to tell us how to tokenize</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Subword-tokenization"><span class="nav-text">Subword tokenization</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Byte-Pair-Encoding-BPE"><span class="nav-text">Byte-Pair Encoding (BPE)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Properties-of-BPE-tokens"><span class="nav-text">Properties of BPE tokens</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Unigram-language-modeling-tokenization"><span class="nav-text">Unigram language modeling tokenization</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WordPiece"><span class="nav-text">WordPiece</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Word-Normalization"><span class="nav-text">Word Normalization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sentence-Segmentation"><span class="nav-text">Sentence Segmentation</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Neural-Language-Models-LMs"><span class="nav-text">Neural Language Models (LMs)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88Neural-Language-Models-LMs-%E4%BC%98%E4%BA%8E-N-gram-LMs"><span class="nav-text">为什么Neural Language Models (LMs) 优于 N-gram LMs</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

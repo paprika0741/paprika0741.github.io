@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/peach.svg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/peach.svg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Lecture 4: Vector Semantics &amp; Embeddings (I)Word Meaning N-gram： 词语，字符串组合，没有考虑语义信息  逻辑的方式表示 语言学上：词根和语义  A sense or “concept” is the meaning component of a word  Lemmas（词根） can be polysemous (hav">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自然语言处理(4)：Vector Semantics &amp; Embeddings (I)">
+<meta property="og:url" content="http://example.com/2021/09/18/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(4)%EF%BC%9A%20Vector%20Semantics%20&%20Embeddings/index.html">
+<meta property="og:site_name" content="PAPRIKA&#39; Blog">
+<meta property="og:description" content="Lecture 4: Vector Semantics &amp; Embeddings (I)Word Meaning N-gram： 词语，字符串组合，没有考虑语义信息  逻辑的方式表示 语言学上：词根和语义  A sense or “concept” is the meaning component of a word  Lemmas（词根） can be polysemous (hav">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="d:/Pictures/BP/241962676_572608620845589_4741626510035757324_n.jpg">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117003247774.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117004314186.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117004516787.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210918173153971.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210918173431801.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927195013369.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927173011674.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927202609207.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211203011003751.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011163704506.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164105341.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164128298.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164637375.png">
+<meta property="article:published_time" content="2021-09-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-12-02T17:14:30.007Z">
+<meta property="article:author" content="🐏🐚">
+<meta property="article:tag" content="nlp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="d:/Pictures/BP/241962676_572608620845589_4741626510035757324_n.jpg">
+
+<link rel="canonical" href="http://example.com/2021/09/18/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(4)%EF%BC%9A%20Vector%20Semantics%20&%20Embeddings/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>自然语言处理(4)：Vector Semantics & Embeddings (I) | PAPRIKA' Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">PAPRIKA' Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">我一定要尽快调查明白</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a>
+
+  </li>
+        <li class="menu-item menu-item-favorites">
+
+    <a href="/favorites/" rel="section"><i class="fa fa-heart fa-fw"></i>收藏夹</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/18/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(4)%EF%BC%9A%20Vector%20Semantics%20&%20Embeddings/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="🐏🐚">
+      <meta itemprop="description" content="摇摇晃晃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAPRIKA' Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          自然语言处理(4)：Vector Semantics & Embeddings (I)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-18 00:00:00" itemprop="dateCreated datePublished" datetime="2021-09-18T00:00:00+08:00">2021-09-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-03 01:14:30" itemprop="dateModified" datetime="2021-12-03T01:14:30+08:00">2021-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index"><span itemprop="name">课程相关</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/nlp/" itemprop="url" rel="index"><span itemprop="name">nlp</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <span id="more"></span>
+<p><img src="D:/Pictures/BP/241962676_572608620845589_4741626510035757324_n.jpg" style="zoom: 33%;" /></p>
+<h1 id="Lecture-4-Vector-Semantics-amp-Embeddings-I"><a href="#Lecture-4-Vector-Semantics-amp-Embeddings-I" class="headerlink" title="Lecture 4: Vector Semantics &amp; Embeddings (I)"></a>Lecture 4: Vector Semantics &amp; Embeddings (I)</h1><h2 id="Word-Meaning"><a href="#Word-Meaning" class="headerlink" title="Word Meaning"></a>Word Meaning</h2><ul>
+<li><p>N-gram： 词语，字符串组合，没有考虑语义信息</p>
+</li>
+<li><p>逻辑的方式表示</p>
+<p>语言学上：词根和语义</p>
+</li>
+<li><p>A sense or “concept” is the meaning component of a word</p>
+</li>
+<li><p>Lemmas（词根） can be polysemous (have multiple senses) 多种意思</p>
+</li>
+</ul>
+<h2 id="Relations-between-senses"><a href="#Relations-between-senses" class="headerlink" title="Relations between senses"></a>Relations between senses</h2><p>Synonymy/Antonymy/Similarity/Relatedness/Connotation</p>
+<ul>
+<li><p>Synonymy 同义<br>同义词在某些或所有上下文中具有相同的含义。</p>
+</li>
+<li><p>Similarity </p>
+<p>Words with similar meanings.  Not synonyms, but sharing some element of meaning 相关 但不是同义词<br>car, bicycle / cow, horse</p>
+</li>
+<li><p>Antonymy 反义词</p>
+<p>仅就意义的一个特征而言是对立的感觉<br>dark/light  short/long… </p>
+</li>
+<li><p>Word relatedness</p>
+<p><strong>Semantic field 语义场</strong></p>
+<p>Words that  cover a particular semantic domain  /  bear structured relations with each other.<br>覆盖特定语义域/相互之间有着结构化的关系</p>
+<p><strong>hospitals</strong></p>
+<p><em>surgeon</em>, <em>scalpel</em>, <em>nurse</em>, <em>anaesthetic</em>, <em>hospital</em></p>
+<p><strong>restaurants</strong></p>
+<p><em>waiter</em>, <em>menu</em>, <em>plate</em>, <em>food, chef</em></p>
+<p><strong>houses</strong></p>
+<p><em>door</em>, <em>roof</em>, <em>kitchen</em>, <em>family</em>, <em>bed</em></p>
+</li>
+<li><p>Connotation (sentiment)  内涵（情感）</p>
+<p> 词语具有情感意义 </p>
+<p> 三种维度表示每个词语:</p>
+<p> Valence (警觉度) :the pleasantness of the stimulus<br> Arousal (唤醒度) : the intensity of emotion provoked by the stimulus<br> Dominance (支配度):the degree of control exerted by the stimulus</p>
+</li>
+</ul>
+<h2 id="Vector-Semantics"><a href="#Vector-Semantics" class="headerlink" title="Vector Semantics"></a>Vector Semantics</h2><p>Computational models of word meaning 词义计算模型</p>
+<blockquote>
+<p>words are defined by their environments单词由其环境（周围的单词）定义</p>
+</blockquote>
+<p><strong>Idea 1：</strong>Defining meaning by linguistic distribution 用语言分布定义意义</p>
+<p>​    通过一个词在语言使用中的分布来定义它的含义，也就是它的相邻词或语法    环境</p>
+<p><strong>Idea 2:</strong> Meaning as a point in space</p>
+<ul>
+<li><p>用一个三维向量表示, 将词语含义映射到空间，用一个点表示<br>Valence (警觉度) Arousal (唤醒度) Dominance (支配度)</p>
+</li>
+<li><p>可以计算两个词语的相关性</p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117003247774.png" alt="image-20211117003247774" style="zoom:50%;" /></p>
+<h2 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h2><ul>
+<li><p>embedding 词映射到向量空间的过程，被称为“嵌入”，因为它嵌入到一个空间中</p>
+</li>
+<li><p>why vectors？</p>
+<ul>
+<li><p>With <strong>words</strong>, a feature is a word identity<br>需要完全相同的单词来进行训练和测试</p>
+</li>
+<li><p>With <strong>embeddings</strong>: Feature is a word vector </p>
+</li>
+</ul>
+<p>​       泛化到相似但是没见过的词</p>
+</li>
+</ul>
+<h3 id="2-kinds-of-embeddings"><a href="#2-kinds-of-embeddings" class="headerlink" title="2 kinds of embeddings"></a>2 kinds of embeddings</h3><h4 id="Tf-idf"><a href="#Tf-idf" class="headerlink" title="Tf-idf"></a><strong>Tf-idf</strong></h4><p><strong>(Term Frequency-Inverse Document Frequency, 词频-逆文件频率)</strong></p>
+<ul>
+<li><p>词语表示向量,稀疏的Sparse vectors</p>
+</li>
+<li><p>长, 很多为0的位置</p>
+</li>
+<li><p>单词由附近单词的计数（一个简单函数）表示</p>
+</li>
+</ul>
+<h4 id="Word2vec"><a href="#Word2vec" class="headerlink" title="Word2vec"></a><strong>Word2vec</strong></h4><ul>
+<li><p>Dense vectors稠密的向量短</p>
+</li>
+<li><p>Representation is created by training a classifier to predict whether a word is likely to appear nearby<br>表示是通过训练分类器来预测单词是否可能出现在附近而创建的</p>
+</li>
+<li><p>由周围的词语获得每个词语的词向量 <strong>contextual embeddings</strong></p>
+</li>
+<li><p>自监督 </p>
+</li>
+<li><p>周围的词语 预测一个词语</p>
+</li>
+</ul>
+<h2 id="Words-and-Vectors"><a href="#Words-and-Vectors" class="headerlink" title="Words and Vectors"></a>Words and Vectors</h2><h3 id="Term-document-matrix"><a href="#Term-document-matrix" class="headerlink" title="Term-document matrix"></a>Term-document matrix</h3><p>行—词语 ； 列—document<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117004314186.png" alt="image-20211117004314186" style="zoom:67%;" /></p>
+<p><strong>从列看：</strong></p>
+<ul>
+<li>每个文档可以有一个向量表示</li>
+<li>向量之间的关系可以比较两个文档之间的关系</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211117004516787.png" alt="image-20211117004516787" style="zoom:67%;" /></p>
+<p>​    </p>
+<p><strong>从行看：</strong></p>
+<ul>
+<li>获取词向量表示方式</li>
+<li>每个词语在文档上分布，得到每个词的向量表示方式</li>
+</ul>
+<p>粗糙的1：两个词语在文档分布相似 不代表词语相似</p>
+<p>对比词语之间的关系</p>
+<h3 id="word-word-matrix"><a href="#word-word-matrix" class="headerlink" title="word-word matrix"></a>word-word matrix</h3><p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210918173153971.png" alt="image-20210918173153971" style="zoom:55%;" /></p>
+<p>对比两个词语出现在同一个语境的次数<br>如果两个词的上下文向量相似，那么它们的意思就相似</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210918173431801.png" alt="image-20210918173431801" style="zoom:50%;" /></p>
+<h2 id="Cosine-for-computing-word-similarity-计算词语的相似度"><a href="#Cosine-for-computing-word-similarity-计算词语的相似度" class="headerlink" title="Cosine for computing word similarity 计算词语的相似度"></a><strong>Cosine for computing word similarity</strong> 计算词语的相似度</h2><h3 id="Dot-product"><a href="#Dot-product" class="headerlink" title="Dot product"></a>Dot product</h3><p>$\operatorname{dot} \operatorname{product}(\mathbf{v}, \mathbf{w})=\mathbf{v} \cdot \mathbf{w}=\sum_{i=1}^{N} v_{i} w_{i}=v_{1} w_{1}+v_{2} w_{2}+\ldots+v_{N} w_{N}$</p>
+<p>当两个向量在相同维度上具有较大值时，点积往往较高</p>
+<p>$\Rightarrow $ 向量之间有用的相似性度量</p>
+<p>Problem:</p>
+<ul>
+<li>Dot product favors long vectors<br>长度的影响,如果向量较长，则点积更高</li>
+<li>Dot product overly favors frequent words<br>有些频繁使用的词有很长的向量（因为它们与其他单词一起出现了很多次） </li>
+</ul>
+<h3 id="Cosine"><a href="#Cosine" class="headerlink" title="Cosine"></a>Cosine</h3><p>normalized dot product</p>
+<p>$\operatorname{cosine}(\vec{v}, \vec{w})=\frac{\vec{v} \cdot \vec{w}}{|\vec{v}||\vec{w}|}=\frac{\sum_{i=1}^{N} v_{i} w_{i}}{\sqrt{\sum_{i=1}^{N} v_{i}^{2}} \sqrt{\sum_{i=1}^{N} w_{i}^{2}}}$</p>
+<ul>
+<li>-1 vectors point in opposite directions</li>
+<li>+1 vectors point in same directions</li>
+<li>0  vectors are orthogonal</li>
+</ul>
+<p>频数不可能出现负的,所以范围0 - 1</p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927195013369.png" alt="image-20210927195013369"></p>
+<h2 id="TF-IDF"><a href="#TF-IDF" class="headerlink" title="TF-IDF"></a>TF-IDF</h2><p>上述都是基于频率 词语出现次数/在文档中出现次数</p>
+<p><strong>问题：</strong> the it they…  无用的词语频率很高<br>tf-idf：为了使有用词语频率 ↑  无用 ↓</p>
+<ul>
+<li><p><strong>tf </strong>   词频 term frequency</p>
+<p>​      $\mathrm{tf}_{t, d}=\operatorname{count}(t, d)$        </p>
+<p>​      $\mathrm{tf}_{t, d}=\log _{10}(\operatorname{count}(t, d)+1)$</p>
+</li>
+<li><p><strong>idf</strong>  词语在很多文档出现 重要性降低</p>
+<p>​        “the” “it” —&gt; low idf</p>
+<ul>
+<li><strong>Document Frequency (df)</strong><br>在多少个文档里面出现过<br>$\operatorname{idf}_{t}=\log _{10}\left(\frac{N}{\mathrm{df}_{t}}\right)$      N是集合中的文档总数。</li>
+</ul>
+</li>
+<li><p><strong>tf-idf</strong> value for word <strong>$t$</strong> in document <strong>$d$</strong> :</p>
+</li>
+</ul>
+<script type="math/tex; mode=display">
+w_{t, d}=\mathrm{tf}_{t, d} \times \mathrm{idf}_{t}</script><p>对于tf-idf 文档可以是任何内容，经常把每一段称为文档</p>
+<h2 id="PMI-Pointwise-mutual-information"><a href="#PMI-Pointwise-mutual-information" class="headerlink" title="PMI: (Pointwise mutual information)"></a>PMI: (Pointwise mutual information)</h2><ul>
+<li><p>计算两个词语在概率上的分布</p>
+</li>
+<li><p>Pointwise mutual information 点式互信息：</p>
+<p>事件x和y共同发生的次数和独立发生的次数 </p>
+<p>$\operatorname{PMI}(X, Y)=\log _{2} \frac{P(x, y)}{P(x) P(y)}$</p>
+<p>$\operatorname{PMI}\left(\right.$ word $_{1}$, word $\left._{2}\right)=\log _{2} \frac{P\left(\text { word }_{1}, \text { word }_{2}\right)}{P\left(\text { word }_{1}\right) P\left(\text { word }_{2}\right)}$</p>
+<p>范围 $(-\infty, +\infty)$</p>
+</li>
+<li><p>如果完全独立 log = 0，负的结果没有意义，如果&lt;0 强制设为零</p>
+</li>
+<li><p>PPMI(word $_{1}$, word $\left._{2}\right)=\max \left(\log _{2} \frac{P\left(\text { word }_{1}, \text { word }_{2}\right)}{P\left(\text { word }_{1}\right) P\left(\text { word }_{2}\right)}, 0\right)$</p>
+<p> Positive PMI</p>
+</li>
+</ul>
+<h2 id="为什么要稠密的向量"><a href="#为什么要稠密的向量" class="headerlink" title="为什么要稠密的向量"></a>为什么要稠密的向量</h2><ul>
+<li><p>短向量可能更容易用作机器学习中的特征（需要调整的权重更少）</p>
+</li>
+<li><p>dense vectors may <strong>generalize</strong> better than explicit counts<br>更好地泛化</p>
+</li>
+<li><p>Dense vectors may do better at capturing synonymy<br>获取同义词关系</p>
+</li>
+<li><p>In practice, they work better</p>
+</li>
+</ul>
+<h2 id="获取稠密向量方法"><a href="#获取稠密向量方法" class="headerlink" title="获取稠密向量方法"></a>获取稠密向量方法</h2><ul>
+<li><p>“Neural Language Model”-inspired models</p>
+<ul>
+<li><p>Word2vec (skipgram, CBOW), GloVe</p>
+<p><a target="_blank" rel="noopener" href="https://code.google.com/archive/p/word2vec/">https://code.google.com/archive/p/word2vec/</a></p>
+<p><a target="_blank" rel="noopener" href="http://nlp.stanford.edu/projects/glove/">http://nlp.stanford.edu/projects/glove/</a></p>
+<p>静态的 在数据集上学习到词向量 运用到新任务不改变</p>
+</li>
+</ul>
+</li>
+<li><p>Singular Value Decomposition (SVD) 奇异值分解<br> LSA – Latent Semantic Analysis</p>
+</li>
+<li><p>Alternative to these “static embeddings”:<br>根据输入语境获取更加灵活的词向量</p>
+<ul>
+<li>Contextual Embeddings (ELMo, BERT)</li>
+<li>Compute distinct embeddings for a word in its context</li>
+<li>Separate embeddings for each token of a word</li>
+</ul>
+</li>
+</ul>
+<h2 id="Word2vec-1"><a href="#Word2vec-1" class="headerlink" title="Word2vec"></a>Word2vec</h2><ul>
+<li><p>不同于tfidf 基于统计计数，是机器学习学习出来的 ，</p>
+</li>
+<li><p>idea: predict rather than count ， self-supervision:</p>
+<p>一个词语c 用周围的词语预测c / 中间c 预测周围的词语<br>Is <em>w</em> likely to show up near “bank”? </p>
+<p>自监督：No need for human labels</p>
+</li>
+<li><p>skip-gram with negative sampling (SGNS)</p>
+</li>
+</ul>
+<p>分类的任务 输入 c 判断周围的词语（一个窗口内）<br>或者 输入 c w 输出 true/false 是否在一个窗口 — 建模分类问题</p>
+<p>并不是很关心分类器,关心每个词语词向量表示</p>
+<p>词向量可以很好地预测周围的词语</p>
+<p>学习目的 得到词语的词向量， take the learned classifier weights as the word embedding</p>
+<p><strong>skip-gram with negative sampling (SGNS)</strong></p>
+<p>方法：</p>
+<ol>
+<li><p>w 和相邻的同一语境的词c<br>positive example 正样本, true label</p>
+<pre><code>&lt;img src=&quot;C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011165429504.png&quot; alt=&quot;image-20211011165429504&quot; style=&quot;zoom:80%;&quot; /&gt;
+</code></pre></li>
+<li><p>随机采样负样本<br>训练集</p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927173011674.png" alt="image-20210927173011674" style="zoom:67%;" /></p>
+</li>
+</ol>
+<ol>
+<li><p>训练分类器</p>
+<p>logistic regression classifier<br>逻辑回归 sigmoid 激活函数（ normalize to get a probability）</p>
+<p>输入: 一个（w,c）pair<br>输出: + - 的概率(分类) 即为预测的结果</p>
+<p>Stochastic gradient descent<br>Loss Function </p>
+</li>
+<li><p>学习到每个词语的相向量<br>Use the learned weights as the embeddings 向量就是模型的参数</p>
+</li>
+</ol>
+<p><strong>计算相似性</strong>：如果两个向量具有高点积，则它们是相似的<br>为什么dot product 而不是cosine</p>
+<ul>
+<li><p>Cosine就是normalized dot product，这里词向量的维度都是一样的,不存在长度的差别，</p>
+</li>
+<li><p>优化的时候用随机梯度下降，cos 不容易计算梯度，用点积很好优化</p>
+</li>
+</ul>
+<p><strong>sigmoid  ：</strong>将相似度转换成概率 </p>
+<script type="math/tex; mode=display">\begin{aligned}P(+\mid w, c) &=\sigma(c \cdot w)=\frac{1}{1+\exp (-c \cdot w)} \\
+P(-\mid w, c) &=1-P(+\mid w, c) \\
+&=\sigma(-c \cdot w)=\frac{1}{1+\exp (c \cdot w)}
+\end{aligned}</script><p>相似度高，则意味着+的概率大</p>
+<p><strong>如何计算P(+|w,c)</strong></p>
+<p>窗口里面其他的词语 全部乘起来（假设独立）</p>
+<p>​    $\begin{aligned} P\left(+\mid w, c_{1: L}\right) &amp;=\prod_{i=1}^{L} \sigma\left(c_{i} \cdot w\right) \\ \log P\left(+\mid w, c_{1: L}\right) &amp;=\sum_{i=1}^{L} \log \sigma\left(c_{i} \cdot w\right) \end{aligned}$</p>
+<p>通过计算 w (embeddings)  和 c1:L(embeddings)的相似性，计算w出现在窗口的概率</p>
+<h2 id="Word2vec-Learning-the-embeddings"><a href="#Word2vec-Learning-the-embeddings" class="headerlink" title="Word2vec: Learning the embeddings"></a>Word2vec: Learning the embeddings</h2><p>训练集：</p>
+<ul>
+<li>窗口内的positive examples</li>
+<li>每个正面示例，我采样k个负面示例</li>
+</ul>
+<p>​            为什么负采样：模型学习判断两个词语关系的能力，</p>
+<p>​            为什么不是所有词语而是采样 ： 计算量 </p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210927202609207.png" alt="image-20210927202609207" style="zoom:50%;" /></p>
+<p>向量集随机初始化</p>
+<ul>
+<li><p>学习目标：<br>调整词向量<br>最大化:target word, context word 的相似性<br>最小化:negative examples 单词对的相似性<br>make the positive pairs more likely,the negative pairs less likely,</p>
+</li>
+<li><p>loss function：</p>
+</li>
+</ul>
+<p>​      <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211203011003751.png" alt="image-20211203011003751" style="zoom:67%;" /></p>
+<ul>
+<li>随机梯度下降</li>
+</ul>
+<hr>
+<p>初始化： 每个词语随机初始词向量</p>
+<p>+-样本训练分类器：</p>
+<p>然后不断学习更新</p>
+<p>每个词语既可以作为中心词 也可以作为语境词</p>
+<p>真实情况下 两个相同词语在同一个窗口的概率很小</p>
+<hr>
+<h2 id="Properties-of-Embeddings"><a href="#Properties-of-Embeddings" class="headerlink" title="Properties of Embeddings"></a>Properties of Embeddings</h2><ul>
+<li><p>滑动窗口决定词的语境</p>
+<p>如果窗口很小，计算出来词向量，相似的话，词语结构相似</p>
+<p>如果窗口较大大， 词语语义相似（用一个领域）</p>
+</li>
+</ul>
+<ul>
+<li><p>Analogical relations 类比</p>
+<p>类比推理的经典平行四边形模型</p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011163704506.png" alt="image-20211011163704506" style="zoom:67%;" /></p>
+<p>​    苹果和树的关系 葡萄和葡萄树关系</p>
+<ul>
+<li><p>vector里面存储更多的语义信息</p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164105341.png" alt="image-20211011164045927" style="zoom:80%;" /></p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164128298.png" alt="image-20211011164128298" style="zoom:80%;" /></p>
+<ul>
+<li><p>注意：在频率非常高的词语得到这些关系</p>
+<p>It only seems to work for frequent words, small distances and certain  relations (relating countries to capitals, or parts of speech), but not  others 只适用于频繁的单词、小距离和某些关系</p>
+</li>
+<li><p>Embeddings reflect cultural bias：<br>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011164637375.png" alt="image-20211011164637375" style="zoom:80%;" /></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/nlp/" rel="tag"><i class="fa fa-tag"></i> nlp</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/13/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(3)%EF%BC%9AText%20Classification/" rel="prev" title="自然语言处理(3)：Text Classification">
+      <i class="fa fa-chevron-left"></i> 自然语言处理(3)：Text Classification
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/" rel="next" title="自然语言处理(6)：Neural Language Modeling">
+      自然语言处理(6)：Neural Language Modeling <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+
+
+
+  <div style="text-align:center;color: #ccc;font-size:20px;"> 感谢阅读  Bye~  </div>
+
+
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Lecture-4-Vector-Semantics-amp-Embeddings-I"><span class="nav-text">Lecture 4: Vector Semantics &amp; Embeddings (I)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Word-Meaning"><span class="nav-text">Word Meaning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Relations-between-senses"><span class="nav-text">Relations between senses</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Vector-Semantics"><span class="nav-text">Vector Semantics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vector"><span class="nav-text">vector</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-kinds-of-embeddings"><span class="nav-text">2 kinds of embeddings</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Tf-idf"><span class="nav-text">Tf-idf</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Word2vec"><span class="nav-text">Word2vec</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Words-and-Vectors"><span class="nav-text">Words and Vectors</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Term-document-matrix"><span class="nav-text">Term-document matrix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#word-word-matrix"><span class="nav-text">word-word matrix</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cosine-for-computing-word-similarity-%E8%AE%A1%E7%AE%97%E8%AF%8D%E8%AF%AD%E7%9A%84%E7%9B%B8%E4%BC%BC%E5%BA%A6"><span class="nav-text">Cosine for computing word similarity 计算词语的相似度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dot-product"><span class="nav-text">Dot product</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cosine"><span class="nav-text">Cosine</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TF-IDF"><span class="nav-text">TF-IDF</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PMI-Pointwise-mutual-information"><span class="nav-text">PMI: (Pointwise mutual information)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%A8%A0%E5%AF%86%E7%9A%84%E5%90%91%E9%87%8F"><span class="nav-text">为什么要稠密的向量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E7%A8%A0%E5%AF%86%E5%90%91%E9%87%8F%E6%96%B9%E6%B3%95"><span class="nav-text">获取稠密向量方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Word2vec-1"><span class="nav-text">Word2vec</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Word2vec-Learning-the-embeddings"><span class="nav-text">Word2vec: Learning the embeddings</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Properties-of-Embeddings"><span class="nav-text">Properties of Embeddings</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="🐏🐚"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">🐏🐚</p>
+  <div class="site-description" itemprop="description">摇摇晃晃</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">🐏🐚</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">92k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:24</span>
+</div>
+<!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span>
+<span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("08/18/2021 00:00:00");//此处修改你的建站时间，注意格式
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "小站在混沌中存活了 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

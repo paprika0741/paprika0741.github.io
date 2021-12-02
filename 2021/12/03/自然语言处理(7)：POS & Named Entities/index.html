@@ -21,28 +21,24 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="简介基本问题与主要困难 基本问题 形态学(morphology)：词由有意义的基本单位—词素（词根、前缀、后缀、词尾）的构成问题、单词识别&#x2F;汉语分词问题 句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾） 语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思） 语用">
+  <meta name="description" content="Part of Speech and Named Entities词性 part of speech用词性标记在句子中注释每个单词 （label）  Closed class 封闭类  ​       固定的  Open class 开放类 类别词语里面的词可能一直在变化 ​    Nouns (Googler), Verbs (Google), Adjectives (geeky), Abver">
 <meta property="og:type" content="article">
-<meta property="og:title" content="自然语言处理(1)：简介">
-<meta property="og:url" content="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:title" content="自然语言处理(7)：POS &amp; Named Entities">
+<meta property="og:url" content="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(7)%EF%BC%9APOS%20&%20Named%20Entities/index.html">
 <meta property="og:site_name" content="PAPRIKA&#39; Blog">
-<meta property="og:description" content="简介基本问题与主要困难 基本问题 形态学(morphology)：词由有意义的基本单位—词素（词根、前缀、后缀、词尾）的构成问题、单词识别&#x2F;汉语分词问题 句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾） 语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思） 语用">
+<meta property="og:description" content="Part of Speech and Named Entities词性 part of speech用词性标记在句子中注释每个单词 （label）  Closed class 封闭类  ​       固定的  Open class 开放类 类别词语里面的词可能一直在变化 ​    Nouns (Googler), Verbs (Google), Adjectives (geeky), Abver">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201851512.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201913346.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831204814939.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164225405.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164301376.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906214936471.png">
-<meta property="article:published_time" content="2021-08-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-11-16T13:55:59.683Z">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018175728173.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018175651362.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211025165418516.png">
+<meta property="article:published_time" content="2021-12-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-12-02T17:43:43.362Z">
 <meta property="article:author" content="🐏🐚">
 <meta property="article:tag" content="nlp">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png">
+<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018175728173.png">
 
-<link rel="canonical" href="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/">
+<link rel="canonical" href="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(7)%EF%BC%9APOS%20&%20Named%20Entities/">
 
 
 <script id="page-configurations">
@@ -55,7 +51,7 @@
   };
 </script>
 
-  <title>自然语言处理(1)：简介 | PAPRIKA' Blog</title>
+  <title>自然语言处理(7)：POS & Named Entities | PAPRIKA' Blog</title>
   
 
 
@@ -210,7 +206,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/01/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(1)%EF%BC%9A%E7%AE%80%E4%BB%8B/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(7)%EF%BC%9APOS%20&%20Named%20Entities/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -223,7 +219,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          自然语言处理(1)：简介
+          自然语言处理(7)：POS & Named Entities
         </h1>
 
         <div class="post-meta">
@@ -232,16 +228,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2021-09-01T00:00:00+08:00">2021-09-01</time>
+              <time title="创建时间：2021-12-03 00:00:00 / 修改时间：01:43:43" itemprop="dateCreated datePublished" datetime="2021-12-03T00:00:00+08:00">2021-12-03</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-16 21:55:59" itemprop="dateModified" datetime="2021-11-16T21:55:59+08:00">2021-11-16</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -269,7 +259,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2k</span>
+              <span>2.5k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -288,108 +278,140 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="基本问题与主要困难"><a href="#基本问题与主要困难" class="headerlink" title="基本问题与主要困难"></a>基本问题与主要困难</h2><ul>
-<li>基本问题<ul>
-<li>形态学(morphology)：词由有意义的基本单位—<strong>词素</strong>（词根、前缀、后缀、词尾）的构成问题、单词识别/汉语分词问题</li>
-<li>句法(syntax)问题：研究句子结构成分之间的相互关系和组成句子序列的规则（主谓宾）</li>
-<li>语义(semantic):研究如何从一个语句中推导出词的意义，以及这些词在语句句法结构中的作用来推导出该语句的意义（同一个词在不同语境下会有不同意思）</li>
-<li>语用学(pragmatics):研究在不同上下文语句的应用，以及上下文对语句理解产生的影响</li>
-</ul>
-</li>
-<li>主要困难<ul>
-<li>Ambiguity <ul>
-<li>Lexical ambiguity 词法歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201442069.png" alt="image-20210831201442069" style="zoom:50%;" /></li>
-<li>Part-of-speech ambiguity 词性歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201851512.png" alt="image-20210831201851512" style="zoom:50%;" /></li>
-<li>Structural ambiguity 结构歧义<br><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831201913346.png" alt="image-20210831201913346" style="zoom:50%;" /><br>主语 谓语 状语 宾语修饰关系</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>unknown language phenomena<br>大量未知语言现象：新词、人名、地名、术语、新含义、新句法、新句型</li>
-</ul>
-<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><ul>
-<li>Question Answering &amp; Dialogue Systems 问答系统</li>
-<li>Knowledge Graph 知识图谱</li>
-<li>Automatic Summarization 自动摘要</li>
-<li>Sentiment Analysis 情感分析</li>
-</ul>
-<h2 id="文本处理"><a href="#文本处理" class="headerlink" title="文本处理"></a>文本处理</h2><p>Corpora  语料库，可以是单个文档或文档集合</p>
-<h2 id="Text-Normalization"><a href="#Text-Normalization" class="headerlink" title="Text Normalization"></a>Text Normalization</h2><p>Every NLP task requires text normalization: </p>
-<ol>
-<li><p>Tokenizing (segmenting) words 分词</p>
-</li>
-<li><p>Normalizing word formats 规范单词格式</p>
-</li>
-<li><p>Segmenting sentences 分割句子</p>
-</li>
-</ol>
-<h3 id="Tokenizing-segmenting-words"><a href="#Tokenizing-segmenting-words" class="headerlink" title="Tokenizing (segmenting) words"></a>Tokenizing (segmenting) words</h3><p>标记化（分段）单词</p>
+        <h1 id="Part-of-Speech-and-Named-Entities"><a href="#Part-of-Speech-and-Named-Entities" class="headerlink" title="Part of Speech and Named Entities"></a>Part of Speech and Named Entities</h1><h2 id="词性-part-of-speech"><a href="#词性-part-of-speech" class="headerlink" title="词性 part of speech"></a>词性 part of speech</h2><p>用词性标记在句子中注释每个单词 （label）</p>
 <ul>
-<li>white-space segmentation<br>有些词语切割不正确/有些语言没有空格</li>
-<li>single-character segmentation</li>
-<li>word segmentation</li>
+<li>Closed class 封闭类</li>
 </ul>
-<h4 id="space-based-tokenization"><a href="#space-based-tokenization" class="headerlink" title="space-based  tokenization"></a>space-based  tokenization</h4><p>issues：</p>
+<p>​       固定的</p>
 <ul>
-<li><p>Can’t just blindly remove punctuation（标点）:</p>
-<ul>
-<li>m.p.h., Ph.D., AT&amp;T, cap’n </li>
-<li>prices ($45.55) </li>
-<li>dates (01/02/06) </li>
-<li>URLs (<a target="_blank" rel="noopener" href="http://www.stanford.edu">http://www.stanford.edu</a>) </li>
-</ul>
-</li>
-<li><p>Clitic: a word that doesn’t stand on its own<br>”are“ in we’re 词不独立存在</p>
-</li>
-<li>When should multiword expressions be words?<br>New York, rock ’n’ roll </li>
-</ul>
-<h5 id="Word-tokenization-in-Chinese"><a href="#Word-tokenization-in-Chinese" class="headerlink" title="Word tokenization in Chinese"></a>Word tokenization in Chinese</h5><ul>
-<li><p>Chinese words are composed of characters called “<strong>hanzi”</strong> </p>
-</li>
-<li><p>词素 morpheme： a meaning unit<br>each character/ segment the sentence</p>
+<li><p>Open class 开放类 类别词语里面的词可能一直在变化</p>
+<p>​    <em>Nouns</em> (Googler), <em>Verbs</em> (Google), <em>Adjectives</em> (geeky), <em>Abverb</em> (automagically) </p>
 </li>
 </ul>
-<h4 id="Use-the-data-to-tell-us-how-to-tokenize"><a href="#Use-the-data-to-tell-us-how-to-tokenize" class="headerlink" title="Use the data to tell us how to tokenize"></a>Use the data to tell us how to tokenize</h4><p>使用数据来告诉我们如何进行切割。</p>
-<h4 id="Subword-tokenization"><a href="#Subword-tokenization" class="headerlink" title="Subword tokenization"></a>Subword tokenization</h4><p>基于子词的<br>Three common algorithms</p>
+<p>ADJ: adjective<br>ADP: adposition<br>ADV: adverb<br>AUX: auxiliary verb<br>CONJ: coordinating conjunction<br>DET: determiner<br>INTJ: interjection<br>NOUN: noun<br>NUM: numeral<br>PART: particle<br>PRON: pronoun<br>PROPN: proper noun<br>PUNCT: punctuation<br>SCONJ: subordinating conjunction<br>SYM: symbol<br>VERB: verb<br>X: other</p>
+<h2 id="词性标注任务-Part-of-Speech-Tagging"><a href="#词性标注任务-Part-of-Speech-Tagging" class="headerlink" title="词性标注任务  Part of Speech Tagging"></a>词性标注任务  Part of Speech Tagging</h2><p><strong>useful for other NLP tasks</strong></p>
 <ul>
-<li>Byte-Pair Encoding (BPE）</li>
-<li>Unigram language modeling tokenization</li>
-<li>WordPiece</li>
+<li><p>parse  从语法上描述或分析（词句等） ：POS标记可以改进语法解析</p>
+</li>
+<li><p>MT(机器翻译)： 有些需要调整名词和形容词顺序 （例如西班牙语-&gt;英语）</p>
+</li>
+<li><p>Sentiment or affective tasks ：感情或情感任务中词性很重要，评价的是名词，描述是形容词</p>
+</li>
+<li><p>Text-to-speech 文本和语音 ：词性不一样 发音不同</p>
+</li>
 </ul>
-<p>All have 2 parts:</p>
+<p><strong>Difficulty</strong></p>
 <ul>
-<li>A token <strong>learner</strong> that takes a raw training corpus（语料库） and induces a vocabulary</li>
-<li>A token <strong>segmenter</strong> that takes a raw test sentence and tokenizes it according to that vocabulary</li>
+<li><p>Roughly 15% of word types are ambiguous  大约15%的单词词性是不明确的</p>
+</li>
+<li><p>Ambiguity </p>
+<p>一个词可以有多个 词性</p>
+</li>
 </ul>
-<h5 id="Byte-Pair-Encoding-BPE"><a href="#Byte-Pair-Encoding-BPE" class="headerlink" title="Byte-Pair Encoding (BPE)"></a>Byte-Pair Encoding (BPE)</h5><p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210831204814939.png" alt="image-20210831204814939" style="zoom:50%;" /></p>
-<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164225405.png" alt="image-20210906164225405" style="zoom: 50%;" /></p>
-<p>初始词典，不断找数据集里相邻出现次数最多A B，’AB’替换里面的‘A’ ‘B’</p>
-<p>结束条件 循环次数 词典的大小</p>
-<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906164301376.png" alt="image-20210906164301376"></p>
-<h5 id="Properties-of-BPE-tokens"><a href="#Properties-of-BPE-tokens" class="headerlink" title="Properties of BPE tokens"></a>Properties of BPE tokens</h5><ul>
-<li>Usually include frequent words</li>
-<li>frequent subwords<br> -est -er</li>
-</ul>
-<h5 id="Unigram-language-modeling-tokenization"><a href="#Unigram-language-modeling-tokenization" class="headerlink" title="Unigram language modeling tokenization"></a>Unigram language modeling tokenization</h5><h5 id="WordPiece"><a href="#WordPiece" class="headerlink" title="WordPiece"></a>WordPiece</h5><h3 id="Word-Normalization"><a href="#Word-Normalization" class="headerlink" title="Word Normalization"></a>Word Normalization</h3><p>规范化字格式</p>
+<p><strong>实现：</strong></p>
 <ul>
-<li>U.S.A. or USA</li>
-<li>am, is, be, are </li>
-<li>uhhuh or uh-huh</li>
-<li>Fed or fed </li>
+<li><p>提取句子(不需要考虑不同句子的关系，消除标点符号的歧义，检查句子边界)</p>
+</li>
+<li><p>句子中每个词语的词性确认</p>
+</li>
 </ul>
-<p><strong>Lemmatization:</strong><br>Represent all words as their lemma 词根<br><em>am, are, is</em> → <em>be</em><br><em>car, cars, car’s</em>, <em>cars’</em> → <em>car</em></p>
-<p><strong>Stemming：</strong><br>Reduce terms to stems, chopping off affixes crudely<br>找出词干 ，附加部分(前缀后缀)丢掉</p>
-<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20210906214936471.png" alt="image-20210906214936471" style="zoom:50%;" /></p>
-<h3 id="Sentence-Segmentation"><a href="#Sentence-Segmentation" class="headerlink" title="Sentence Segmentation"></a>Sentence Segmentation</h3><p>句子提取</p>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018175728173.png" alt="image-20211018175728173" style="zoom:80%;" /></p>
 <ul>
-<li>简单的标点符号会出现问题<ul>
-<li>Abbreviations like Inc. or Dr.</li>
-<li>Numbers like .02% or 4.3</li>
+<li><p>可用信息：</p>
+<ul>
+<li><p>先验知识</p>
+<ul>
+<li><p>词表中有词语的词性类别， 去除大部分干扰</p>
+<p>比如 will 通常是 AUX</p>
+</li>
+<li><p>相邻单词的标识<br>the 意味着下一个词不会是动词</p>
+</li>
+</ul>
+</li>
+<li><p>Morphology and wordshape: 形态学和文字形态</p>
+<p>词法 Morphology and  词形wordshape:<br>前缀 后缀 大小写 </p>
+<p> <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018175651362.png" alt="image-20211018175651362" style="zoom:50%;" /></p>
+</li>
 </ul>
 </li>
 </ul>
-<p>先用机器学习对标点符号判断,判断是否句子边界，再用标点符号对句子切割</p>
+<h3 id="Standard-algorithms-for-POS-tagging"><a href="#Standard-algorithms-for-POS-tagging" class="headerlink" title="Standard algorithms for POS tagging"></a>Standard algorithms for POS tagging</h3><ul>
+<li><p>Supervised Machine Learning Algorithms</p>
+<ul>
+<li><p>Hidden Markov Models 隐马尔可夫</p>
+</li>
+<li><p>Conditional Random Fields (CRF) 条件随机场</p>
+</li>
+<li><p>Neural sequence models (RNNs or Transformers)</p>
+</li>
+<li><p>Large Language Models (like BERT), finetuned</p>
+<p>All required a <strong>hand-labeled</strong> training set, all about equal performance </p>
+<p>(97% on English) 需要一个手工标记的训练集 / 等性能</p>
+</li>
+<li><p>利用先验信息：<br>HMMs and CRFs ：Via human created features<br>Neural LMs ：Via representation learning</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>问题：</p>
+<ul>
+<li><p>标准分类问题假设单个案例是独立的(i.i.d.：独立且同分布）</p>
+</li>
+<li><p>Many NLP problems do not satisfy this assumption and involve  making many connected decisions, each resolving a different  ambiguity, but which are mutually dependent 相互依赖的</p>
+</li>
+<li><p>深度学习 联合考虑</p>
+<p>Sequence Labeling Problem 序列标记问题</p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211025165418516.png" alt="image-20211025165418516" style="zoom:67%;" /></p>
+<p>​    循环神经网络实现</p>
+<h1 id="命名实体识别-Named-Entity-Recognition"><a href="#命名实体识别-Named-Entity-Recognition" class="headerlink" title="命名实体识别 Named Entity Recognition"></a>命名实体识别 Named Entity Recognition</h1><p>PER (Person) 人名：</p>
+<p>LOC (Location): 地名：</p>
+<p>ORG (Organization): 组织</p>
+<p>GPE (Geo-Political Entity):地源政治</p>
+<p>dates日期  times 时间  prices价格</p>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li>长度多于一个，几个词语组成</li>
+<li>词语拆分可能有不同的意思，需要整体提取出来，整体识别<br>比如北京大学 </li>
+</ul>
+<h3 id="任务："><a href="#任务：" class="headerlink" title="任务："></a>任务：</h3><p> named entity recognition (NER): </p>
+<ul>
+<li><p>找出一个片段 （命名实体）对应的位置</p>
+</li>
+<li><p>找出类别，标记属于哪一种命名实体</p>
+<pre><code> &lt;img src=&quot;C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211025170318024.png&quot; alt=&quot;image-20211025170318024&quot; style=&quot;zoom:67%;&quot; /&gt;
+</code></pre></li>
+</ul>
+<h3 id="Why-NER？"><a href="#Why-NER？" class="headerlink" title="Why NER？"></a>Why NER？</h3><p>Sentiment analysis 情绪分析：消费者对特定公司还是个人的情绪？</p>
+<p>Question Answering 问答系统：问题里面出现问答实体，回答有关一个实体的问题，需要将实体完整地识别出来  </p>
+<p>Information Extraction：Extracting facts about entities from text</p>
+<h3 id="Why-NER-is-hard"><a href="#Why-NER-is-hard" class="headerlink" title="Why NER is hard"></a>Why NER is hard</h3><ul>
+<li><p>Segmentation<br>分隔的问题：NER需要识别边界，要找候选的边界<br>词性标注每个词语都是识别的单元 不存在边界的问题 </p>
+</li>
+<li><p>Type ambiguity<br>歧义</p>
+</li>
+</ul>
+<p>基于序列标注</p>
+<h3 id="BIO-Tagging"><a href="#BIO-Tagging" class="headerlink" title="BIO Tagging"></a>BIO Tagging</h3><p>句子里面每一个词语打一个标记，每个位置对应 B  I  O中的一个</p>
+<p>B: token that <em>begins</em> a span</p>
+<p>I: tokens <em>inside</em> a span</p>
+<p>O: tokens outside of any span</p>
+<ul>
+<li><p>考虑实体的类别 BIOES</p>
+</li>
+<li><p>IO</p>
+</li>
+</ul>
+<p>然后根据标记合起来</p>
+<p>左边 B 右边 I 合并</p>
+<p>O 跳过</p>
+<h3 id="Standard-algorithms-for-NER"><a href="#Standard-algorithms-for-NER" class="headerlink" title="Standard algorithms for NER"></a>Standard algorithms for NER</h3><p>Supervised Machine Learning</p>
+<ul>
+<li>Hidden Markov Models</li>
+<li>Conditional Random Fields (CRF)</li>
+<li>Neural sequence models (RNNs or Transformers)</li>
+<li>Large Language Models (like BERT), finetuned</li>
+</ul>
 
     </div>
 
@@ -409,13 +431,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/08/21/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" rel="prev" title="强化学习：多智能体强化学习基础">
-      <i class="fa fa-chevron-left"></i> 强化学习：多智能体强化学习基础
+    <a href="/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/" rel="prev" title="自然语言处理(6)：Neural Language Modeling">
+      <i class="fa fa-chevron-left"></i> 自然语言处理(6)：Neural Language Modeling
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/09/07/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(2)%EF%BC%9A%20N-gram%20Language%20Model/" rel="next" title="自然语言处理(2)： N-gram Language Model">
-      自然语言处理(2)： N-gram Language Model <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -483,7 +502,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E9%97%AE%E9%A2%98%E4%B8%8E%E4%B8%BB%E8%A6%81%E5%9B%B0%E9%9A%BE"><span class="nav-text">基本问题与主要困难</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-text">应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86"><span class="nav-text">文本处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Text-Normalization"><span class="nav-text">Text Normalization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tokenizing-segmenting-words"><span class="nav-text">Tokenizing (segmenting) words</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#space-based-tokenization"><span class="nav-text">space-based  tokenization</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Word-tokenization-in-Chinese"><span class="nav-text">Word tokenization in Chinese</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Use-the-data-to-tell-us-how-to-tokenize"><span class="nav-text">Use the data to tell us how to tokenize</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Subword-tokenization"><span class="nav-text">Subword tokenization</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Byte-Pair-Encoding-BPE"><span class="nav-text">Byte-Pair Encoding (BPE)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Properties-of-BPE-tokens"><span class="nav-text">Properties of BPE tokens</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Unigram-language-modeling-tokenization"><span class="nav-text">Unigram language modeling tokenization</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WordPiece"><span class="nav-text">WordPiece</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Word-Normalization"><span class="nav-text">Word Normalization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sentence-Segmentation"><span class="nav-text">Sentence Segmentation</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Part-of-Speech-and-Named-Entities"><span class="nav-text">Part of Speech and Named Entities</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%80%A7-part-of-speech"><span class="nav-text">词性 part of speech</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%80%A7%E6%A0%87%E6%B3%A8%E4%BB%BB%E5%8A%A1-Part-of-Speech-Tagging"><span class="nav-text">词性标注任务  Part of Speech Tagging</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Standard-algorithms-for-POS-tagging"><span class="nav-text">Standard algorithms for POS tagging</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB-Named-Entity-Recognition"><span class="nav-text">命名实体识别 Named Entity Recognition</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9%EF%BC%9A"><span class="nav-text">特点：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%EF%BC%9A"><span class="nav-text">任务：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Why-NER%EF%BC%9F"><span class="nav-text">Why NER？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Why-NER-is-hard"><span class="nav-text">Why NER is hard</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BIO-Tagging"><span class="nav-text">BIO Tagging</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Standard-algorithms-for-NER"><span class="nav-text">Standard algorithms for NER</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
