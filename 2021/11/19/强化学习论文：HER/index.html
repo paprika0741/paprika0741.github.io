@@ -21,28 +21,32 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":13,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="激活函数特点：  非线性:  简单：因为很多层 很多神经元 不能太复杂 0  求导方便简单：反向传播容易计算  函数图像简单，有某种规律    Text classification 文本分类 Language modeling 语言模型化 Sentiment Features 特征工程的方式 对原始文本数据 提取特征 特征化处理 ​     例如：x1表示出现在正向词典的个数 输出：特征vect">
+  <meta name="description" content="Hindsight Experience ReplaySparse reward problem  need for complicated reward engineering    requires both RL expertise and domain-specific knowledgewe must know something about how to solve the probl">
 <meta property="og:type" content="article">
-<meta property="og:title" content="自然语言处理(6)：Neural Language Modeling">
-<meta property="og:url" content="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/index.html">
+<meta property="og:title" content="强化学习论文：HER">
+<meta property="og:url" content="http://example.com/2021/11/19/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9AHER/index.html">
 <meta property="og:site_name" content="PAPRIKA&#39; Blog">
-<meta property="og:description" content="激活函数特点：  非线性:  简单：因为很多层 很多神经元 不能太复杂 0  求导方便简单：反向传播容易计算  函数图像简单，有某种规律    Text classification 文本分类 Language modeling 语言模型化 Sentiment Features 特征工程的方式 对原始文本数据 提取特征 特征化处理 ​     例如：x1表示出现在正向词典的个数 输出：特征vect">
+<meta property="og:description" content="Hindsight Experience ReplaySparse reward problem  need for complicated reward engineering    requires both RL expertise and domain-specific knowledgewe must know something about how to solve the probl">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175529541.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018164059500.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175830068.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018163708099.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170214980.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170256972.png">
-<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170516379.png">
-<meta property="article:published_time" content="2021-12-02T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-12-02T17:43:53.049Z">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111213529678.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111213549791.png">
+<meta property="og:image" content="https://www.zhihu.com/equation?tex=S%3D%5C%7B0%2C1%5C%7D%5En">
+<meta property="og:image" content="https://www.zhihu.com/equation?tex=n">
+<meta property="og:image" content="https://www.zhihu.com/equation?tex=n%3E40">
+<meta property="og:image" content="https://www.zhihu.com/equation?tex=r_g%28s%2Ca%29%3D-%7C%7Cs-g%7C%7C%5E2">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111211644865.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115202314236.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115150109481.png">
+<meta property="og:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115150351884.png">
+<meta property="article:published_time" content="2021-11-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-12-02T17:54:35.656Z">
 <meta property="article:author" content="🐏🐚">
-<meta property="article:tag" content="nlp">
+<meta property="article:tag" content="RL">
+<meta property="article:tag" content="papers">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175529541.png">
+<meta name="twitter:image" content="c:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111213529678.png">
 
-<link rel="canonical" href="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/">
+<link rel="canonical" href="http://example.com/2021/11/19/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9AHER/">
 
 
 <script id="page-configurations">
@@ -55,7 +59,7 @@
   };
 </script>
 
-  <title>自然语言处理(6)：Neural Language Modeling | PAPRIKA' Blog</title>
+  <title>强化学习论文：HER | PAPRIKA' Blog</title>
   
 
 
@@ -210,7 +214,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/19/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9AHER/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -223,7 +227,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          自然语言处理(6)：Neural Language Modeling
+          强化学习论文：HER
         </h1>
 
         <div class="post-meta">
@@ -232,21 +236,23 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-12-03 00:00:00 / 修改时间：01:43:53" itemprop="dateCreated datePublished" datetime="2021-12-03T00:00:00+08:00">2021-12-03</time>
+              <time title="创建时间：2021-11-19 00:00:00" itemprop="dateCreated datePublished" datetime="2021-11-19T00:00:00+08:00">2021-11-19</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-03 01:54:35" itemprop="dateModified" datetime="2021-12-03T01:54:35+08:00">2021-12-03</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index"><span itemprop="name">课程相关</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%9B%B8%E5%85%B3/nlp/" itemprop="url" rel="index"><span itemprop="name">nlp</span></a>
+                  <a href="/categories/RL/" itemprop="url" rel="index"><span itemprop="name">RL</span></a>
                 </span>
             </span>
 
@@ -263,14 +269,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1k</span>
+              <span>4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>4 分钟</span>
             </span>
 
         </div>
@@ -282,68 +288,114 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>激活函数特点：</p>
+        <h1 id="Hindsight-Experience-Replay"><a href="#Hindsight-Experience-Replay" class="headerlink" title="Hindsight Experience Replay"></a>Hindsight Experience Replay</h1><p><strong>Sparse reward problem</strong></p>
 <ul>
-<li><p>非线性:</p>
+<li><p>need for complicated reward engineering  </p>
+<p> requires both RL expertise and domain-specific knowledge<br>we must know something about how to solve the problem in order to properly shape the reward.</p>
 </li>
-<li><p>简单：因为很多层 很多神经元 不能太复杂 0</p>
+<li><p>Another danger is that once we engineered the reward, we are no longer directly optimizing for the metric we are really interested in, but instead optimizing a proxy that we hope will make the learning process easier.<br> 一旦我们设计了奖励，我们就不再直接针对我们真正感兴趣的指标进行优化，而是优化一个我们希望能让学习过程更容易的代理</p>
 </li>
-<li><p>求导方便简单：反向传播容易计算</p>
-</li>
-<li><p>函数图像简单，有某种规律</p>
+<li><p>sometimes even lead to unexpected and unwanted behavior, that might necessitate a frequent fine tuning of the engineered reward in order to get it right.</p>
 </li>
 </ul>
-<hr>
-<p>Text classification 文本分类</p>
-<p>Language modeling 语言模型化</p>
-<p>Sentiment Features</p>
-<p>特征工程的方式</p>
-<p>对原始文本数据 提取特征 特征化处理</p>
-<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175529541.png" alt="image-20211011175529541" style="zoom:80%;" /></p>
-<p>例如：x1表示出现在正向词典的个数</p>
-<p>输出：特征vector</p>
-<p>输出：分类结果</p>
-<p>效果不太好，需要人工定义特征 human-engineered features</p>
-<p>没有考虑词语的语义信息/关系 没有考虑语句的意思</p>
-<p>representation learning 特征学习</p>
-<p>输入：词向量</p>
-<p>低维稠密向量 而且包含词语语义信息</p>
-<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018164059500.png" alt="image-20211018164059500" style="zoom:50%;" /></p>
-<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211011175830068.png" alt="image-20211011175830068" style="zoom:80%;" /></p>
-<p>输出：分类 softmax 映射到一个概率分布</p>
-<p>问题：文本有不同的大小</p>
-<p>有的句子5个词语 有的句子10个词语….输入和固定网络结构之间不匹配<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018163708099.png" alt="image-20211018163708099" style="zoom:67%;" /></p>
-<p>解决一：找出最长的，短的则填充0，测试时长度超过则截断</p>
-<p>解决二：输入的文本创建句子的词嵌入， 文本片段表示为向量  SA</p>
-<p>​                1. 文本词向量求平均</p>
-<p>​                2.pooling 每一维的取最大值<br>​                    For each dimension, pick the max value from all words    </p>
-<h3 id="Neural-Language-Models-LMs"><a href="#Neural-Language-Models-LMs" class="headerlink" title="Neural Language Models (LMs)"></a>Neural Language Models (LMs)</h3><p>任务：计算给定一些历史的序列中下一个单词的概率。</p>
-<p>问题：可能处理任意长度序列</p>
-<p>解决：滑动窗口 Sliding windows (of fixed length) </p>
-<p>​        </p>
-<p>输入：窗口的词语  词嵌入参与网络计算</p>
-<p>蓝色框 滑动窗口</p>
-<p>任务 预测$w_t$ 的词语 用这三个词语预测第四个</p>
-<p>输出：词表大小 对于$w_t$ 为词表任意一个词的概率 </p>
-<p>​            对应概率最大的词为$w_t$ 的预测</p>
-<h4 id="为什么Neural-Language-Models-LMs-优于-N-gram-LMs"><a href="#为什么Neural-Language-Models-LMs-优于-N-gram-LMs" class="headerlink" title="为什么Neural Language Models (LMs) 优于 N-gram LMs"></a>为什么Neural Language Models (LMs) 优于 N-gram LMs</h4><p>eg: 训练集有I have to make sure that the cat gets fed.  但是没用 dog gets fed</p>
-<p>传统统计的语言模型：<br>    统计频率 对训练集要求高  不能获得词语之间的关联<br>    dog gets fed 可能是0或者很小的值</p>
-<p>神经语言模型：参与计算的是词嵌入(能够表达词语的相似度)，dog和cat相近的语义关系</p>
-<p>训练：</p>
-<p>对于每个(x,y)</p>
+<p><strong>Hindsight Experience Replay:</strong></p>
 <ul>
-<li><p>forward  computation  得到 $\hat y$</p>
+<li><p>allows sample-efficient learning from rewards which are sparse and binary</p>
 </li>
-<li><p>计算 loss  $L(y, \hat y)$ </p>
+<li><p>avoid the need for complicated reward engineering, learn from unshaped reward signals, e.g. a binary signal indicating successful task completion.</p>
 </li>
-<li>backward computation 更新参数</li>
+<li><p>可以结合任意的 off-policy 函数 </p>
+</li>
+<li><p>multiple  goals<br>eg. 实现系统的每个状态都可以被视为一个单独的目标 </p>
+</li>
 </ul>
-<p>Loss Function： 逻辑回归<br> 二元逻辑斯蒂回归<br>         <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170214980.png" alt="image-20211018170214980" style="zoom: 67%;" /></p>
-<p>​        <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170256972.png" alt="image-20211018170256972" style="zoom:67%;" /></p>
-<p>链式法则            </p>
-<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211018170516379.png" alt="image-20211018170516379" style="zoom:67%;" />                </p>
-<p>计算图  Computation Graphs： </p>
-<p>我们需要损失对网络的每一层中的每个权重的导数</p>
+<p><strong>pivotal idea :</strong><br>人类相较于代码中的Agent，有一个明显的长处就是在无法得到明确的反馈的情况下，依然可以积累一定的经验，而Agent却无法获得任何的收获。那么我们是否可以把这部分经验也告诉Agent</p>
+<p> replay each episode with a different goal than the one the agent was trying to achieve, e.g. one of the goals which was achieved in the episode.</p>
+<p>例子：<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111213529678.png" alt="image-20211111213529678" style="zoom:50%;" />  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111213549791.png" alt="image-20211111213549791" style="zoom:50%;" /></p>
+<p>踢球 射击目标偏右 RL算法学到的很少，只知道所执行的动作序列不会导致一个成功的射击</p>
+<p>但是，有可能得出另一个结论，即如果把网在更右边，这一系列行动就会成功</p>
+<p>如果换个角度的用相同的动作或者将球网移动一些位置就可以击球得分。</p>
+<p><strong><em>HER lets an agent learn from undesired outcomes and tackles the problem of sparse rewards in Reinforcement Learning</em></strong> </p>
+<p>使智能体从没达到的结果中去学习，解决了强化学习中稀疏奖励的问题。</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a><strong>Background</strong></h2><ul>
+<li><strong>Deep Q-Networks (DQN)</strong><br>discrete action spaces</li>
+<li><p><strong>Deep Deterministic Policy Gradients (DDPG)</strong><br> continuous action spaces</p>
+</li>
+<li><p><strong>Universal Value Function Approximators (UVFA)</strong></p>
+<ul>
+<li><p>an extension of DQN to the setup where there is more than one goal we may try to achieve<br>DQN的扩展， 目标不止一个</p>
+</li>
+<li><p>Every episode starts with sampling a state-goal pair from some distribution </p>
+<p><em>p</em>(<em>s</em>0<em>, g</em>). The goal stays fixed for the whole episode.</p>
+<p>每个episode 采样目标状态对，一个episode中的目标固定</p>
+</li>
+<li><p>policy: $\pi: \mathcal{S} \times \mathcal{G} \rightarrow \mathcal{A}$</p>
+<p>reward: $r_{t}=r_{g}\left(s_{t}, a_{t}\right) .$</p>
+<p>Q-function:  $Q^{\pi}\left(s_{t}, a_{t}, g\right)=\mathbb{E}\left[R_{t} \mid s_{t}, a_{t}, g\right]$</p>
+<p>q函数现在不仅依赖于状态动作对，还依赖于目标</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-Hindsight-Experience-Replay"><a href="#3-Hindsight-Experience-Replay" class="headerlink" title="3 Hindsight Experience Replay"></a>3 Hindsight Experience Replay</h2><h3 id="3-1-A-motivating-example"><a href="#3-1-A-motivating-example" class="headerlink" title="3.1 A motivating example"></a>3.1 A motivating example</h3><ul>
+<li><p>a bit-flipping environment</p>
+<p>对二进制数进行位翻转</p>
+</li>
+<li><p>state : 是当前的二进制数， <img src="https://www.zhihu.com/equation?tex=S%3D%5C%7B0%2C1%5C%7D%5En" alt="[公式]"> ，共有$2^N$种状态，每个状态的维度为N</p>
+</li>
+<li><p>action : 是从 <img src="https://www.zhihu.com/equation?tex=n" alt="[公式]"> 个位置中挑选一个进行翻转</p>
+</li>
+<li><p>reward: 如果每次翻转后没有达到目标状态，那么reward就是-1。</p>
+</li>
+<li><p>当 <img src="https://www.zhihu.com/equation?tex=n%3E40" alt="[公式]"> 时，很多强化学习算法都不会得到很好的结果，因为在探索中除了-1，没有遇到过其他的reward。</p>
+</li>
+<li><p>使用shaped reward可以在一定程度上解决这个问题，比如 <img src="https://www.zhihu.com/equation?tex=r_g%28s%2Ca%29%3D-%7C%7Cs-g%7C%7C%5E2" alt="[公式]"> ，但是对于其他复杂的任务并不能很简单的应用shaped reward</p>
+</li>
+<li><p>但是如果使用HER的方法，就可以得到较好的结果</p>
+<p>  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111211644865.png" alt="image-20211111211644865" style="zoom: 50%;" /></p>
+</li>
+<li><p>$s_{1}, \ldots, s_{T}$   and a goal    $g \neq s_{1}, \ldots, s_{T}$<br>用不同的目标重新审视这条轨迹</p>
+<p>虽然这个轨迹可能不能帮助我们学习如何实现状态g，但它肯定会告诉我们一些关于如何实现状态$s_T$的东西</p>
+</li>
+<li><p>简单来说，每个任务都有自己的“真正目标”，但是在进行rollout的时候，并不是每个轨迹都能达成“真正目标”，对于那些没有走到目标重点的轨迹，为这些轨迹设置一个可完成“虚拟目标”，然后利用这个“虚拟目标”给出轨迹的reward，并使用强化学习算法进行训练。这和人类的学习能力其实是比较像的 </p>
+</li>
+<li><p>$s_t$ 代替 g 放到 replay buffer<br>至少有一半的回放轨迹包含不同于−1的奖励，学习变得更加简单</p>
+</li>
+</ul>
+<p>试图从初始状态 S 到达目标状态 G, 以某个状态 S’ 结束</p>
+<p> $\left\{\left(S_{0}, G, a_{0}, r_{0}, S_{1}\right),\left(S_{1}, G, a_{1}, r_{1}, S_{2}\right), \ldots,\left(S_{n}, G, a_{n}, r_{n}, S^{\prime}\right)\right\}$</p>
+<p>HER 中的想法是想象我们的目标实际上一直是 S’， agent成功地达到了目标并因此获得了积极的奖励。</p>
+<p>除了缓存真实轨迹，还缓存了以下轨迹</p>
+<p>$\left\{\left(S_{0}, G, a_{0}, r_{0}, S_{1}\right),\left(S_{1}, G, a_{1}, r_{1}, S_{2}\right), \ldots,\left(S_{n}, G, a_{n}, r_{n}, S^{\prime}\right)\right\}$</p>
+<h3 id="3-2-Multi-goal-RL"><a href="#3-2-Multi-goal-RL" class="headerlink" title="3.2 Multi-goal RL"></a><strong>3.2 Multi-goal RL</strong></h3><ul>
+<li><p>training an agent to perform multiple tasks can be easier than training it to perform only one ta</p>
+</li>
+<li><p>HER gives improved performance even on tasks where we really care about a specific goal, so long as we can provide other goals for the purpose of training.</p>
+</li>
+</ul>
+<p> <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115202314236.png" alt="image-20211115202314236"></p>
+<h2 id="4-Experiments"><a href="#4-Experiments" class="headerlink" title="4 Experiments"></a><strong>4 Experiments</strong></h2><ul>
+<li><p>Teste HER on several robotic manipulation tasks in which the agent must achieve different goals from initial states</p>
+<p>Agent receives a reward if it has completed the task in time, and no reward if it has not</p>
+<p>  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115150109481.png" alt="image-20211115150109481" style="zoom:67%;" /></p>
+<p>  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115150351884.png" alt="image-20211115150351884" style="zoom:67%;" /></p>
+</li>
+</ul>
+<p><strong>reward shaping</strong></p>
+<p>domain-agnostic reward shaping does not work well</p>
+<ul>
+<li>There is a huge discrepancy between what we optimize (i.e. a shaped reward function) and the success condition (i.e.is the object within some radius from the goal at the end of the episode);</li>
+<li><p>Shaped rewards penalize for inappropriate behaviour (e.g. moving the box in a wrong direction) which may hinder exploration. </p>
+<p><strong>strategies   for choosing goals</strong> </p>
+</li>
+<li><p>final</p>
+<p>the ones corresponding to the final state of the environment</p>
+</li>
+<li><p>future<br>replay with <em>k</em> random states which come from the same episode as the transition being replayed and were observed <strong><em>after</em> it</strong></p>
+</li>
+<li>random<br>replay with <em>k</em> <strong>random states</strong> encountered so far in the <strong>whole training procedure</strong></li>
+<li>episode<br>replay with <em>k</em> random states coming from the <strong>same episode</strong> as the transition being replayed</li>
+</ul>
 
     </div>
 
@@ -354,7 +406,8 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/nlp/" rel="tag"><i class="fa fa-tag"></i> nlp</a>
+              <a href="/tags/RL/" rel="tag"><i class="fa fa-tag"></i> RL</a>
+              <a href="/tags/papers/" rel="tag"><i class="fa fa-tag"></i> papers</a>
           </div>
 
         
@@ -363,12 +416,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/11/19/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9AHER/" rel="prev" title="强化学习论文：HER">
-      <i class="fa fa-chevron-left"></i> 强化学习论文：HER
+    <a href="/2021/11/12/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9ADDQN/" rel="prev" title="强化学习论文：DDQN">
+      <i class="fa fa-chevron-left"></i> 强化学习论文：DDQN
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(7)%EF%BC%9APOS%20&%20Named%20Entities/" rel="next" title="自然语言处理(7)：POS & Named Entities">
-      自然语言处理(7)：POS & Named Entities <i class="fa fa-chevron-right"></i>
+    <a href="/2021/12/03/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86(6)%EF%BC%9ANeural%20Language%20Modeling/" rel="next" title="自然语言处理(6)：Neural Language Modeling">
+      自然语言处理(6)：Neural Language Modeling <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -437,7 +490,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Neural-Language-Models-LMs"><span class="nav-text">Neural Language Models (LMs)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88Neural-Language-Models-LMs-%E4%BC%98%E4%BA%8E-N-gram-LMs"><span class="nav-text">为什么Neural Language Models (LMs) 优于 N-gram LMs</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hindsight-Experience-Replay"><span class="nav-text">Hindsight Experience Replay</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Background"><span class="nav-text">Background</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Hindsight-Experience-Replay"><span class="nav-text">3 Hindsight Experience Replay</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-A-motivating-example"><span class="nav-text">3.1 A motivating example</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-Multi-goal-RL"><span class="nav-text">3.2 Multi-goal RL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Experiments"><span class="nav-text">4 Experiments</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

@@ -125,7 +125,7 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">4</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">5</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
@@ -135,7 +135,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">24</span></a>
 
   </li>
         <li class="menu-item menu-item-favorites">
@@ -194,6 +194,459 @@
 
           <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/19/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9AHER/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="🐏🐚">
+      <meta itemprop="description" content="摇摇晃晃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAPRIKA' Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/19/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9AHER/" class="post-title-link" itemprop="url">强化学习论文：HER</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-19 00:00:00" itemprop="dateCreated datePublished" datetime="2021-11-19T00:00:00+08:00">2021-11-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-03 01:54:35" itemprop="dateModified" datetime="2021-12-03T01:54:35+08:00">2021-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RL/" itemprop="url" rel="index"><span itemprop="name">RL</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Hindsight-Experience-Replay"><a href="#Hindsight-Experience-Replay" class="headerlink" title="Hindsight Experience Replay"></a>Hindsight Experience Replay</h1><p><strong>Sparse reward problem</strong></p>
+<ul>
+<li><p>need for complicated reward engineering  </p>
+<p> requires both RL expertise and domain-specific knowledge<br>we must know something about how to solve the problem in order to properly shape the reward.</p>
+</li>
+<li><p>Another danger is that once we engineered the reward, we are no longer directly optimizing for the metric we are really interested in, but instead optimizing a proxy that we hope will make the learning process easier.<br> 一旦我们设计了奖励，我们就不再直接针对我们真正感兴趣的指标进行优化，而是优化一个我们希望能让学习过程更容易的代理</p>
+</li>
+<li><p>sometimes even lead to unexpected and unwanted behavior, that might necessitate a frequent fine tuning of the engineered reward in order to get it right.</p>
+</li>
+</ul>
+<p><strong>Hindsight Experience Replay:</strong></p>
+<ul>
+<li><p>allows sample-efficient learning from rewards which are sparse and binary</p>
+</li>
+<li><p>avoid the need for complicated reward engineering, learn from unshaped reward signals, e.g. a binary signal indicating successful task completion.</p>
+</li>
+<li><p>可以结合任意的 off-policy 函数 </p>
+</li>
+<li><p>multiple  goals<br>eg. 实现系统的每个状态都可以被视为一个单独的目标 </p>
+</li>
+</ul>
+<p><strong>pivotal idea :</strong><br>人类相较于代码中的Agent，有一个明显的长处就是在无法得到明确的反馈的情况下，依然可以积累一定的经验，而Agent却无法获得任何的收获。那么我们是否可以把这部分经验也告诉Agent</p>
+<p> replay each episode with a different goal than the one the agent was trying to achieve, e.g. one of the goals which was achieved in the episode.</p>
+<p>例子：<br>    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111213529678.png" alt="image-20211111213529678" style="zoom:50%;" />  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111213549791.png" alt="image-20211111213549791" style="zoom:50%;" /></p>
+<p>踢球 射击目标偏右 RL算法学到的很少，只知道所执行的动作序列不会导致一个成功的射击</p>
+<p>但是，有可能得出另一个结论，即如果把网在更右边，这一系列行动就会成功</p>
+<p>如果换个角度的用相同的动作或者将球网移动一些位置就可以击球得分。</p>
+<p><strong><em>HER lets an agent learn from undesired outcomes and tackles the problem of sparse rewards in Reinforcement Learning</em></strong> </p>
+<p>使智能体从没达到的结果中去学习，解决了强化学习中稀疏奖励的问题。</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a><strong>Background</strong></h2><ul>
+<li><strong>Deep Q-Networks (DQN)</strong><br>discrete action spaces</li>
+<li><p><strong>Deep Deterministic Policy Gradients (DDPG)</strong><br> continuous action spaces</p>
+</li>
+<li><p><strong>Universal Value Function Approximators (UVFA)</strong></p>
+<ul>
+<li><p>an extension of DQN to the setup where there is more than one goal we may try to achieve<br>DQN的扩展， 目标不止一个</p>
+</li>
+<li><p>Every episode starts with sampling a state-goal pair from some distribution </p>
+<p><em>p</em>(<em>s</em>0<em>, g</em>). The goal stays fixed for the whole episode.</p>
+<p>每个episode 采样目标状态对，一个episode中的目标固定</p>
+</li>
+<li><p>policy: $\pi: \mathcal{S} \times \mathcal{G} \rightarrow \mathcal{A}$</p>
+<p>reward: $r_{t}=r_{g}\left(s_{t}, a_{t}\right) .$</p>
+<p>Q-function:  $Q^{\pi}\left(s_{t}, a_{t}, g\right)=\mathbb{E}\left[R_{t} \mid s_{t}, a_{t}, g\right]$</p>
+<p>q函数现在不仅依赖于状态动作对，还依赖于目标</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-Hindsight-Experience-Replay"><a href="#3-Hindsight-Experience-Replay" class="headerlink" title="3 Hindsight Experience Replay"></a>3 Hindsight Experience Replay</h2><h3 id="3-1-A-motivating-example"><a href="#3-1-A-motivating-example" class="headerlink" title="3.1 A motivating example"></a>3.1 A motivating example</h3><ul>
+<li><p>a bit-flipping environment</p>
+<p>对二进制数进行位翻转</p>
+</li>
+<li><p>state : 是当前的二进制数， <img src="https://www.zhihu.com/equation?tex=S%3D%5C%7B0%2C1%5C%7D%5En" alt="[公式]"> ，共有$2^N$种状态，每个状态的维度为N</p>
+</li>
+<li><p>action : 是从 <img src="https://www.zhihu.com/equation?tex=n" alt="[公式]"> 个位置中挑选一个进行翻转</p>
+</li>
+<li><p>reward: 如果每次翻转后没有达到目标状态，那么reward就是-1。</p>
+</li>
+<li><p>当 <img src="https://www.zhihu.com/equation?tex=n%3E40" alt="[公式]"> 时，很多强化学习算法都不会得到很好的结果，因为在探索中除了-1，没有遇到过其他的reward。</p>
+</li>
+<li><p>使用shaped reward可以在一定程度上解决这个问题，比如 <img src="https://www.zhihu.com/equation?tex=r_g%28s%2Ca%29%3D-%7C%7Cs-g%7C%7C%5E2" alt="[公式]"> ，但是对于其他复杂的任务并不能很简单的应用shaped reward</p>
+</li>
+<li><p>但是如果使用HER的方法，就可以得到较好的结果</p>
+<p>  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211111211644865.png" alt="image-20211111211644865" style="zoom: 50%;" /></p>
+</li>
+<li><p>$s_{1}, \ldots, s_{T}$   and a goal    $g \neq s_{1}, \ldots, s_{T}$<br>用不同的目标重新审视这条轨迹</p>
+<p>虽然这个轨迹可能不能帮助我们学习如何实现状态g，但它肯定会告诉我们一些关于如何实现状态$s_T$的东西</p>
+</li>
+<li><p>简单来说，每个任务都有自己的“真正目标”，但是在进行rollout的时候，并不是每个轨迹都能达成“真正目标”，对于那些没有走到目标重点的轨迹，为这些轨迹设置一个可完成“虚拟目标”，然后利用这个“虚拟目标”给出轨迹的reward，并使用强化学习算法进行训练。这和人类的学习能力其实是比较像的 </p>
+</li>
+<li><p>$s_t$ 代替 g 放到 replay buffer<br>至少有一半的回放轨迹包含不同于−1的奖励，学习变得更加简单</p>
+</li>
+</ul>
+<p>试图从初始状态 S 到达目标状态 G, 以某个状态 S’ 结束</p>
+<p> $\left\{\left(S_{0}, G, a_{0}, r_{0}, S_{1}\right),\left(S_{1}, G, a_{1}, r_{1}, S_{2}\right), \ldots,\left(S_{n}, G, a_{n}, r_{n}, S^{\prime}\right)\right\}$</p>
+<p>HER 中的想法是想象我们的目标实际上一直是 S’， agent成功地达到了目标并因此获得了积极的奖励。</p>
+<p>除了缓存真实轨迹，还缓存了以下轨迹</p>
+<p>$\left\{\left(S_{0}, G, a_{0}, r_{0}, S_{1}\right),\left(S_{1}, G, a_{1}, r_{1}, S_{2}\right), \ldots,\left(S_{n}, G, a_{n}, r_{n}, S^{\prime}\right)\right\}$</p>
+<h3 id="3-2-Multi-goal-RL"><a href="#3-2-Multi-goal-RL" class="headerlink" title="3.2 Multi-goal RL"></a><strong>3.2 Multi-goal RL</strong></h3><ul>
+<li><p>training an agent to perform multiple tasks can be easier than training it to perform only one ta</p>
+</li>
+<li><p>HER gives improved performance even on tasks where we really care about a specific goal, so long as we can provide other goals for the purpose of training.</p>
+</li>
+</ul>
+<p> <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115202314236.png" alt="image-20211115202314236"></p>
+<h2 id="4-Experiments"><a href="#4-Experiments" class="headerlink" title="4 Experiments"></a><strong>4 Experiments</strong></h2><ul>
+<li><p>Teste HER on several robotic manipulation tasks in which the agent must achieve different goals from initial states</p>
+<p>Agent receives a reward if it has completed the task in time, and no reward if it has not</p>
+<p>  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115150109481.png" alt="image-20211115150109481" style="zoom:67%;" /></p>
+<p>  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211115150351884.png" alt="image-20211115150351884" style="zoom:67%;" /></p>
+</li>
+</ul>
+<p><strong>reward shaping</strong></p>
+<p>domain-agnostic reward shaping does not work well</p>
+<ul>
+<li>There is a huge discrepancy between what we optimize (i.e. a shaped reward function) and the success condition (i.e.is the object within some radius from the goal at the end of the episode);</li>
+<li><p>Shaped rewards penalize for inappropriate behaviour (e.g. moving the box in a wrong direction) which may hinder exploration. </p>
+<p><strong>strategies   for choosing goals</strong> </p>
+</li>
+<li><p>final</p>
+<p>the ones corresponding to the final state of the environment</p>
+</li>
+<li><p>future<br>replay with <em>k</em> random states which come from the same episode as the transition being replayed and were observed <strong><em>after</em> it</strong></p>
+</li>
+<li>random<br>replay with <em>k</em> <strong>random states</strong> encountered so far in the <strong>whole training procedure</strong></li>
+<li>episode<br>replay with <em>k</em> random states coming from the <strong>same episode</strong> as the transition being replayed</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+
+
+
+
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/12/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9ADDQN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="🐏🐚">
+      <meta itemprop="description" content="摇摇晃晃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAPRIKA' Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/12/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%EF%BC%9ADDQN/" class="post-title-link" itemprop="url">强化学习论文：DDQN</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-12 00:00:00" itemprop="dateCreated datePublished" datetime="2021-11-12T00:00:00+08:00">2021-11-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-03 01:54:25" itemprop="dateModified" datetime="2021-12-03T01:54:25+08:00">2021-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RL/" itemprop="url" rel="index"><span itemprop="name">RL</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Deep-Reinforcement-Learning-with-Double-Q-learning"><a href="#Deep-Reinforcement-Learning-with-Double-Q-learning" class="headerlink" title="Deep Reinforcement Learning with Double Q-learning"></a>Deep Reinforcement Learning with Double Q-learning</h1><h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>Problem of Q-learning： </p>
+<ul>
+<li><p>overestimations can occur when the action values are inaccurate, irrespective</p>
+<p>of the source of approximation error</p>
+</li>
+<li><p>whether, in practice, such overestimations are common？</p>
+</li>
+<li><p>whether they harm performance ?</p>
+</li>
+<li><p>whether they can generally be prevented ?</p>
+</li>
+</ul>
+<p>Double DQN：</p>
+<ul>
+<li>more accurate value estimates</li>
+</ul>
+<h2 id="Background："><a href="#Background：" class="headerlink" title="Background："></a>Background：</h2><p><strong>Q-learning</strong></p>
+<p>learn estimates for the optimal value of each action</p>
+<p>$Q_{\pi}(s, a) \equiv \mathbb{E}\left[R_{1}+\gamma R_{2}+\ldots \mid S_{0}=s, A_{0}=a, \pi\right]$</p>
+<p>optimal value： $Q_{*}(s, a)=\max _{\pi} Q_{\pi}(s, a)$</p>
+<p>$Y_{t}^{\mathrm{Q}} \equiv R_{t+1}+\gamma \max _{a} Q\left(S_{t+1}, a ; \boldsymbol{\theta}_{t}\right)$</p>
+<p>$\boldsymbol{\theta}_{t+1}=\boldsymbol{\theta}_{t}+\alpha\left(Y_{t}^{\mathrm{Q}}-Q\left(S_{t}, A_{t} ; \boldsymbol{\theta}_{t}\right)\right) \nabla_{\boldsymbol{\theta}_{t}} Q\left(S_{t}, A_{t} ; \boldsymbol{\theta}_{t}\right)$</p>
+<p>更新类似于随机梯度下降，更新当前值接近target $Y_t^Q$</p>
+<p><strong>DQN：</strong></p>
+<ul>
+<li><p>$Q(s, \cdot ; \boldsymbol{\theta})$</p>
+</li>
+<li><p>experience replay </p>
+</li>
+<li><p>target network  $Q(s, \cdot ; \boldsymbol{\theta}^-)$</p>
+<p>its parameters are copied every $\tau$ steps from the online network</p>
+</li>
+<li><p>$Y_{t}^{\mathrm{DQN}} \equiv R_{t+1}+\gamma \max _{a} Q\left(S_{t+1}, a ; \boldsymbol{\theta}_{t}^{-}\right)$</p>
+</li>
+</ul>
+<p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211027144902630.png" alt="image-20211027144902630"></p>
+<ul>
+<li>standard Q-learning and DQN: uses the same network both to select and to evaluate an action </li>
+</ul>
+<p><strong>Double Q-learning</strong></p>
+<ul>
+<li><p>main idea: decouple the selection from the evaluation</p>
+</li>
+<li><p>select action: in the argmax online weight $\theta_t$   </p>
+</li>
+<li><p>evaluate the value of this policy：$\theta_t’$ </p>
+</li>
+</ul>
+<p>​     </p>
+<h2 id="Overoptimism-due-to-estimation-errors"><a href="#Overoptimism-due-to-estimation-errors" class="headerlink" title="Overoptimism due to estimation errors"></a><strong>Overoptimism due to estimation errors</strong></h2><h3 id="The-maximization"><a href="#The-maximization" class="headerlink" title="The maximization"></a>The maximization</h3><ul>
+<li>Let $x_{1}, x_{2}, \cdots, x_{n}$ be observed real numbers.</li>
+<li>Add zero-mean random noise to $x_{1}, \cdots, x_{n}$ and obtain $Q_{1}, \cdots, Q_{n}$.</li>
+<li>The zero-mean noise does not affect the mean:<script type="math/tex; mode=display">
+\mathbb{E}\left[\operatorname{mean}_{i}\left(Q_{i}\right)\right]=\operatorname{mean}_{i}\left(x_{i}\right)</script></li>
+<li>The zero-mean noise increases the maximum:<script type="math/tex; mode=display">
+\mathbb{E}\left[\max _{i}\left(Q_{i}\right)\right] \geq \max _{i}\left(x_{i}\right)</script></li>
+<li>The zero-mean noise decreases the minimum:</li>
+</ul>
+<script type="math/tex; mode=display">
+\mathbb{E}\left[\min _{i}\left(Q_{i}\right)\right] \leq \min _{i}\left(x_{i}\right)</script><ul>
+<li>True action-values: $x\left(a_{1}\right), \cdots, x\left(a_{n}\right)$.</li>
+<li>Noisy estimations made by DQN: $Q\left(s, a_{1} ; \mathbf{w}\right), \cdots, Q\left(s, a_{n} ; \mathbf{w}\right)$.</li>
+<li>Suppose the estimation is unbiased:<script type="math/tex; mode=display">
+\operatorname{mean}_{a}(x(a))=\operatorname{mean}_{a}(Q(s, a ; \mathbf{w}))</script></li>
+<li>$q=\max _{a} Q(s, a ; \mathbf{w})$, is typically an overestimation:</li>
+</ul>
+<script type="math/tex; mode=display">
+q \geq \max _{a}(x(a))</script><ul>
+<li>Q-learning’s overestimations there indeed increase with the number of actions</li>
+</ul>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211027150345829.png" alt="image-20211027150345829"></p>
+<ul>
+<li>function approximation</li>
+</ul>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211102104942153.png" alt="image-20211102104942153"></p>
+<ul>
+<li><p>purple lines: true values </p>
+</li>
+<li><p>green dot: an approximation for a single action</p>
+</li>
+<li><p>green line: polynomial fitting</p>
+</li>
+<li><p>black lines: max </p>
+</li>
+<li><p>The maximum is often higher than the ground truth </p>
+</li>
+<li><p>Orange line is almost always positive, indicating an upward bias. </p>
+</li>
+<li><p>Double Q-learning on average much closer to zero<br>Double Q-learning indeed can successfully reduce the overoptimism </p>
+</li>
+<li><p>Top and middle rows： overestimations are not an artifact of a specific true value function.</p>
+</li>
+<li><p>Middle and bottom rows：flexibility of the function approximation</p>
+<ul>
+<li>d=6  insufficiently flexible，the estimates are even incorrect for some of the sampled states</li>
+<li>d=9 overfitting, more flexible but this causes higher estimation errors for unseen states</li>
+</ul>
+<blockquote>
+<p>This is important because flexible parametric function approximators are often employed in reinforcement learning</p>
+</blockquote>
+</li>
+<li><p>Overestimations occur even when assuming we have samples of the <em>true</em> action value at certain states.</p>
+</li>
+</ul>
+<h3 id="Bootstrapping"><a href="#Bootstrapping" class="headerlink" title="Bootstrapping"></a><strong>Bootstrapping</strong></h3><p>​    <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211102105840758.png" alt="image-20211102105840758" style="zoom:80%;" /></p>
+<ul>
+<li><p>In RL, bootstrapping means “using an estimated value in the update step for the same kind of estimated value”.</p>
+</li>
+<li><p>Bootstrapping propagates the overestimation.</p>
+<p>  <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211102110148511.png" alt="image-20211102110148511" style="zoom:50%;" /></p>
+<p>   <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211102110207464.png" alt="image-20211102110207464" style="zoom: 50%;" /></p>
+</li>
+</ul>
+<h3 id="Why-is-overestimation-harmful"><a href="#Why-is-overestimation-harmful" class="headerlink" title="Why is overestimation harmful?"></a><strong>Why is overestimation harmful?</strong></h3><ul>
+<li>Learning Target: learn good policies for sequential decision problems, by optimizing a cumulative future reward signal.</li>
+<li><p>Overoptimistic value estimates are not necessarily a problem in and of themselves.<br> If all values would be <strong>uniformly higher</strong> then the relative action preferences are preserved and we would not expect the resulting policy to be any worse</p>
+</li>
+<li><p>sometimes it is good to be optimistic: optimism in the face of uncertainty is a well-known exploration technique</p>
+</li>
+<li><p>Overestimation combined with bootstrapping then has the pernicious effect of propagating the wrong relative information about which states are more valuable than others, directly affecting the quality of the learned policies</p>
+</li>
+</ul>
+<h2 id="Double-DQN"><a href="#Double-DQN" class="headerlink" title="Double DQN"></a><strong>Double DQN</strong></h2><ul>
+<li><p>Double DQN decouples selection from evaluation.</p>
+</li>
+<li><p>$Y_{t}^{\text {DoubleDQN }} \equiv R_{t+1}+\gamma Q\left(S_{t+1}, \underset{a}{\operatorname{argmax}} Q\left(S_{t+1}, a ; \boldsymbol{\theta}_{t}\right), \boldsymbol{\theta}_{t}^{-}\right)$</p>
+<p> <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211027144944421.png" alt="image-20211027144944421"></p>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211027145346041.png" alt="image-20211027145346041" style="zoom: 67%;" /></p>
+</li>
+</ul>
+<p>​     <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211112011257993.png" alt="image-20211112011257993" style="zoom: 67%;" /></p>
+<ul>
+<li><p>Double DQN alleviates overestimation:</p>
+<p> <img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211112102000588.png" alt="image-20211112102000588" style="zoom:67%;" /></p>
+</li>
+</ul>
+<h2 id="Empirical-results"><a href="#Empirical-results" class="headerlink" title="Empirical results"></a><strong>Empirical results</strong></h2><ul>
+<li>Double DQN improves over DQN both in terms of value accuracy and in terms of policy quality. </li>
+</ul>
+<p><img src="C:/Users/youngbest/AppData/Roaming/Typora/typora-user-images/image-20211105232206269.png" alt="image-20211105232206269" style="zoom:67%;" /></p>
+<ul>
+<li><p>The <strong>top</strong> and <strong>middle</strong> rows show value estimates by DQN (orange) and Double DQN (blue) on six Atari games</p>
+<ul>
+<li>DQN is consistently and sometimes vastly overoptimistic about the value of the current greedy policy</li>
+</ul>
+</li>
+<li><p>The <strong>bottom</strong> row shows the detrimental effect of this on the score achieved by the scores drop when the overestimations begin.</p>
+</li>
+<li><p>Learning with Double DQN is much more stable.</p>
+</li>
+<li><p><strong>Overestimations are harming the quality of the resulting policies.</strong></p>
+</li>
+</ul>
+<h2 id="Quality-of-the-learned-policies"><a href="#Quality-of-the-learned-policies" class="headerlink" title="Quality of the learned policies"></a><strong>Quality of the learned policies</strong></h2><ul>
+<li><p>Overoptimism does not always adversely affect the quality of the learned policy.</p>
+</li>
+<li><p>Reducing overestimations can significantly benefit the stability of learning</p>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+
+
+
+
+
       
   
   
@@ -461,7 +914,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-count">24</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -474,7 +927,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -513,13 +966,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">92k</span>
+    <span title="站点总字数">101k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">1:24</span>
+    <span title="站点阅读时长">1:32</span>
 </div>
 <!-- 网站运行时间的设置 -->
 <span id="timeDate">载入天数...</span>
