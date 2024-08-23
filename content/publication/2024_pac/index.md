@@ -16,12 +16,16 @@ authors:
 author_notes:
   - "Equal contribution"
   - "Equal contribution"
+  - ""
+  - ""
+  - ""
+  - "Corresponding author"
 
-date: "2024-08-12T00:00:00Z"
+date: "2024-08-12"
 doi: "https://doi.org/10.1145/3673038.3673043"
 
 # Schedule page publish date (NOT publication's date).
-publishDate: "2024-08-12T00:00:00Z"
+publishDate: "2024-08-12"
 
 # Publication type.
 # Accepts a single type but formatted as a YAML list (for Hugo requirements).
@@ -41,7 +45,8 @@ tags:
   - Large Language Models
   - Edge intelligence
 
-# Display this page in the Featured widget?
+# Display this page in the Featured widget? Featured Publications
+# featured: true 使得页面可以在“Featured”小部件中显示。如果你希望某些内容在网站上被突出展示，通过设置这个属性可以将它们放在更显眼的位置。
 featured: true
 
 # Custom links (uncomment lines below)
@@ -61,7 +66,7 @@ url_video: ""
 # Featured image
 # To use, add an image named `featured.jpg/png` to your page's folder.
 image:
-  caption: "Image credit: [**Unsplash**](https://unsplash.com/photos/pLCdAaMFLTE)"
+  caption: "Image PAC [**Unsplash**](https://unsplash.com/photos/pLCdAaMFLTE)"
   focal_point: ""
   preview_only: false
 
@@ -81,7 +86,7 @@ projects:
 slides: #example
 ---
 
-{{% callout note %}}
+<!-- {{% callout note %}}
 Click the _Cite_ button above to demo the feature to enable visitors to import publication metadata into their reference management software.
 {{% /callout %}}
 
@@ -89,4 +94,7 @@ Click the _Cite_ button above to demo the feature to enable visitors to import p
 Create your slides in Markdown - click the _Slides_ button to check out the example.
 {{% /callout %}}
 
-Add the publication's **full text** or **supplementary notes** here. You can use rich formatting such as including [code, math, and images](https://docs.hugoblox.com/content/writing-markdown-latex/).
+Add the publication's **full text** or **supplementary notes** here. You can use rich formatting such as including [code, math, and images](https://docs.hugoblox.com/content/writing-markdown-latex/). -->
+
+[Paper](conference-paper.pdf)
+[Slides](PAC_slides.pdf)
