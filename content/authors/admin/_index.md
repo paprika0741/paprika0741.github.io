@@ -1,6 +1,6 @@
 ---
 # Display name
-title: Bei Ouyang 欧阳蓓
+title: Bei Ouyang
 
 # Name pronunciation (optional)
 name_pronunciation: #Chien Shiung Wu

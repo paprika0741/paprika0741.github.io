@@ -5,8 +5,12 @@ title: "Pluto and Charon: A Time and Memory Efficient Collaborative Edge AI Fram
 # If you created a profile for a user (e.g. the default `admin` user), write the username (folder name) here
 # and it will be replaced with their full name and linked to their profile.
 authors:
-  - admin
-  - Robert Ford
+  - Bei Ouyang
+  - Shengyuan Ye
+  - Liekang Zeng
+  - Tianyi Qian
+  - Jingyi Li
+  - Xu Chen
 
 # Author notes (optional)
 author_notes:
@@ -67,14 +71,14 @@ image:
 #   E.g. `internal-project` references `content/project/internal-project/index.md`.
 #   Otherwise, set `projects: []`.
 projects:
-  - example
+  # - example
 
 # Slides (optional).
 #   Associate this publication with Markdown slides.
 #   Simply enter your slide deck's filename without extension.
 #   E.g. `slides: "example"` references `content/slides/example/index.md`.
 #   Otherwise, set `slides: ""`.
-slides: example
+slides: #example
 ---
 
 {{% callout note %}}
