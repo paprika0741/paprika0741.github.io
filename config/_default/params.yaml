@@ -5,7 +5,7 @@
 
 # Appearance
 appearance:
-  mode: system
+  mode: system #  the appearance will automatically match the appearance of the user’s device / or light / dark
   color: purple
 
 # SEO
@@ -36,7 +36,6 @@ header:
     show_theme_chooser: true
     logo:
       text: "Bei Ouyang (欧阳蓓)"
-
 # Site footer
 footer:
   copyright:

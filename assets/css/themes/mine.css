@@ -1,0 +1,30 @@
+/* Hugo Blox color theme: PURPLE */
+/* :root {
+    --color-primary-50: 250 245 255;
+    --color-primary-100: 243 232 255;
+    --color-primary-200: 233 213 255;
+    --color-primary-300: 216 180 254;
+    --color-primary-400: 192 132 252;
+    --color-primary-500: 168 85 247;
+    --color-primary-600: 147 51 234;
+    --color-primary-700: 126 34 206;
+    --color-primary-800: 107 33 168;
+    --color-primary-900: 88 28 135;
+    --color-primary-950: 59 7 100;
+  } */
+/* Custom color theme */
+:root {
+  --color-primary-50: 245 127 198;  /* #f57fc6 */
+  --color-primary-100: 236 118 203; /* #ec76cb */
+  --color-primary-200: 227 108 208; /* #e36cd0 */
+  --color-primary-300: 218 99 212;  /* #da63d4 */
+  --color-primary-400: 208 90 217;  /* #d05ad9 */
+  --color-primary-500: 199 80 222;  /* #c750de */
+  --color-primary-600: 190 71 227;  /* #be47e3 */
+  --color-primary-700: 181 62 231;  /* #b53ee7 */
+  --color-primary-800: 172 52 236;  /* #ac34ec */
+  --color-primary-900: 163 43 241;  /* #a32bf1 */
+  --color-primary-950: 153 34 246;  /* #9922f6 */
+  --color-primary-975: 144 24 250;  /* #9018fa */
+  --color-primary-1000: 135 15 255; /* #870fff */
+}
