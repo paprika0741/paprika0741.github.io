@@ -6,7 +6,7 @@
 # Appearance
 appearance:
   mode: system
-  color: purple
+  color: mine
 
 # SEO
 marketing:
@@ -49,8 +49,8 @@ footer:
 
 # Localization
 locale:
-  date_format: "Jan 2, 2006"
-  time_format: "3:04 PM"
+  date_format: "Aug 23, 2024"
+  time_format: "2:16 PM"
 
 # Site features
 features:
