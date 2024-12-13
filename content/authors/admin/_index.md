@@ -55,15 +55,15 @@ education:
   - area: M.S. in Computer Science
     institution: Sun Yat-sen University
     date_start: 2023-09-01
-    date_end: 2026-06-01
+    date_end: 2026-06-01 
     summary: |
-      GPA:
+      GPA: 4.0/4.0
   - area: B.E. in Computer Science
     institution: Sun Yat-sen University
     date_start: 2019-09-01
     date_end: 2023-06-01
     summary: |
-      GPA: 4.0/4.0 (4.2/5.0)
+      GPA: 4.0/4.0  
       Ranking: 10/172
 
 # work:

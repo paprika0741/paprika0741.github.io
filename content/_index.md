@@ -102,6 +102,13 @@ sections:
       # Reduce spacing
       spacing:
         padding: [0, 0, 0, 0]
+  # - block: gallery
+  #   id: contact
+  #   content:
+  #     title: Contact
+  #     text: ouyb9@mail2.sysu.edu.cn
+  #     icon: tennis-ball
+
   - block: cta-card
     demo: true # Only display this section in the Hugo Blox Builder demo site
     content:
