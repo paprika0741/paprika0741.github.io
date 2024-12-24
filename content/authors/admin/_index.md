@@ -48,7 +48,7 @@ profiles:
 
 interests:
   - Edge Intelligence
-  # - Computational Linguistics
+  - Resource-efficient LLM
   # - Information Retrieval
 
 education:
@@ -90,39 +90,38 @@ education:
 #       - lorem ipsum dolor sit amet, consectetur adipiscing elit
 #       - lorem ipsum dolor sit amet, consectetur adipiscing elit
 
-# Skills
-# Add your own SVG icons to `assets/media/icons/`
 skills:
-  # - name: Technical Skills
-  #   items:
-  #     - name: Python
-  #       description: ""
-  #       percent: 80
-  #       icon: code-bracket
-  #     - name: Data Science
-  #       description: ""
-  #       percent: 100
-  #       icon: chart-bar
-  #     - name: SQL
-  #       description: ""
-  #       percent: 40
-  #       icon: circle-stack
+  - name: Technical Skills
+    items:
+      - name: Python
+        description: ''
+        percent: 80
+        icon: code-bracket
+      - name: Pytorch
+        description: ''
+        percent: 100
+        icon: chart-bar
+      - name: SQL
+        description: ''
+        percent: 40
+        icon: circle-stack
   - name: Hobbies
-    color: "#eeac02"
-    color_border: "#f0bf23"
+    color: '#eeac02'
+    color_border: '#f0bf23'
     items:
       - name: TENNIS
-        description: ""
+        description: ''
         percent: 60
-        icon: tennis-ball
+        icon: person-simple-walk
       - name: Cats
-        description: ""
+        description: ''
         percent: 100
         icon: cat
-      # - name: Photography
-      #   description: ""
-      #   percent: 80
-      #   icon: camera
+      - name: Photography
+        description: ''
+        percent: 80
+        icon: camera
+
 # languages:
 #   - name: English
 #     percent: 100
