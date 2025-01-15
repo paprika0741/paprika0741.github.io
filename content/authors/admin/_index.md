@@ -49,13 +49,12 @@ profiles:
 interests:
   - Edge Intelligence
   - Resource-efficient LLM
-  # - Information Retrieval
 
 education:
   - area: M.S. in Computer Science
     institution: Sun Yat-sen University
     date_start: 2023-09-01
-    date_end: 2026-06-01 
+    date_end: 2026-06-01
     summary: |
       GPA: 4.0/4.0
   - area: B.E. in Computer Science
@@ -94,44 +93,43 @@ skills:
   - name: Technical Skills
     items:
       - name: Python
-        description: ''
+        description: ""
         percent: 80
         icon: code-bracket
       - name: Pytorch
-        description: ''
+        description: ""
         percent: 100
         icon: chart-bar
       - name: SQL
-        description: ''
+        description: ""
         percent: 40
         icon: circle-stack
   - name: Hobbies
-    color: '#eeac02'
-    color_border: '#f0bf23'
+    color: "#eeac02"
+    color_border: "#f0bf23"
     items:
       - name: TENNIS
-        description: ''
+        description: ""
         percent: 60
         icon: person-simple-walk
       - name: Cats
-        description: ''
+        description: ""
         percent: 100
         icon: cat
       - name: Photography
-        description: ''
+        description: ""
         percent: 80
         icon: camera
-
 # languages:
 #   - name: English
 #     percent: 100
 #   - name: Chinese
 #     percent: 100
-
 # Awards.
 #   Add/remove as many awards below as you like.
 #   Only `title`, `awarder`, and `date` are required.
 #   Begin multi-line `summary` with YAML's `|` or `|2-` multi-line prefix and indent 2 spaces below.
+
 # awards:
 #   - title: Neural Networks and Deep Learning
 #     url: https://www.coursera.org/learn/neural-networks-deep-learning
@@ -140,6 +138,7 @@ skills:
 #     icon: coursera
 #     summary: |
 #       I studied the foundational concept of neural networks and deep learning. By the end, I was familiar with the significant technological trends driving the rise of deep learning; build, train, and apply fully connected deep neural networks; implement efficient (vectorized) neural networks; identify key parameters in a neural network’s architecture; and apply deep learning to your own applications.
+
 #   - title: Blockchain Fundamentals
 #     url: https://www.edx.org/professional-certificate/uc-berkeleyx-blockchain-fundamentals
 #     date: "2023-07-01"
@@ -162,9 +161,4 @@ skills:
 
 ## About Me
 
-I am a second-year Master's student majoring in computer science at [Sun Yat-sen University](https://www.sysu.edu.cn/), currently working with [Prof. Xu Chen](https://sites.google.com/view/xcsysu/home).
-
-My current research interests focus on resource-efficient AI, particularly deploying models on resource-constrained edge devices.
-
-Before pursuing my Master's degree,  I received my B.E. degree from Sun Yat-sen University at [Sun Yat-sen University](https://www.sysu.edu.cn/) advised by [Prof. Yu Chao](https://cse.sysu.edu.cn/content/4883).
-
+I am a second-year Master's student majoring in computer science at [Sun Yat-sen University](https://www.sysu.edu.cn/), currently working with [Prof. Xu Chen](https://sites.google.com/view/xcsysu/home). My current research interests focus on resource-efficient AI, particularly deploying models on resource-constrained edge devices. Before pursuing my Master's degree, I received my B.E. degree from Sun Yat-sen University at [Sun Yat-sen University](https://www.sysu.edu.cn/) advised by [Prof. Yu Chao](https://cse.sysu.edu.cn/content/4883).
