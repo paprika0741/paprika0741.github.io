@@ -161,4 +161,4 @@ skills:
 
 ## About Me
 
-I am a second-year Master's student majoring in computer science at [Sun Yat-sen University](https://www.sysu.edu.cn/), currently working with [Prof. Xu Chen](https://sites.google.com/view/xcsysu/home). My current research interests focus on resource-efficient AI, particularly deploying models on resource-constrained edge devices. Before pursuing my Master's degree, I received my B.E. degree from Sun Yat-sen University at [Sun Yat-sen University](https://www.sysu.edu.cn/) advised by [Prof. Yu Chao](https://cse.sysu.edu.cn/teacher/YuChao).
+I am a second-year Master's student majoring in computer science at [Sun Yat-sen University](https://www.sysu.edu.cn/), currently working with [Prof. Xu Chen](https://sites.google.com/view/xcsysu/home). My current research interests focus on resource-efficient AI, particularly deploying models on resource-constrained edge devices. Before pursuing my Master's degree, I received my B.E. degree from [Sun Yat-sen University](https://www.sysu.edu.cn/) advised by [Prof. Yu Chao](https://cse.sysu.edu.cn/teacher/YuChao).
