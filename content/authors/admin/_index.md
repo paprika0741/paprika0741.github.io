@@ -41,8 +41,8 @@ profiles:
     url: https://github.com/paprika0741
   # - icon: brands/linkedin
   #   url: https://www.linkedin.com/
-  #- icon: academicons/google-scholar
-   # url: https://scholar.google.com/citations?user=d1N4p2sAAAAJ&hl
+  - icon: academicons/google-scholar
+    url: https://scholar.google.com/citations?user=d1N4p2sAAAAJ&hl
   # - icon: academicons/orcid
   #   url: https://orcid.org/
 
