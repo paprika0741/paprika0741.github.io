@@ -23,7 +23,7 @@ author_notes:
   - "Corresponding author"
 
 date: "2024-12-06"
-#doi: "https://doi.org/10.1145/3673038.3673043"
+#doi: "https://arxiv.org/abs/2504.08242"
 
 # Schedule page publish date (NOT publication's date).
 publishDate: "2024-12-06"
@@ -55,8 +55,7 @@ featured: true
 # - name: Custom Link
 #   url: http://example.org
 
-url_pdf: 
-#"https://dl.acm.org/doi/pdf/10.1145/3673038.3673043"
+url_pdf: "https://arxiv.org/pdf/2504.08242"
 url_code: ""
 url_dataset: ""
 url_poster: ""

@@ -23,7 +23,7 @@ author_notes:
   - "Corresponding author"
 
 date: "2025-04-05"
-#doi: "https://doi.org/10.1145/3673038.3673043"
+doi: "10.1109/TIFS.2025.3558593"
 
 # Schedule page publish date (NOT publication's date).
 publishDate: "2024-04-05"
@@ -54,8 +54,7 @@ featured: false
 # - name: Custom Link
 #   url: http://example.org
 
-url_pdf: 
-#"https://dl.acm.org/doi/pdf/10.1145/3673038.3673043"
+url_pdf: "https://ieeexplore.ieee.org/document/10962268"
 url_code: ""
 url_dataset: ""
 url_poster: ""
