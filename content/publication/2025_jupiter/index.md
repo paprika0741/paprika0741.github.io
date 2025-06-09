@@ -55,12 +55,12 @@ featured: true
 # - name: Custom Link
 #   url: http://example.org
 
-url_pdf: "https://arxiv.org/pdf/2504.08242"
+url_pdf:  "https://arxiv.org/pdf/2504.08242"
 url_code: ""
 url_dataset: ""
 url_poster: ""
 url_project: ""
-url_slides: #"PAC_slides.pdf"
+url_slides: # "jupiter_pdf.pdf"
 url_source: ""
 url_video: ""
 

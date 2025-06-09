@@ -5,8 +5,8 @@ title: "Pluto and Charon: A Time and Memory Efficient Collaborative Edge AI Fram
 # If you created a profile for a user (e.g. the default `admin` user), write the username (folder name) here
 # and it will be replaced with their full name and linked to their profile.
 authors:
-  - Bei Ouyang
-  - Shengyuan Ye
+  - Bei Ouyang 
+  - Shengyuan Ye 
   - Liekang Zeng
   - Tianyi Qian
   - Jingyi Li
