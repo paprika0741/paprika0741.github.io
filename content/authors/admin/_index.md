@@ -62,8 +62,7 @@ education:
     date_start: 2019-09-01
     date_end: 2023-06-01
     summary: |
-      GPA: 4.0/4.0  
-      Ranking: 10/172
+      GPA: 4.0/4.0
 
 # work:
 #   - position: Director of Cloud Infrastructure
@@ -89,50 +88,44 @@ education:
 #       - lorem ipsum dolor sit amet, consectetur adipiscing elit
 #       - lorem ipsum dolor sit amet, consectetur adipiscing elit
 
-skills:
-  - name: Technical Skills
-    items:
-      - name: Python
-        description: ""
-        percent: 80
-        icon: code-bracket
-      - name: Pytorch
-        description: ""
-        percent: 100
-        icon: chart-bar
-      - name: SQL
-        description: ""
-        percent: 40
-        icon: circle-stack
-  - name: Hobbies
-    color: "#eeac02"
-    color_border: "#f0bf23"
-    items:
-      - name: TENNIS
-        description: ""
-        percent: 60
-        icon: person-simple-walk
-      - name: Cats
-        description: ""
-        percent: 100
-        icon: cat
-      - name: Photography
-        description: ""
-        percent: 80
-        icon: camera
+# skills:
+# - name: ""
+#   color: "#eeac02"
+#   color_border: "#f0bf23"
+#   items:
+#     - name: Tennis
+#       description: ""
+#       icon: person-simple-walk
+#     - name: Photography
+#       description: ""
+#       icon: camera
 # languages:
 #   - name: English
-#     percent: 100
 #   - name: Chinese
-#     percent: 100
 # Awards.
 #   Add/remove as many awards below as you like.
 #   Only `title`, `awarder`, and `date` are required.
 #   Begin multi-line `summary` with YAML's `|` or `|2-` multi-line prefix and indent 2 spaces below.
 
 # awards:
+#   - title: Tencent Special Scholarship (Top 1%)
+#     date: "2024-11-01"
+#     awarder: Tencent Technology
+
+#   - title: First-Prize Graduate Scholarship
+#     date: "2023-11-01"
+#     awarder: Sun Yat-sen University
+
+#   - title: Second-Prize Undergraduate Scholarship
+#     date: "2021-11-01"
+#     awarder: Sun Yat-sen University
+
+#   - title: First-Prize Undergraduate Scholarship
+#     date: "2020-11-01"
+#     awarder: Sun Yat-sen University
+# # awards:
 #   - title: Neural Networks and Deep Learning
-#     url: https://www.coursera.org/learn/neural-networks-deep-learning
+#     #     url: https://www.coursera.org/learn/neural-networks-deep-learning
 #     date: "2023-11-25"
 #     awarder: Coursera
 #     icon: coursera
@@ -161,4 +154,4 @@ skills:
 
 ## About Me
 
-I am a second-year Master's student majoring in computer science at [Sun Yat-sen University](https://www.sysu.edu.cn/), currently working with [Prof. Xu Chen](https://sites.google.com/view/xcsysu/home). My current research interests focus on resource-efficient AI, particularly deploying models on resource-constrained edge devices. Before pursuing my Master's degree, I received my B.E. degree from [Sun Yat-sen University](https://www.sysu.edu.cn/) advised by [Prof. Yu Chao](https://cse.sysu.edu.cn/teacher/YuChao).
+I am a third-year Master's student majoring in computer science at [Sun Yat-sen University](https://www.sysu.edu.cn/), currently working with [Prof. Xu Chen](https://sites.google.com/view/xcsysu/home). My current research interests focus on resource-efficient AI, particularly deploying models on resource-constrained edge devices. Before pursuing my Master's degree, I received my B.E. degree from [Sun Yat-sen University](https://www.sysu.edu.cn/) advised by [Prof. Yu Chao](https://cse.sysu.edu.cn/teacher/YuChao).
