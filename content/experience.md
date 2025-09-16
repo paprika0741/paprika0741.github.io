@@ -41,7 +41,7 @@ sections:
     content:
       title: Hobbies
       text: |
-        🎾 **Tennis**  📸 **Photography** 🍕 **Foods**
+        🎾 **Tennis**  📸 **Photography**  🍕 **Foods** 😪
 
   # - block: resume-skills
   #   content:
