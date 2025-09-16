@@ -31,15 +31,10 @@ sections:
     content:
       title: Honors & Awards
       text: |
-        - **Tencent Special Scholarship (Top 1%)**
-          - Tencent Technology, 2024
-        - **First-Prize Graduate Scholarship**
-          - Sun Yat-sen University, 2023, 2024, 2025
-        - **Second-Prize Undergraduate Scholarship**
-          - Sun Yat-sen University, 2021, 2022
-        - **First-Prize Undergraduate Scholarship**
-          - Sun Yat-sen University, 2020
-  
+        - **Tencent Special Scholarship (Top 1%)**, Tencent Technology, 2024  
+        - **First-Prize Graduate Scholarship**, Sun Yat-sen University, 2023–2025  
+        - **Second-Prize Undergraduate Scholarship**, Sun Yat-sen University, 2021–2022  
+        - **First-Prize Undergraduate Scholarship**, Sun Yat-sen University, 2020
 
 
   - block: markdown
