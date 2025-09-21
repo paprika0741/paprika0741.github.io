@@ -31,6 +31,7 @@ sections:
     content:
       title: Honors & Awards
       text: |
+        - **National Scholarship (Top 1%)**, Ministry of Education of PRC, 2025
         - **Tencent Special Scholarship (Top 1%)**, Tencent Technology, 2024  
         - **First-Prize Graduate Scholarship**, Sun Yat-sen University, 2023–2025  
         - **Second-Prize Undergraduate Scholarship**, Sun Yat-sen University, 2021–2022  
