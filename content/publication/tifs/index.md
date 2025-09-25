@@ -54,7 +54,7 @@ featured: false
 # - name: Custom Link
 #   url: http://example.org
 
-url_pdf: "https://ieeexplore.ieee.org/document/10962268"
+url_pdf: "publication/tifs/tifs.pdf"
 url_code: ""
 url_dataset: ""
 url_poster: ""

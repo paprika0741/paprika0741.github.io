@@ -23,7 +23,7 @@ author_notes:
   - "Corresponding author"
 
 date: "2024-12-06"
-#doi: "https://arxiv.org/abs/2504.08242"
+doi: "10.1109/INFOCOM55648.2025.11044734"
 
 # Schedule page publish date (NOT publication's date).
 publishDate: "2024-12-06"
@@ -40,8 +40,8 @@ publication_short: In *INFOCOM'25*
 abstract: Generative large language models (LLMs) have garnered significant attention due to their exceptional capabilities in various AI tasks. Traditionally deployed in cloud datacenters, LLMs are now increasingly moving towards more accessible edge platforms to protect sensitive user data and ensure privacy preservation. The limited computational resources of individual edge devices, however, can result in excessively prolonged inference latency and overwhelmed memory usage. While existing research has explored collaborative edge computing to break the resource wall of individual devices, these solutions yet suffer from massive communication overhead and under-utilization of edge resources. Furthermore, they focus exclusively on optimizing the prefill phase, neglecting the crucial autoregressive decoding phase for generative LLMs. To address that, we propose Jupiter, a fast, scalable, and resource-efficient collaborative edge AI system for generative LLM inference. Jupiter introduces a flexible pipelined architecture as a principle and differentiates its system design according to the differentiated characteristics of the prefill and decoding phases. For prefilling, Jupiter submits a novel intra-sequence pipeline parallelism and develops a meticulous parallelism planning strategy to maximize resource efficiency; For decoding, Jupiter devises an effective outlinebased pipeline parallel decoding mechanism combined with speculative decoding, which further magnifies inference acceleration. Extensive evaluation based on realistic implementation demonstrates that Jupiter remarkably outperforms state-of-the-art approaches under various edge environment setups, achieving up to 26.1× end-to-end latency reduction while rendering on-par generation quality. Meanwhile, Jupiter demonstrates substantial scalability even under bandwidth-limited edge environments.
 
 # Summary. An optional shortened abstract.
-summary:  Shengyuan Ye , Bei Ouyang ,Liekang Zeng, Tianyi Qian, Xiaowen Chu, Jian Tang, Xu Chen<sup>&#8224; 
- 
+summary: Shengyuan Ye , Bei Ouyang ,Liekang Zeng, Tianyi Qian, Xiaowen Chu, Jian Tang, Xu Chen<sup>&#8224;
+
 tags:
   - Large Language Models
   - Edge intelligence
@@ -55,7 +55,7 @@ featured: true
 # - name: Custom Link
 #   url: http://example.org
 
-url_pdf:  "https://arxiv.org/pdf/2504.08242"
+url_pdf: "publication/2025_jupiter/jupiter_pdf.pdf"
 url_code: ""
 url_dataset: ""
 url_poster: ""
@@ -96,5 +96,3 @@ Create your slides in Markdown - click the _Slides_ button to check out the exam
 {{% /callout %}}
 
 Add the publication's **full text** or **supplementary notes** here. You can use rich formatting such as including [code, math, and images](https://docs.hugoblox.com/content/writing-markdown-latex/). -->
-
- 
