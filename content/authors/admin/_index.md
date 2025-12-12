@@ -56,13 +56,13 @@ education:
     date_start: 2023-09-01
     date_end: 2026-06-01
     summary: |
-      GPA: 4.0/4.0
+      GPA: 91/100
   - area: B.E. in Computer Science
     institution: Sun Yat-sen University
     date_start: 2019-09-01
     date_end: 2023-06-01
     summary: |
-      GPA: 4.0/4.0
+      GPA: 92/100
 
 # work:
 #   - position: Director of Cloud Infrastructure
@@ -154,4 +154,4 @@ education:
 
 ## About Me
 
-I am a third-year Master's student majoring in computer science at [Sun Yat-sen University](https://www.sysu.edu.cn/), currently working with [Prof. Xu Chen](https://sites.google.com/view/xcsysu/home). My current research interests focus on resource-efficient AI, particularly deploying models on resource-constrained edge devices. Before pursuing my Master's degree, I received my B.E. degree from [Sun Yat-sen University](https://www.sysu.edu.cn/) advised by [Prof. Yu Chao](https://cse.sysu.edu.cn/teacher/YuChao).
+I am a last-year Master's student majoring in computer science at [Sun Yat-sen University](https://www.sysu.edu.cn/), currently working with [Prof. Xu Chen](https://sites.google.com/view/xcsysu/home). My current research interests focus on resource-efficient AI, particularly deploying models on resource-constrained edge devices. Before pursuing my Master's degree, I received my B.E. degree from [Sun Yat-sen University](https://www.sysu.edu.cn/) advised by [Prof. Yu Chao](https://cse.sysu.edu.cn/teacher/YuChao).
